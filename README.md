@@ -81,13 +81,13 @@ input lines will start a thread to execute in loop
  Thread-1   1006ms: 10-JAN 08:18:22 pid:     5931    host:   172.159.19.128 aws.eu-west-1.eu-west-1a    primary
 ```
 
-As I called a 1000 milliseconds wait, the latency is visible by subtracting 1000 milliseconds to the response time: between 7 and 8 milliseconds between Availability Zones, except the first ones after connection, in hundreds of millisecond. This is why we use a connection pool, and can se 
+As I called a 1000 milliseconds `pg_sleep`, the call latency is visible by subtracting 1000 milliseconds to the response time: between 7 and 8 milliseconds between Availability Zones, except the first ones after connection, in hundreds of millisecond. This is why we use a connection pool, and can se 
 
 If you defined a short duration for re-reconnecting, like this 300s with `maxLifetime=300000`, you will see the pid and host change after 5 minutes. This helps to re-balance the load when nodes are added (and automatically discovered by the Smart Driver)
 
 ## Retriable failures
 
-If one node is down for planned operation, like rolling upgrade, or unplanned outage, the error is detected but all application threads can continue:
+If one node is down for planned operation, like rolling upgrade, or unplanned outage, like AZ or region failure, the error is detected but all application threads can continue:
 ```
  Thread-3   1007ms: 10-JAN 08:35:14 pid:    10433    host:   172.159.43.191 aws.eu-west-1.eu-west-1b    primary
  Thread-1   1008ms: 10-JAN 08:35:15 pid:    10318    host:    172.159.56.80 aws.eu-west-1.eu-west-1c    primary
@@ -120,7 +120,7 @@ com.yugabyte.util.PSQLException: FATAL: terminating connection due to administra
  Thread-2   1006ms: 10-JAN 08:35:19 pid:    11791    host:   172.159.19.128 aws.eu-west-1.eu-west-1a    primary
  Thread-3   1008ms: 10-JAN 08:35:19 pid:    10433    host:   172.159.43.191 aws.eu-west-1.eu-west-1b    primary
 ```
-Here Thread-1 was connected to host 172.159.56.80 which failed, and has re-connected to 172.159.43.191 immediately, in hundreds of milliseconds. The other threads go no interruption at all.
+Here Thread-1 was connected to host 172.159.56.80 which crashed, and this thread has re-connected to 172.159.43.191 immediately, within hundreds of milliseconds. The other threads go with no interruption at all.
 
 ## Cluster Topology
 

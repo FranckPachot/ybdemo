@@ -123,3 +123,20 @@ com.yugabyte.util.PSQLException: FATAL: terminating connection due to administra
 Here Thread-1 was connected to host 172.159.56.80 which failed, and has re-connected to 172.159.43.191 immediately, in hundreds of milliseconds. The other threads go no interruption at all.
 
 ## cluster topology
+
+By default, the driver load-balances to all nodes. This can be restricted with `topology-keys` parameter, in the JDBC url, like this: `&topology-keys=aws.eu-west-1.eu-west-1a,aws.eu-west-1.eu-west-1b` if you want to connect only to those two Availability Zones
+
+## Quick Run
+
+Get the .jar and example .properties:
+```
+wget -c -O YBDemo.jar https://github.com/FranckPachot/ybdemo/releases/download/v0.0.1/YBDemo-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+wget -c -O hikari.properties https://raw.githubusercontent.com/FranckPachot/ybdemo/main/hikari.properties
+for i in {1..3} ; do echo "execute ybdemo(1000)" ; done | java -jar YBDemo.jar
+```
+Change the connection string to your YugabyteDB database and run it:
+```
+for i in {1..3} ; do echo "execute ybdemo(1000)" ; done | java -jar YBDemo.jar
+```
+
+

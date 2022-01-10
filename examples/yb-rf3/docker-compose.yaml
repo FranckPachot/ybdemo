@@ -1,0 +1,107 @@
+version: '2'
+services:
+  yb-master-0:
+      image: yugabytedb/yugabyte:latest
+      container_name: yb-master-0
+      hostname: yb-master-0
+      command: [ "/home/yugabyte/bin/yb-master",
+                "--fs_data_dirs=/home/yugabyte/data",
+                "--master_addresses=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
+                "--replication_factor=3"]
+      ports:
+      - "7000:7000"
+  yb-master-1:
+      image: yugabytedb/yugabyte:latest
+      container_name: yb-master-1
+      hostname: yb-master-1
+      command: [ "/home/yugabyte/bin/yb-master",
+                "--fs_data_dirs=/home/yugabyte/data",
+                "--master_addresses=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
+                "--replication_factor=3"]
+      ports:
+      - "7001:7000"
+  yb-master-2:
+      image: yugabytedb/yugabyte:latest
+      container_name: yb-master-2
+      hostname: yb-master-2
+      command: [ "/home/yugabyte/bin/yb-master",
+                "--fs_data_dirs=/home/yugabyte/data",
+                "--master_addresses=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
+                "--replication_factor=3"]
+      ports:
+      - "7002:7000"
+  yb-tserver-0:
+      image: yugabytedb/yugabyte:latest
+      container_name: yb-tserver-0
+      hostname: yb-tserver-0
+      command: [ "/home/yugabyte/bin/yb-tserver",
+                "--fs_data_dirs=/home/yugabyte/data",
+                "--enable_ysql=true",
+                "--tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
+                "--replication_factor=3"]
+      ports:
+      - "9000:9000"
+      #- "13000:13000"
+      - "5430:5433"
+      depends_on:
+      - yb-master
+  yb-tserver-1:
+      image: yugabytedb/yugabyte:latest
+      container_name: yb-tserver-1
+      hostname: yb-tserver-1
+      command: [ "/home/yugabyte/bin/yb-tserver",
+                "--fs_data_dirs=/home/yugabyte/data",
+                "--enable_ysql=true",
+                "--tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
+                "--replication_factor=3"]
+      ports:
+      - "9001:9000"
+      #- "13001:13000"
+      - "5431:5433"
+      depends_on:
+      - yb-master
+  yb-tserver-2:
+      image: yugabytedb/yugabyte:latest
+      container_name: yb-tserver-2
+      hostname: yb-tserver-2
+      command: [ "/home/yugabyte/bin/yb-tserver",
+                "--fs_data_dirs=/home/yugabyte/data",
+                "--enable_ysql=true",
+                "--tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
+                "--replication_factor=3"]
+      ports:
+      - "9002:9000"
+      #- "13002:13000"
+      - "5432:5433"
+      depends_on:
+      - yb-master
+  yb-tserver-3:
+      image: yugabytedb/yugabyte:latest
+      container_name: yb-tserver-3
+      hostname: yb-tserver-3
+      command: [ "/home/yugabyte/bin/yb-tserver",
+                "--fs_data_dirs=/home/yugabyte/data",
+                "--enable_ysql=true",
+                "--tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
+                "--replication_factor=3"]
+      ports:
+      - "9003:9000"
+      #- "13003:13000"
+      - "5433:5433"
+      depends_on:
+      - yb-master
+  yb-tserver-4:
+      image: yugabytedb/yugabyte:latest
+      container_name: yb-tserver-4
+      hostname: yb-tserver-4
+      command: [ "/home/yugabyte/bin/yb-tserver",
+                "--fs_data_dirs=/home/yugabyte/data",
+                "--enable_ysql=true",
+                "--tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
+                "--replication_factor=3"]
+      ports:
+      - "9004:9000"
+      #- "13004:13000"
+      - "5434:5433"
+      depends_on:
+      - yb-master

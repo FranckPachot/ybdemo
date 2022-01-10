@@ -132,7 +132,6 @@ Get the .jar and example .properties:
 ```
 wget -c -O YBDemo.jar https://github.com/FranckPachot/ybdemo/releases/download/v0.0.1/YBDemo-0.0.1-SNAPSHOT-jar-with-dependencies.jar
 wget -c -O hikari.properties https://raw.githubusercontent.com/FranckPachot/ybdemo/main/hikari.properties
-for i in {1..3} ; do echo "execute ybdemo(1000)" ; done | java -jar YBDemo.jar
 ```
 Change the connection string to your YugabyteDB database and run it:
 ```

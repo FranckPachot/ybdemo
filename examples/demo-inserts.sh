@@ -11,7 +11,7 @@ maximumPoolSize=6
 maxLifetime=300000
 idleTimeout=120000
 autoCommit=true
-connectionInitSql=create table if not exists ybdemo(id bigint generated always as identity, ts timestamptz default now(), pid int default pg_backend_pid(), host text default host(inet_server_addr()), message text); prepare insert(text) as insert into ybdemo(message) values ('\$1') returning format('%20s %s %s %s %s','',ts,pid,host,message);
+connectionInitSql=create table if not exists ybdemo(id bigint generated always as identity, ts timestamptz default now(), pid int default pg_backend_pid(), host text default host(inet_server_addr()), message text); prepare insert(text) as insert into ybdemo(message) values ('$1') returning format('%20s %s %s %s %s','',ts,pid,host,message);
 autoCommit=true
 CAT
 java -jar YBDemo.jar <<'SQL'
@@ -19,5 +19,6 @@ execute insert('hello');
 execute insert('hola');
 execute insert('bonjour');
 select format('%12s rows/s',to_char(count(*)/extract(epoch from max(ts)-min(ts)),'99999999.99')) from ybdemo;
+delete from ybdemo where ts>now()-interval'1 minute';
 SQL
 EXEC

@@ -138,4 +138,5 @@ Change the connection string to your YugabyteDB database and run it:
 for i in {1..3} ; do echo "execute ybdemo(1000)" ; done | java -jar YBDemo.jar
 ```
 
+Or use it interactively entering the statements that you want to run, one line command per thread.
 

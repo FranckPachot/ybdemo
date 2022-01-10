@@ -36,10 +36,12 @@ public class YBDemo extends Thread {
    public static void main(String[] args) throws SQLException , InterruptedException {
      HikariConfig config = new HikariConfig( "hikari.properties" );
      HikariDataSource ds = new HikariDataSource ( config );
-     System.out.println("--------------------------------------------------");
-     System.out.println("sql executed in each new connection:");
-     System.out.println("--------------------------------------------------");
-     System.out.println(ds.getConnectionInitSql().toString());
+     if (ds.getConnectionInitSql() != null) {
+      System.out.println("--------------------------------------------------");
+      System.out.println("sql executed in each new connection:");
+      System.out.println("--------------------------------------------------");
+      System.out.println(ds.getConnectionInitSql().toString());
+     }
      System.out.println("--------------------------------------------------");
      YBDemo thread;
      Scanner input = new Scanner(System.in);

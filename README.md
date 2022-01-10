@@ -1,19 +1,19 @@
 # YBDemo
 
-YBDemo is a simple Java programs that creates an [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool from the ¨hikari.properties` and talke SQL statements to execute as lines from stdin. 
+YBDemo is a simple Java program that creates an [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool from the ¨hikari.properties` file and takes SQL statements to execute as lines from stdin. 
 
-Each line will start a thread to execute the SQL statement in a loop.
+Each line will start a thread to execute the line content as a SQL statement, in a loop.
 
 Errors stop the threads except the following that will be retried:
 
-- SQLSTATE 08xxx: Connection Exception   -> reconnect when on a distributed SQL database
-- SQLSTATE 40xxx: Transaction Rollback   -> retry when on a distributed SQL database
-- SQLSTATE 53xxx: Insufficient Resources -> reconnect when on a distributed SQL database
-- SQLSTATE 57xxx: Operator Intervention  -> reconnect when on a distributed SQL database
+- SQLSTATE 08xxx: Connection Exception
+- SQLSTATE 40xxx: Transaction Rollback
+- SQLSTATE 53xxx: Insufficient Resources
+- SQLSTATE 57xxx: Operator Intervention
+
+The primary purpose is to this program on [YugabyteDB](https://www.yugabyte.com), the open-source SQL distributed database, which is still available when a node is down. This is why those errors allow immediate retry.
 
 ## YugabyteDB 
-
-The primary purpose is to use it on [YugabyteDB](https://www.yugabyte.com), an open-source SQL distributed database, which is still available when a node is done.
 
 With the YugabyteDB Smart Driver (`YBClusterAwareDataSource`) there is only the need to define one endpoint (or a list to try in order) and other nodes will be discovered dynamically. Here is an example:
 ```
@@ -122,11 +122,11 @@ com.yugabyte.util.PSQLException: FATAL: terminating connection due to administra
 ```
 Here Thread-1 was connected to host 172.159.56.80 which failed, and has re-connected to 172.159.43.191 immediately, in hundreds of milliseconds. The other threads go no interruption at all.
 
-## cluster topology
+## Cluster Topology
 
 By default, the driver load-balances to all nodes. This can be restricted with `topology-keys` parameter, in the JDBC url, like this: `&topology-keys=aws.eu-west-1.eu-west-1a,aws.eu-west-1.eu-west-1b` if you want to connect only to those two Availability Zones
 
-## Quick Run
+## Quick Start
 
 Get the .jar and example .properties:
 ```

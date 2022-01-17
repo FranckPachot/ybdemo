@@ -1,0 +1,77 @@
+
+version: '2'
+
+services:
+
+
+  yb-master-0:
+      image: yugabytedb/yugabyte:latest
+      container_name: yb-master-0
+      hostname: yb-master-0
+      command: [ "/home/yugabyte/bin/yb-master",
+                "--fs_data_dirs=/home/yugabyte/data",
+                "--placement_cloud=cloud",
+                "--placement_region=region",
+                "--placement_zone=zone1",
+                "--master_addresses=yb-master-0:7100",
+                "--replication_factor=1"]
+      ports:
+      - "7000:7000"
+
+
+  yb-tserver-0:
+      image: yugabytedb/yugabyte:latest
+      container_name: yb-tserver-0
+      hostname: yb-tserver-0
+      command: [ "/home/yugabyte/bin/yb-tserver",
+                "--placement_cloud=cloud",
+                "--placement_region=region",
+                "--placement_zone=zone1",
+                "--enable_ysql=true",
+                "--fs_data_dirs=/home/yugabyte/data",
+                "--tserver_master_addrs=yb-master-0:7100",
+                "--replication_factor=1"]
+      ports:
+      - "9000:9000"
+      - "5433:5433"
+      depends_on:
+      - yb-master-0
+
+
+  yb-tserver-1:
+      image: yugabytedb/yugabyte:latest
+      container_name: yb-tserver-1
+      hostname: yb-tserver-1
+      command: [ "/home/yugabyte/bin/yb-tserver",
+                "--placement_cloud=cloud",
+                "--placement_region=region",
+                "--placement_zone=zone2",
+                "--enable_ysql=true",
+                "--fs_data_dirs=/home/yugabyte/data",
+                "--tserver_master_addrs=yb-master-0:7100",
+                "--replication_factor=1"]
+      ports:
+      - "9001:9000"
+      - "5434:5433"
+      depends_on:
+      - yb-master-0
+
+
+  yb-tserver-2:
+      image: yugabytedb/yugabyte:latest
+      container_name: yb-tserver-2
+      hostname: yb-tserver-2
+      command: [ "/home/yugabyte/bin/yb-tserver",
+                "--placement_cloud=cloud",
+                "--placement_region=region",
+                "--placement_zone=zone3",
+                "--enable_ysql=true",
+                "--fs_data_dirs=/home/yugabyte/data",
+                "--tserver_master_addrs=yb-master-0:7100",
+                "--replication_factor=1"]
+      ports:
+      - "9002:9000"
+      - "5435:5433"
+      depends_on:
+      - yb-master-0
+

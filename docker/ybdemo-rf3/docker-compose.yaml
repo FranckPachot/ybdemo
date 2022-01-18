@@ -7,11 +7,11 @@ services:
       image: yugabytedb/yugabyte:latest
       volumes:
           - ./client:/home/yugabyte/client
-      command: ["bash","client/ybdemo.sh"]
+      command: ["bash","client/ybdemo.sh","run"]
       deploy:
           replicas: 3
       depends_on:
-      - yb-tserver-0
+      - yb-tserver-16
 
 
   yb-master-0:

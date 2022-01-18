@@ -36,7 +36,7 @@ number_of_masters=$replication_factor
 
 {
 
-cat <<'CAT'
+cat <<CAT
 
 version: '2'
 
@@ -46,7 +46,7 @@ services:
       image: yugabytedb/yugabyte:latest
       volumes:
           - ./client:/home/yugabyte/client
-      command: ["bash","client/ybdemo.sh"]
+      command: ["bash","client/ybdemo.sh","run"]
       deploy:
           replicas: 3
       depends_on:

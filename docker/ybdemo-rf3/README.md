@@ -1,18 +1,7 @@
-run `gen-yb-docker-compose.sh` to create a cluster (the settings are defined in the script)
+run `gen-yb-docker-compose.sh` to generate a `docker-compose.yaml` in the current directory, to create a cluster with the settings are defined in the generation script
 
 check the cluster on http://localhost:7000/tablet-servers
 
-see demo app logs like `docker logs ybdemo-rf3_yb-demo_1`
+see demo app logs like `docker logs ybdemo-rf3_yb-demo_1`. It runs on thread for each line in `client/ybdemo.sql` connecting with settings in `hikari.properties`. The default displays info about the currently connected session, every 1 second.
 
-look at where a thread is connected
-
-stop that node `docker stop yb-tserver-6`
-
-see it continuing
-
-```
- docker logs ybdemo-rf3_yb-demo_2 | grep Thread-5
- docker exec -it ybdemo-rf3_yb-demo_2 host 192.168.96.7
- docker stop yb-tserver-6
-
-```
+Look at where a thread is connected, stop that node, like with `docker stop yb-tserver-6` and check application continuity, new leader election in the console, new connection from the pool. Restart the node, and see how it re-balances.

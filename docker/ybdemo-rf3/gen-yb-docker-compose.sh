@@ -1,4 +1,4 @@
-docker-compose rm
+docker-compose down
 
 ####################################################################
 # creates a docker-compose.yaml to build a RF=$replication_factor 

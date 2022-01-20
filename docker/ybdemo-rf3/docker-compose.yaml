@@ -11,7 +11,7 @@ services:
       deploy:
           replicas: 3
       depends_on:
-      - yb-tserver-16
+      - yb-tserver-0
 
 
   yb-master-0:
@@ -39,6 +39,7 @@ services:
                 "--placement_region=region1",
                 "--placement_zone=zone1",
                 "--enable_ysql=true",
+                "--placement_uuid=live",
                 "--fs_data_dirs=/home/yugabyte/data",
                 "--rpc_bind_addresses=yb-tserver-0:9100",
                 "--tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
@@ -77,6 +78,7 @@ services:
                 "--placement_region=region1",
                 "--placement_zone=zone1",
                 "--enable_ysql=true",
+                "--placement_uuid=live",
                 "--fs_data_dirs=/home/yugabyte/data",
                 "--rpc_bind_addresses=yb-tserver-1:9100",
                 "--tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
@@ -115,6 +117,7 @@ services:
                 "--placement_region=region2",
                 "--placement_zone=zone1",
                 "--enable_ysql=true",
+                "--placement_uuid=live",
                 "--fs_data_dirs=/home/yugabyte/data",
                 "--rpc_bind_addresses=yb-tserver-2:9100",
                 "--tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
@@ -135,6 +138,7 @@ services:
                 "--placement_region=region2",
                 "--placement_zone=zone1",
                 "--enable_ysql=true",
+                "--placement_uuid=live",
                 "--fs_data_dirs=/home/yugabyte/data",
                 "--rpc_bind_addresses=yb-tserver-3:9100",
                 "--tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
@@ -155,6 +159,7 @@ services:
                 "--placement_region=region1",
                 "--placement_zone=zone2",
                 "--enable_ysql=true",
+                "--placement_uuid=live",
                 "--fs_data_dirs=/home/yugabyte/data",
                 "--rpc_bind_addresses=yb-tserver-4:9100",
                 "--tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
@@ -165,7 +170,6 @@ services:
       depends_on:
       - yb-master-2
 
-
   yb-tserver-5:
       image: yugabytedb/yugabyte:latest
       container_name: yb-tserver-5
@@ -175,8 +179,9 @@ services:
                 "--placement_region=region1",
                 "--placement_zone=zone2",
                 "--enable_ysql=true",
+                "--placement_uuid=ro",
                 "--fs_data_dirs=/home/yugabyte/data",
-                "--rpc_bind_addresses=yb-tserver-5:9100",
+                "--rpc_bind_addresses=yb-tserver-4:9100",
                 "--tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
                 "--replication_factor=3"]
       ports:
@@ -184,204 +189,3 @@ services:
       - "5438:5433"
       depends_on:
       - yb-master-2
-
-
-  yb-tserver-6:
-      image: yugabytedb/yugabyte:latest
-      container_name: yb-tserver-6
-      hostname: yb-tserver-6
-      command: [ "/home/yugabyte/bin/yb-tserver",
-                "--placement_cloud=cloud1",
-                "--placement_region=region2",
-                "--placement_zone=zone2",
-                "--enable_ysql=true",
-                "--fs_data_dirs=/home/yugabyte/data",
-                "--rpc_bind_addresses=yb-tserver-6:9100",
-                "--tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
-                "--replication_factor=3"]
-      ports:
-      - "9006:9000"
-      - "5439:5433"
-      depends_on:
-      - yb-master-2
-
-
-  yb-tserver-7:
-      image: yugabytedb/yugabyte:latest
-      container_name: yb-tserver-7
-      hostname: yb-tserver-7
-      command: [ "/home/yugabyte/bin/yb-tserver",
-                "--placement_cloud=cloud2",
-                "--placement_region=region2",
-                "--placement_zone=zone2",
-                "--enable_ysql=true",
-                "--fs_data_dirs=/home/yugabyte/data",
-                "--rpc_bind_addresses=yb-tserver-7:9100",
-                "--tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
-                "--replication_factor=3"]
-      ports:
-      - "9007:9000"
-      - "5440:5433"
-      depends_on:
-      - yb-master-2
-
-
-  yb-tserver-8:
-      image: yugabytedb/yugabyte:latest
-      container_name: yb-tserver-8
-      hostname: yb-tserver-8
-      command: [ "/home/yugabyte/bin/yb-tserver",
-                "--placement_cloud=cloud1",
-                "--placement_region=region1",
-                "--placement_zone=zone1",
-                "--enable_ysql=true",
-                "--fs_data_dirs=/home/yugabyte/data",
-                "--rpc_bind_addresses=yb-tserver-8:9100",
-                "--tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
-                "--replication_factor=3"]
-      ports:
-      - "9008:9000"
-      - "5441:5433"
-      depends_on:
-      - yb-master-2
-
-
-  yb-tserver-9:
-      image: yugabytedb/yugabyte:latest
-      container_name: yb-tserver-9
-      hostname: yb-tserver-9
-      command: [ "/home/yugabyte/bin/yb-tserver",
-                "--placement_cloud=cloud2",
-                "--placement_region=region1",
-                "--placement_zone=zone1",
-                "--enable_ysql=true",
-                "--fs_data_dirs=/home/yugabyte/data",
-                "--rpc_bind_addresses=yb-tserver-9:9100",
-                "--tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
-                "--replication_factor=3"]
-      ports:
-      - "9009:9000"
-      - "5442:5433"
-      depends_on:
-      - yb-master-2
-
-
-  yb-tserver-10:
-      image: yugabytedb/yugabyte:latest
-      container_name: yb-tserver-10
-      hostname: yb-tserver-10
-      command: [ "/home/yugabyte/bin/yb-tserver",
-                "--placement_cloud=cloud1",
-                "--placement_region=region2",
-                "--placement_zone=zone1",
-                "--enable_ysql=true",
-                "--fs_data_dirs=/home/yugabyte/data",
-                "--rpc_bind_addresses=yb-tserver-10:9100",
-                "--tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
-                "--replication_factor=3"]
-      ports:
-      - "9010:9000"
-      - "5443:5433"
-      depends_on:
-      - yb-master-2
-
-
-  yb-tserver-11:
-      image: yugabytedb/yugabyte:latest
-      container_name: yb-tserver-11
-      hostname: yb-tserver-11
-      command: [ "/home/yugabyte/bin/yb-tserver",
-                "--placement_cloud=cloud2",
-                "--placement_region=region2",
-                "--placement_zone=zone1",
-                "--enable_ysql=true",
-                "--fs_data_dirs=/home/yugabyte/data",
-                "--rpc_bind_addresses=yb-tserver-11:9100",
-                "--tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
-                "--replication_factor=3"]
-      ports:
-      - "9011:9000"
-      - "5444:5433"
-      depends_on:
-      - yb-master-2
-
-
-  yb-tserver-12:
-      image: yugabytedb/yugabyte:latest
-      container_name: yb-tserver-12
-      hostname: yb-tserver-12
-      command: [ "/home/yugabyte/bin/yb-tserver",
-                "--placement_cloud=cloud1",
-                "--placement_region=region1",
-                "--placement_zone=zone2",
-                "--enable_ysql=true",
-                "--fs_data_dirs=/home/yugabyte/data",
-                "--rpc_bind_addresses=yb-tserver-12:9100",
-                "--tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
-                "--replication_factor=3"]
-      ports:
-      - "9012:9000"
-      - "5445:5433"
-      depends_on:
-      - yb-master-2
-
-
-  yb-tserver-13:
-      image: yugabytedb/yugabyte:latest
-      container_name: yb-tserver-13
-      hostname: yb-tserver-13
-      command: [ "/home/yugabyte/bin/yb-tserver",
-                "--placement_cloud=cloud2",
-                "--placement_region=region1",
-                "--placement_zone=zone2",
-                "--enable_ysql=true",
-                "--fs_data_dirs=/home/yugabyte/data",
-                "--rpc_bind_addresses=yb-tserver-13:9100",
-                "--tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
-                "--replication_factor=3"]
-      ports:
-      - "9013:9000"
-      - "5446:5433"
-      depends_on:
-      - yb-master-2
-
-
-  yb-tserver-14:
-      image: yugabytedb/yugabyte:latest
-      container_name: yb-tserver-14
-      hostname: yb-tserver-14
-      command: [ "/home/yugabyte/bin/yb-tserver",
-                "--placement_cloud=cloud1",
-                "--placement_region=region2",
-                "--placement_zone=zone2",
-                "--enable_ysql=true",
-                "--fs_data_dirs=/home/yugabyte/data",
-                "--rpc_bind_addresses=yb-tserver-14:9100",
-                "--tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
-                "--replication_factor=3"]
-      ports:
-      - "9014:9000"
-      - "5447:5433"
-      depends_on:
-      - yb-master-2
-
-
-  yb-tserver-15:
-      image: yugabytedb/yugabyte:latest
-      container_name: yb-tserver-15
-      hostname: yb-tserver-15
-      command: [ "/home/yugabyte/bin/yb-tserver",
-                "--placement_cloud=cloud2",
-                "--placement_region=region2",
-                "--placement_zone=zone2",
-                "--enable_ysql=true",
-                "--fs_data_dirs=/home/yugabyte/data",
-                "--rpc_bind_addresses=yb-tserver-15:9100",
-                "--tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100",
-                "--replication_factor=3"]
-      ports:
-      - "9015:9000"
-      - "5448:5433"
-      depends_on:
-      - yb-master-2
-

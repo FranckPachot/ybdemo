@@ -4,7 +4,7 @@ This generates a `docker-compose.yaml` to test multi-cloud, multi-region, multi-
 
 1. run `gen-yb-docker-compose.sh` to generate a `docker-compose.yaml` in the current directory, and start it. This creates a cluster with the settings are defined in the generation script:
  - the tservers will be created from yb-tserver-0 to get the number defined in `$number_of_tservers`
- - they will be distributed into `$list_of_clouds, `$list_of_regions, `$list_of_zones
+ - they will be distributed into `$list_of_clouds`, `$list_of_regions`, `$list_of_zones`
  - the cloud.region.zone matching `$read_replica_regexp` will be read only (read replicas callsed 'ro')
  - master are created first, the number coming from `$replication_factor`
  - once the masters are created, `cluster-config` will set the primary and read replica topology. You can look at its log to check it

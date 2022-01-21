@@ -18,5 +18,26 @@ In order to play with High Availability, look at where a thread is connected, st
 
 you can go to any node with something like `docker exec -it yb-lab_yb-demo_1 bash` and use `ysqlsh` like you would use `psql`. You can also connect to a node (the 5433 port from yb-tserver-0 is redirected from localhost:5433, yb-tserver-2 from 5434...)
 
+## Screenshots
+
+When started:
+
+![image](https://user-images.githubusercontent.com/33070466/150541470-7c47c3cf-82c0-49a8-8d37-645059aefe1c.png)
+
+List of containers:
+
+![image](https://user-images.githubusercontent.com/33070466/150541577-065967bc-4069-4eed-b939-3ac9a7d45bd5.png)
+
+Cluster configuration from the logs of yb-lab_cluster-config:
+
+![image](https://user-images.githubusercontent.com/33070466/150541630-c15da94d-e2a2-4492-a95c-0502d34109c2.png)
+
+Smart driver demo:
+
+![image](https://user-images.githubusercontent.com/33070466/150541806-2fba911b-c565-4cfc-a3f1-8edac6a3084d.png)
+
+List of servers:
+
+![image](https://user-images.githubusercontent.com/33070466/150541890-b67e2540-9526-41fa-81a0-206831deb30a.png)
 
 

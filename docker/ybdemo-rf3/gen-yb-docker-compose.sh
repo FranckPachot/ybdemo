@@ -28,6 +28,7 @@ list_of_clouds="cloud1 cloud2"
 list_of_regions="region1 region2"
 list_of_zones="zone1 zone2"
 number_of_tservers=8
+number_of_read_replicas=4
 
 
 
@@ -80,6 +81,7 @@ cat <<CAT
       hostname: yb-master-$master
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
+                /home/yugabyte/bin/yb-master 
                 --fs_data_dirs=/home/yugabyte/data
                 --placement_cloud=$cloud
                 --placement_region=$region
@@ -104,6 +106,22 @@ master_depends="\
 # generate tserver service
 [ $tserver -le $(( $number_of_tservers - 1 )) ] && { 
 
+if [ $tserver -lt $(( $number_of_tservers - $number_of_read_replicas )) ]
+then
+uuid=rw
+tserver_rw="
+$tserver_rw
+$cloud.$region.$zone
+"
+else
+uuid=ro
+tserver_ro="
+$tserver_ro
+$cloud.$region.$zone:1
+"
+fi
+
+
 cat <<CAT
 
   yb-tserver-$tserver:
@@ -116,6 +134,7 @@ cat <<CAT
                 --placement_cloud=$cloud 
                 --placement_region=$region 
                 --placement_zone=$zone 
+                --placement_uuid=$uuid
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-$tserver:9100 
@@ -126,9 +145,11 @@ cat <<CAT
       - "$(( 9000 + $tserver)):9000"
       - "$(( 5433 + $tserver)):5433"
       depends_on:
+      - yb-admin_placement_info
       - yb-master-$(( $number_of_masters - 1))
 
 CAT
+
 
 }
 
@@ -139,6 +160,28 @@ done
 done
 done
 done
+
+cat <<CAT
+  yb-admin_placement_info:
+      image: yugabytedb/yugabyte:latest
+      command: bash -c "
+                /home/yugabyte/bin/yb-admin 
+                --master_addresses $master_addresses
+                modify_placement_info
+                $(echo "$tserver_rw" | sort -u | paste -sd, | sed -e 's/^,//' )
+                $replication_factor
+                rw ;
+                /home/yugabyte/bin/yb-admin 
+                --master_addresses $master_addresses
+                add_read_replica_placement_info
+                $(echo "$tserver_ro" | sort -u | paste -sd, | sed -e 's/^,//' )
+                1
+                ro;
+                curl -qs http://yb-master-0:7000/cluster-config?raw
+                "
+$master_depends
+CAT
+
 
 } | tee docker-compose.yaml
 

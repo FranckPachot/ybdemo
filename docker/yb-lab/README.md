@@ -56,7 +56,7 @@ Smart driver demo:
 
 ![image](https://user-images.githubusercontent.com/33070466/150541806-2fba911b-c565-4cfc-a3f1-8edac6a3084d.png)
 
-List of servers:
+List of servers from the console:
 
 ![image](https://user-images.githubusercontent.com/33070466/150541890-b67e2540-9526-41fa-81a0-206831deb30a.png)
 

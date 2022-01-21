@@ -15,6 +15,8 @@ The primary purpose is to this program on [YugabyteDB](https://www.yugabyte.com)
 
 ## YugabyteDB 
 
+The docker folder has a docker-compose example file to start a local cluster
+
 With the YugabyteDB Smart Driver (`YBClusterAwareDataSource`) there is only the need to define one endpoint (or a list to try in order) and other nodes will be discovered dynamically. Here is an example:
 ```
 dataSourceClassName=com.yugabyte.ysql.YBClusterAwareDataSource

@@ -27,7 +27,7 @@ replication_factor=3
 list_of_clouds="cloud1 cloud2"
 list_of_regions="region1 region2"
 list_of_zones="zone1 zone2"
-number_of_tservers=16
+number_of_tservers=8
 
 
 
@@ -78,14 +78,16 @@ cat <<CAT
       image: yugabytedb/yugabyte:latest
       container_name: yb-master-$master
       hostname: yb-master-$master
-      command: [ "/home/yugabyte/bin/yb-master",
-                "--fs_data_dirs=/home/yugabyte/data",
-                "--placement_cloud=$cloud",
-                "--placement_region=$region",
-                "--placement_zone=$zone",
-                "--rpc_bind_addresses=yb-master-$master:7100",
-                "--master_addresses=$master_addresses",
-                "--replication_factor=$replication_factor"]
+      command: bash -c "
+                rm -rf /tmp/.yb* ; 
+                --fs_data_dirs=/home/yugabyte/data
+                --placement_cloud=$cloud
+                --placement_region=$region
+                --placement_zone=$zone
+                --rpc_bind_addresses=yb-master-$master:7100
+                --master_addresses=$master_addresses
+                --replication_factor=$replication_factor
+                "
       ports:
       - "$((7000 + $master)):7000"
 $master_depends
@@ -108,15 +110,18 @@ cat <<CAT
       image: yugabytedb/yugabyte:latest
       container_name: yb-tserver-$tserver
       hostname: yb-tserver-$tserver
-      command: [ "/home/yugabyte/bin/yb-tserver",
-                "--placement_cloud=$cloud",
-                "--placement_region=$region",
-                "--placement_zone=$zone",
-                "--enable_ysql=true",
-                "--fs_data_dirs=/home/yugabyte/data",
-                "--rpc_bind_addresses=yb-tserver-$tserver:9100",
-                "--tserver_master_addrs=$master_addresses",
-                "--replication_factor=$replication_factor"]
+      command: bash -c "
+                rm -rf /tmp/.yb* ; 
+                /home/yugabyte/bin/yb-tserver 
+                --placement_cloud=$cloud 
+                --placement_region=$region 
+                --placement_zone=$zone 
+                --enable_ysql=true 
+                --fs_data_dirs=/home/yugabyte/data 
+                --rpc_bind_addresses=yb-tserver-$tserver:9100 
+                --tserver_master_addrs=$master_addresses 
+                --replication_factor=$replication_factor 
+                "
       ports:
       - "$(( 9000 + $tserver)):9000"
       - "$(( 5433 + $tserver)):5433"

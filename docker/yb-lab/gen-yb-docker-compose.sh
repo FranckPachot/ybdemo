@@ -48,6 +48,8 @@ services:
       command: ["bash","client/ybdemo.sh","run"]
       deploy:
           replicas: 3
+      restart_policy:
+        condition: on-failure
       depends_on:
       - yb-tserver-0
 

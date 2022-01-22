@@ -162,8 +162,7 @@ cat <<CAT
   cluster-config:
       image: yugabytedb/yugabyte:latest
       command: bash -c "
-                /home/yugabyte/bin/yb-admin 
-                --master_addresses $master_addresses
+                /home/yugabyte/bin/yb-admin --master_addresses $master_addresses
                 modify_placement_info
                 $(echo "$tserver_rw" | sort -u | paste -sd, | sed -e 's/^,//' )
                 $replication_factor

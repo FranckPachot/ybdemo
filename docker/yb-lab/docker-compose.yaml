@@ -1,5 +1,5 @@
 
-version: '2'
+version: '2.4'
 
 services:
 
@@ -50,6 +50,11 @@ services:
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
                 --replication_factor=3 
                 "
+      networks:
+        default:
+        cloud1.region1.zone1:
+          aliases:
+            - yb-tserver-0-zone
       ports:
       - "9000:9000"
       - "5433:5433"
@@ -96,6 +101,11 @@ services:
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
                 --replication_factor=3 
                 "
+      networks:
+        default:
+        cloud2.region1.zone1:
+          aliases:
+            - yb-tserver-1-zone
       ports:
       - "9001:9000"
       - "5434:5433"
@@ -142,6 +152,11 @@ services:
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
                 --replication_factor=3 
                 "
+      networks:
+        default:
+        cloud1.region2.zone1:
+          aliases:
+            - yb-tserver-2-zone
       ports:
       - "9002:9000"
       - "5435:5433"
@@ -167,6 +182,11 @@ services:
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
                 --replication_factor=3 
                 "
+      networks:
+        default:
+        cloud2.region2.zone1:
+          aliases:
+            - yb-tserver-3-zone
       ports:
       - "9003:9000"
       - "5436:5433"
@@ -192,6 +212,11 @@ services:
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
                 --replication_factor=3 
                 "
+      networks:
+        default:
+        cloud1.region1.zone2:
+          aliases:
+            - yb-tserver-4-zone
       ports:
       - "9004:9000"
       - "5437:5433"
@@ -217,6 +242,11 @@ services:
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
                 --replication_factor=3 
                 "
+      networks:
+        default:
+        cloud2.region1.zone2:
+          aliases:
+            - yb-tserver-5-zone
       ports:
       - "9005:9000"
       - "5438:5433"
@@ -242,6 +272,11 @@ services:
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
                 --replication_factor=3 
                 "
+      networks:
+        default:
+        cloud1.region2.zone2:
+          aliases:
+            - yb-tserver-6-zone
       ports:
       - "9006:9000"
       - "5439:5433"
@@ -267,6 +302,11 @@ services:
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
                 --replication_factor=3 
                 "
+      networks:
+        default:
+        cloud2.region2.zone2:
+          aliases:
+            - yb-tserver-7-zone
       ports:
       - "9007:9000"
       - "5440:5433"
@@ -294,3 +334,21 @@ services:
       depends_on:
       - yb-master-2
 
+
+networks:
+  cloud1.region1.zone1:
+   name: cloud1.region1.zone1
+  cloud2.region1.zone1:
+   name: cloud2.region1.zone1
+  cloud1.region2.zone1:
+   name: cloud1.region2.zone1
+  cloud2.region2.zone1:
+   name: cloud2.region2.zone1
+  cloud1.region1.zone2:
+   name: cloud1.region1.zone2
+  cloud2.region1.zone2:
+   name: cloud2.region1.zone2
+  cloud1.region2.zone2:
+   name: cloud1.region2.zone2
+  cloud2.region2.zone2:
+   name: cloud2.region2.zone2

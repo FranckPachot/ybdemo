@@ -184,7 +184,7 @@ CAT
 
 docker-compose up -d
 sleep 3 
-until docker exec -it yb-tserver-0 ysqlsh -h yb-tserver-0 -c 'select  cloud,region,zone,host,port,node_type from yb_servers() order by 1,2,3,6' | grep -B $(( $number_of_tservers + 5)) "$number_of_tservers rows" ; do sleep 1 ; done 
+until docker exec -it yb-tserver-0 ysqlsh -h yb-tserver-0 -c 'select  cloud,region,zone,host,port,node_type,public_ip from yb_servers() order by 1,2,3,6' | grep -B $(( $number_of_tservers + 5)) "$number_of_tservers rows" ; do sleep 1 ; done 
 
 echo
 

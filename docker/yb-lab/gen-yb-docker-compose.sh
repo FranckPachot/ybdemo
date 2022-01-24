@@ -59,7 +59,7 @@ CAT
 master=0
 tserver=0
 # the masters must know the host:port of their peers
-master_addresses=$(for i in $(seq 0 $(( $number_of_masters - 1)) ) ; do echo "yb-master-$i:7100" ; done | paste -sd,)
+master_addresses=$(for i in $(seq 0 $(( $number_of_masters - 1)) ) ; do echo "yb-master-$i:7100" ; done | tr '\n' ','|rev|cut -c2-|rev)
 
 for node in $(seq 1 $number_of_tservers)
 do

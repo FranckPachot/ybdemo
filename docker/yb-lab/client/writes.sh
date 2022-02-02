@@ -1,4 +1,4 @@
-java -jar YBDemo.jar << 'SQL'
+java -jar $(dirname $0)/YBDemo.jar << 'SQL'
 create table if not exists demo(id bigint generated always as identity, ts timestamptz default clock_timestamp(), message text, primary key(id hash));
 insert into demo(message) values (format('inserted when connected to %s',current_setting('listen_addresses'))) returning row_to_json(demo);
 insert into demo(message) values (format('inserted when connected to %s',current_setting('listen_addresses'))) returning row_to_json(demo);

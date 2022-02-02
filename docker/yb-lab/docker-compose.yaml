@@ -7,7 +7,7 @@ services:
       image: yugabytedb/yugabyte:latest
       volumes:
           - ./client:/home/yugabyte/client
-      command: ["bash","client/ybdemo.sh",""]
+      command: ["bash","client/ybdemo.sh","write"]
       deploy:
           replicas: 3
           restart_policy:

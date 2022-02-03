@@ -11,7 +11,7 @@ SQL
 read)
    {
    for i in $(seq 1 ${2:-1}) ; do echo "
-   select format('Rows inserted in the last minute: %s',to_char(count(*),'999999999')) from demo where ts > clock_timestamp() - interval '1 minute';
+   with random as (select (1000*random()+1)::int id) select row_to_json(demo) from random natural left outer join demo;
    " ; done
    } | java -jar YBDemo.jar
   ;;

@@ -44,6 +44,8 @@ version: '2'
 
 services:
 
+# demos with connect / read / write workloads
+
   yb-demo-connect:
       image: yugabytedb/yugabyte:${tag}
       volumes:
@@ -80,6 +82,8 @@ services:
       depends_on:
       - yb-tserver-$(( $replication_factor - 1))
 
+# table create and other initialization for demos
+
   yb-demo-init:
       image: yugabytedb/yugabyte:${tag}
       volumes:
@@ -87,6 +91,8 @@ services:
       command: ["bash","client/ybdemo.sh","init"]
       depends_on:
       - yb-tserver-$(( $replication_factor - 1))
+
+# yb-master and yb-tservers
 
 CAT
 
@@ -175,7 +181,7 @@ cat <<CAT
                 --rpc_bind_addresses=yb-tserver-$tserver:9100 
                 --tserver_master_addrs=$master_addresses 
                 --replication_factor=$replication_factor 
-                -yb_num_shards_per_tserver=2
+                --ysql_num_shards_per_tserver=2
                 $placement_uuid
                 "
       ports:
@@ -199,6 +205,31 @@ done
 
 [ -n "$read_replica_regexp" ] && {
 cat <<CAT
+
+# adding a template to add more replicas
+
+  yb-tserver-n:
+      image: yugabytedb/yugabyte:${tag}
+      command: bash -c "
+                rm -rf /tmp/.yb* ; 
+                /home/yugabyte/bin/yb-tserver 
+                --placement_cloud=$cloud 
+                --placement_region=$region 
+                --placement_zone=$zone 
+                --enable_ysql=true 
+                --fs_data_dirs=/home/yugabyte/data 
+                --tserver_master_addrs=$master_addresses 
+                --replication_factor=$replication_factor 
+                --ysql_num_shards_per_tserver=2
+                $placement_uuid
+                "
+      deploy:
+          replicas: 0
+      depends_on:
+      - yb-master-$(( $number_of_masters - 1))
+
+# ephemeral container to tag read replicas if defined
+
   cluster-config:
       image: yugabytedb/yugabyte:${tag}
       command: bash -c "
@@ -224,10 +255,9 @@ CAT
 docker-compose up -d
 sleep 3 
 until docker exec -it yb-tserver-0 ysqlsh -h yb-tserver-0 -c 'select  cloud,region,zone,host,port,node_type,public_ip from yb_servers() order by 1,2,3,6' | grep -B $(( $number_of_tservers + 5)) "$number_of_tservers rows" ; do sleep 1 ; done 
-read
-echo "Run to following to see it runnin:
-
-docker-compose logs -f
+echo "
+Run to following to see it running:     docker-compose logs -f
+change docker-compose.yaml and reload:  docker-compose up -d
 
 "
 

@@ -12,33 +12,33 @@ This generates a `docker-compose.yaml` to test multi-cloud, multi-region, multi-
 
 2. check the cluster on the console http://localhost:7000/tablet-servers
 
-3. see demo app logs like `docker logs yb-lab_yb-demo_1`. It runs on thread for each line in `client/ybdemo.sql` connecting with settings in `hikari.properties`. The default displays info about the currently connected session, every 1 second. 
+3. see demo app logs like `docker logs yb-demo-connect_1`. It calls `client/ybdemo.sh` using YBDemo.jar to run threads. `client/ybdemo.sh` takes 2 parameters: the workload to run and the number of threads. There are services to init (create the table), run read, writes, or, the default, just connect and show where it is connected. The connection settings are in `hikari.properties`. The default displays info about the currently connected session, every 1 second, with a prepared statement defined in HikariCP `connectionInitSql`. 
 
 4. see all logs with `docker-compose logs -tf`. 
 
+## Test resilience
+
 In order to play with High Availability, look at where a thread is connected, stop that node, like with `docker stop yb-tserver-6` and check application continuity from the yb-lab_yb-demo_n logs. And the console to see the new leader election. Restart the node, and see how it re-balances.
+
+## Test elasticity
+
+In order to play with elasticity, you can add more tservers, an easy way is to increase the number of replicas to `replicas: 3` for `yb-tserver-n` (but they don't have specific placement info). To remove t-servers, you should blacklist them first, like:
+```
+for i in {1..3} ; do docker exec -i yb-lab_yb-tserver-n_${i} bash <<< "/home/yugabyte/bin/yb-admin --master_addresses $(echo yb-master-{0..2}:7100|tr ' ' ,) change_blacklist ADD "'$(hostname):9100' ; done
+```
+, check the completion of re-balancing with 
+```
+docker exec -it yb-master-0 /home/yugabyte/bin/yb-admin --master_addresses $(echo yb-master-{0..2}:7100|tr ' ' ,) get_load_move_completion
+```
+Then you can clear the black list (same as above with REMOVE instead of ADD), remove those servers (change `deploy` for `yb-tserver-n` to `replicas: 0` in `docker-compose.yaml` safely
+
+## Connect with psql
 
 you can go to any node with something like `docker exec -it yb-lab_yb-demo_1 bash` and use `ysqlsh` like you would use `psql`. You can also connect to a node (the 5433 port from yb-tserver-0 is redirected from localhost:5433, yb-tserver-2 from 5434...)
 
-In a yb-lab_yb-demo container you can also test when client connects to a specic zone by changing `dataSource.url` in `client/hikari.properties` to `jdbc:yugabytedb://yb-tserver-0:5433/yugabyte?user=yugabyte&password=yugabyte&loggerLevel=INFO&load-balance=true&topology-keys=cloud1.region1.zone1,cloud1.region1.zone2` and restart or run `(cd client && java -jar YBDemo.jar <<<"execute ybdemo(1)")`
+## Test JDBC Smart Driver
 
-In a yb-lab_yb-demo container you can also test writes:
-```
-cd client
-cat > hikari.properties <<'INI'
-dataSourceClassName=com.yugabyte.ysql.YBClusterAwareDataSource
-dataSource.url=jdbc:yugabytedb://yb-tserver-0:5433/yugabyte?user=yugabyte&password=yugabyte&loggerLevel=INFO&load-balance=true&topology-keys=cloud1.region1.zone1,cloud1.region1.zone2
-connectionTimeout=15000
-autoCommit=true
-INI
-ysqlsh -h yb-tserver-0 -e -c "create table if not exists demo(id bigint generated always as identity, ts timestamptz default clock_timestamp(), message text, primary key(id hash));"
-java -jar YBDemo.jar <<'SQL'
-insert into demo(message) values (format('inserted when connected to %s',current_setting('listen_addresses'))) returning row_to_json(demo);
-insert into demo(message) values (format('inserted when connected to %s',current_setting('listen_addresses'))) returning row_to_json(demo);
-insert into demo(message) values (format('inserted when connected to %s',current_setting('listen_addresses'))) returning row_to_json(demo);
-select format('Rows inserted in the last minute: %s',to_char(count(*),'999999999')) from demo where ts > clock_timestamp() - interval '1 minute';
-SQL
-```
+In a yb-lab_yb-demo container you can also test when client connects to a specic zone by changing `dataSource.url` in `client/hikari.properties` to `jdbc:yugabytedb://yb-tserver-0:5433/yugabyte?user=yugabyte&password=yugabyte&loggerLevel=INFO&load-balance=true&topology-keys=cloud1.region1.zone1,cloud1.region1.zone2` and restart or run `(cd client && java -jar YBDemo.jar <<<"execute ybdemo(1)")`
 
 ## Screenshots
 

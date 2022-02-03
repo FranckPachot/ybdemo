@@ -29,9 +29,12 @@ list_of_clouds="cloud1 cloud2"
 list_of_regions="region1 region2"
 list_of_zones="zone1 zone2"
 number_of_tservers=8
-read_replica_regexp="cloud2.region2.zone[1-2]"
+#read_replica_regexp="cloud2.region2.zone[1-2]"
 
 number_of_masters=$replication_factor
+
+#tag=2.11.1.0-b305
+tag=latest
 
 {
 
@@ -42,16 +45,48 @@ version: '2'
 services:
 
   yb-demo:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:${tag}
       volumes:
           - ./client:/home/yugabyte/client
-      command: ["bash","client/ybdemo.sh","run"]
+      command: ["bash","client/ybdemo.sh","connect","3"]
       deploy:
           replicas: 3
           restart_policy:
              condition: on-failure
       depends_on:
-      - yb-tserver-0
+      - yb-tserver-$(( $replication_factor - 1))
+
+  yb-demo-read:
+      image: yugabytedb/yugabyte:${tag}
+      volumes:
+          - ./client:/home/yugabyte/client
+      command: ["bash","client/ybdemo.sh","read","1"]
+      deploy:
+          replicas: 1
+          restart_policy:
+             condition: on-failure
+      depends_on:
+      - yb-tserver-$(( $replication_factor - 1))
+
+  yb-demo-write:
+      image: yugabytedb/yugabyte:${tag}
+      volumes:
+          - ./client:/home/yugabyte/client
+      command: ["bash","client/ybdemo.sh","write","2"]
+      deploy:
+          replicas: 1
+          restart_policy:
+             condition: on-failure
+      depends_on:
+      - yb-tserver-$(( $replication_factor - 1))
+
+  yb-demo-init:
+      image: yugabytedb/yugabyte:${tag}
+      volumes:
+          - ./client:/home/yugabyte/client
+      command: ["bash","client/ybdemo.sh","init"]
+      depends_on:
+      - yb-tserver-$(( $replication_factor - 1))
 
 CAT
 
@@ -76,7 +111,7 @@ do
 cat <<CAT
 
   yb-master-$master:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:${tag}
       container_name: yb-master-$master
       hostname: yb-master-$master
       command: bash -c "
@@ -106,25 +141,27 @@ master_depends="\
 # generate tserver service
 [ $tserver -le $(( $number_of_tservers - 1 )) ] && { 
 
+[ -n "$read_replica_regexp" ] && {
 # default is primary cluster (read write in sync)
-uuid=rw
+placement_uuid="--placement_uuid=rw"
 tserver_rw="
 $tserver_rw
 $cloud.$region.$zone
 "
 # except if in read replica regexp pattern
 echo "read replica $cloud.$region.$zone" | grep -E "^read replica $read_replica_regexp$" >&2 && {
-uuid=ro
+placement_uuid="--placement_uuid=ro"
 tserver_ro="
 $tserver_ro
 $cloud.$region.$zone:1
 "
 }
+}
 
 cat <<CAT
 
   yb-tserver-$tserver:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:${tag}
       container_name: yb-tserver-$tserver
       hostname: yb-tserver-$tserver
       command: bash -c "
@@ -133,18 +170,17 @@ cat <<CAT
                 --placement_cloud=$cloud 
                 --placement_region=$region 
                 --placement_zone=$zone 
-                --placement_uuid=$uuid
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-$tserver:9100 
                 --tserver_master_addrs=$master_addresses 
                 --replication_factor=$replication_factor 
+                $placement_uuid
                 "
       ports:
       - "$(( 9000 + $tserver)):9000"
       - "$(( 5433 + $tserver)):5433"
       depends_on:
-      - cluster-config
       - yb-master-$(( $number_of_masters - 1))
 
 CAT
@@ -160,9 +196,10 @@ done
 done
 done
 
+[ -n "$read_replica_regexp" ] && {
 cat <<CAT
   cluster-config:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:${tag}
       command: bash -c "
                 /home/yugabyte/bin/yb-admin --master_addresses $master_addresses
                 modify_placement_info
@@ -179,7 +216,7 @@ cat <<CAT
                 "
 $master_depends
 CAT
-
+}
 
 } | tee docker-compose.yaml
 

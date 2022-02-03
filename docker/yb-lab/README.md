@@ -14,6 +14,8 @@ This generates a `docker-compose.yaml` to test multi-cloud, multi-region, multi-
 
 3. see demo app logs like `docker logs yb-lab_yb-demo_1`. It runs on thread for each line in `client/ybdemo.sql` connecting with settings in `hikari.properties`. The default displays info about the currently connected session, every 1 second. 
 
+4. see all logs with `docker-compose logs -tf`. 
+
 In order to play with High Availability, look at where a thread is connected, stop that node, like with `docker stop yb-tserver-6` and check application continuity from the yb-lab_yb-demo_n logs. And the console to see the new leader election. Restart the node, and see how it re-balances.
 
 you can go to any node with something like `docker exec -it yb-lab_yb-demo_1 bash` and use `ysqlsh` like you would use `psql`. You can also connect to a node (the 5433 port from yb-tserver-0 is redirected from localhost:5433, yb-tserver-2 from 5434...)

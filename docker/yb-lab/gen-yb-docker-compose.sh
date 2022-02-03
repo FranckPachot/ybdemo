@@ -29,7 +29,7 @@ number_of_tservers=6
 read_replica_regexp=""
 break ;;
 
-all) 
+rr) 
 # example cloud/region/zone + read replicas
 replication_factor=3
 list_of_clouds="cloud1 cloud2"
@@ -169,11 +169,15 @@ master_depends="\
 
 [ -n "$read_replica_regexp" ] && {
 # default is primary cluster (read write in sync)
+### This doesn't work
 placement_uuid="--placement_uuid=rw"
 tserver_rw="
 $tserver_rw
 $cloud.$region.$zone
 "
+### then replace with no placement uuid
+placement_uuid=""
+tserver_rw=""
 # except if in read replica regexp pattern
 echo "read replica $cloud.$region.$zone" | grep -E "^read replica $read_replica_regexp$" >&2 && {
 placement_uuid="--placement_uuid=ro"

@@ -30,7 +30,8 @@ for i in {1..3} ; do docker exec -i yb-lab_yb-tserver-n_${i} bash <<< "/home/yug
 ```
 docker exec -it yb-master-0 /home/yugabyte/bin/yb-admin --master_addresses $(echo yb-master-{0..2}:7100|tr ' ' ,) get_load_move_completion
 ```
-Then you can clear the black list (same as above with REMOVE instead of ADD), remove those servers (change `deploy` for `yb-tserver-n` to `replicas: 0` in `docker-compose.yaml` safely
+Then you can clear the black list (same as above with REMOVE instead of ADD), stop those servers (`for i in {1..3} ; do docker stop yb-lab_yb-tserver-n_$i ; done`). If the load balancing above was completed, you can even remove them with their volume.
+When you want "dead" nodes to disappear from the UI http://localhost:7000/tablet-servers you can restart the master leader (find it from http://localhost:7000) to force a new leader election. In a lab, this can be: `for i in yb-master-{0..2} ; do docker restart $i -t 5 ; done`
 
 ## Connect with psql
 

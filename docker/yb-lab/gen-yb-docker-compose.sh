@@ -7,14 +7,18 @@ docker-compose down
 # (to simulate multi-cloud, multi-region, multi-AZ cluster)
 ####################################################################
 
+case $1 in
 
+rf1)
 # example RF-1 two nodes
 replication_factor=1
 list_of_clouds="cloud"
 list_of_regions="region"
 list_of_zones="zone1 zone2 zone3"
 read_replica_regexp=""
+;;
 
+aws)
 # example Multi-AZ two node per AZ
 replication_factor=3
 list_of_clouds="aws"
@@ -22,7 +26,9 @@ list_of_regions="eu-west-1"
 list_of_zones="eu-west-1a eu-west-1b eu-west-1c"
 number_of_tservers=6
 read_replica_regexp=""
+;;
 
+all) 
 # example cloud/region/zone + read replicas
 replication_factor=3
 list_of_clouds="cloud1 cloud2"
@@ -30,6 +36,17 @@ list_of_regions="region1 region2"
 list_of_zones="zone1 zone2"
 number_of_tservers=8
 #read_replica_regexp="cloud2.region2.zone[1-2]"
+
+*)
+# example cloud/region/zone
+replication_factor=3
+list_of_clouds="cloud1 cloud2"
+list_of_regions="region1 region2"
+list_of_zones="zone1 zone2"
+number_of_tservers=8
+read_replica_regexp=""
+
+esac
 
 number_of_masters=$replication_factor
 

@@ -28,7 +28,7 @@ replication_factor=3
 list_of_clouds="cloud1 cloud2"
 list_of_regions="region1 region2"
 list_of_zones="zone1 zone2"
-number_of_tservers=8
+number_of_tservers=4
 #read_replica_regexp="cloud2.region2.zone[1-2]"
 
 number_of_masters=$replication_factor
@@ -44,7 +44,7 @@ version: '2'
 
 services:
 
-  yb-demo:
+  yb-demo-connect:
       image: yugabytedb/yugabyte:${tag}
       volumes:
           - ./client:/home/yugabyte/client
@@ -72,7 +72,7 @@ services:
       image: yugabytedb/yugabyte:${tag}
       volumes:
           - ./client:/home/yugabyte/client
-      command: ["bash","client/ybdemo.sh","write","2"]
+      command: ["bash","client/ybdemo.sh","write","1"]
       deploy:
           replicas: 1
           restart_policy:
@@ -175,6 +175,7 @@ cat <<CAT
                 --rpc_bind_addresses=yb-tserver-$tserver:9100 
                 --tserver_master_addrs=$master_addresses 
                 --replication_factor=$replication_factor 
+                -yb_num_shards_per_tserver=2
                 $placement_uuid
                 "
       ports:

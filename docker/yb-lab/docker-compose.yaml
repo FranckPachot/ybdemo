@@ -3,13 +3,15 @@ version: '2'
 
 services:
 
+# demos with connect / read / write workloads
+
   yb-demo-connect:
       image: yugabytedb/yugabyte:latest
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","connect","3"]
       deploy:
-          replicas: 6
+          replicas: 3
           restart_policy:
              condition: on-failure
       depends_on:
@@ -39,6 +41,8 @@ services:
       depends_on:
       - yb-tserver-2
 
+# table create and other initialization for demos
+
   yb-demo-init:
       image: yugabytedb/yugabyte:latest
       volumes:
@@ -46,6 +50,8 @@ services:
       command: ["bash","client/ybdemo.sh","init"]
       depends_on:
       - yb-tserver-2
+
+# yb-master and yb-tservers
 
 
   yb-master-0:
@@ -82,7 +88,7 @@ services:
                 --rpc_bind_addresses=yb-tserver-0:9100 
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
                 --replication_factor=3 
-                -yb_num_shards_per_tserver=2
+                --ysql_num_shards_per_tserver=2
                 
                 "
       ports:
@@ -128,7 +134,7 @@ services:
                 --rpc_bind_addresses=yb-tserver-1:9100 
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
                 --replication_factor=3 
-                -yb_num_shards_per_tserver=2
+                --ysql_num_shards_per_tserver=2
                 
                 "
       ports:
@@ -174,7 +180,7 @@ services:
                 --rpc_bind_addresses=yb-tserver-2:9100 
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
                 --replication_factor=3 
-                -yb_num_shards_per_tserver=2
+                --ysql_num_shards_per_tserver=2
                 
                 "
       ports:
@@ -199,7 +205,7 @@ services:
                 --rpc_bind_addresses=yb-tserver-3:9100 
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
                 --replication_factor=3 
-                -yb_num_shards_per_tserver=2
+                --ysql_num_shards_per_tserver=2
                 
                 "
       ports:
@@ -208,22 +214,103 @@ services:
       depends_on:
       - yb-master-2
 
-  yb-tserver-n:
+
+  yb-tserver-4:
       image: yugabytedb/yugabyte:latest
+      container_name: yb-tserver-4
+      hostname: yb-tserver-4
+      command: bash -c "
+                rm -rf /tmp/.yb* ; 
+                /home/yugabyte/bin/yb-tserver 
+                --placement_cloud=cloud1 
+                --placement_region=region1 
+                --placement_zone=zone2 
+                --enable_ysql=true 
+                --fs_data_dirs=/home/yugabyte/data 
+                --rpc_bind_addresses=yb-tserver-4:9100 
+                --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
+                --replication_factor=3 
+                --ysql_num_shards_per_tserver=2
+                
+                "
+      ports:
+      - "9004:9000"
+      - "5437:5433"
+      depends_on:
+      - yb-master-2
+
+
+  yb-tserver-5:
+      image: yugabytedb/yugabyte:latest
+      container_name: yb-tserver-5
+      hostname: yb-tserver-5
+      command: bash -c "
+                rm -rf /tmp/.yb* ; 
+                /home/yugabyte/bin/yb-tserver 
+                --placement_cloud=cloud2 
+                --placement_region=region1 
+                --placement_zone=zone2 
+                --enable_ysql=true 
+                --fs_data_dirs=/home/yugabyte/data 
+                --rpc_bind_addresses=yb-tserver-5:9100 
+                --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
+                --replication_factor=3 
+                --ysql_num_shards_per_tserver=2
+                
+                "
+      ports:
+      - "9005:9000"
+      - "5438:5433"
+      depends_on:
+      - yb-master-2
+
+
+  yb-tserver-6:
+      image: yugabytedb/yugabyte:latest
+      container_name: yb-tserver-6
+      hostname: yb-tserver-6
+      command: bash -c "
+                rm -rf /tmp/.yb* ; 
+                /home/yugabyte/bin/yb-tserver 
+                --placement_cloud=cloud1 
+                --placement_region=region2 
+                --placement_zone=zone2 
+                --enable_ysql=true 
+                --fs_data_dirs=/home/yugabyte/data 
+                --rpc_bind_addresses=yb-tserver-6:9100 
+                --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
+                --replication_factor=3 
+                --ysql_num_shards_per_tserver=2
+                
+                "
+      ports:
+      - "9006:9000"
+      - "5439:5433"
+      depends_on:
+      - yb-master-2
+
+
+  yb-tserver-7:
+      image: yugabytedb/yugabyte:latest
+      container_name: yb-tserver-7
+      hostname: yb-tserver-7
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-tserver 
                 --placement_cloud=cloud2 
                 --placement_region=region2 
-                --placement_zone=zone1 
+                --placement_zone=zone2 
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
+                --rpc_bind_addresses=yb-tserver-7:9100 
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
                 --replication_factor=3 
-                -yb_num_shards_per_tserver=2
+                --ysql_num_shards_per_tserver=2
                 
                 "
-      deploy:
-          replicas: 2
+      ports:
+      - "9007:9000"
+      - "5440:5433"
       depends_on:
       - yb-master-2
+

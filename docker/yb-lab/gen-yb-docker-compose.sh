@@ -15,6 +15,7 @@ replication_factor=1
 list_of_clouds="cloud"
 list_of_regions="region"
 list_of_zones="zone1 zone2 zone3"
+number_of_tservers=2
 read_replica_regexp=""
 ;;
 
@@ -36,6 +37,7 @@ list_of_regions="region1 region2"
 list_of_zones="zone1 zone2"
 number_of_tservers=4
 #read_replica_regexp="cloud2.region2.zone[1-2]"
+;;
 
 *)
 # example cloud/region/zone
@@ -45,6 +47,7 @@ list_of_regions="region1 region2"
 list_of_zones="zone1 zone2"
 number_of_tservers=8
 read_replica_regexp=""
+;;
 
 esac
 

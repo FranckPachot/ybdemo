@@ -17,7 +17,7 @@ list_of_regions="region"
 list_of_zones="zone1 zone2 zone3"
 number_of_tservers=2
 read_replica_regexp=""
-;;
+break ;;
 
 aws)
 # example Multi-AZ two node per AZ
@@ -27,7 +27,7 @@ list_of_regions="eu-west-1"
 list_of_zones="eu-west-1a eu-west-1b eu-west-1c"
 number_of_tservers=6
 read_replica_regexp=""
-;;
+break ;;
 
 all) 
 # example cloud/region/zone + read replicas
@@ -35,9 +35,9 @@ replication_factor=3
 list_of_clouds="cloud1 cloud2"
 list_of_regions="region1 region2"
 list_of_zones="zone1 zone2"
-number_of_tservers=4
-#read_replica_regexp="cloud2.region2.zone[1-2]"
-;;
+number_of_tservers=8
+read_replica_regexp="cloud2.region2.zone[1-2]"
+break ;;
 
 *)
 # example cloud/region/zone

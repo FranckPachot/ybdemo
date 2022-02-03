@@ -9,7 +9,7 @@ services:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","write"]
       deploy:
-          replicas: 3
+          replicas: 6
           restart_policy:
              condition: on-failure
       depends_on:

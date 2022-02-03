@@ -1,47 +1,121 @@
-## run the lab
+Here is my lab to test various [YugabyteDB](https://www.yugabyte.com/) configurations locally in Docker. The goal is to generate a `docker-compose.yaml` to test multi-cloud, multi-region, multi-zone, multi-node, and with read replicas in a lab. And run workloads with the YBDemo from this repository. It is highly configurarable, and will change depending on my needs, so better look at the scripts to understand them. Or ask me ([@FranckPachot](https://twitter.com/FranckPachot))
 
-This generates a `docker-compose.yaml` to test multi-cloud, multi-region, multi-zone, multi-node, and with read replicas in a lab.
 
-1. run `gen-yb-docker-compose.sh` to generate a `docker-compose.yaml` in the current directory, and start it. This creates a cluster with the settings are defined in the generation script:
- - the tservers will be created from yb-tserver-0 to get the number defined in `$number_of_tservers`
- - they will be distributed into `$list_of_clouds`, `$list_of_regions`, `$list_of_zones`
- - the cloud.region.zone matching `$read_replica_regexp` will be read only (read replicas callsed 'ro')
- - master are created first, the number coming from `$replication_factor`
- - once the masters are created, `cluster-config` will set the primary and read replica topology. You can look at its log to check it
+
+# Run the lab
+
+1. run `gen-yb-docker-compose.sh` to generate a `docker-compose.yaml` in the current directory, and start it. This creates a cluster with the settings are defined in the generation script though environment variables (and the first arg $1 of the script defines some iconfigurations of interrest)
+ - the **tservers** will be created from yb-tserver-0 up to the number defined in `$number_of_tservers`
+ - they will be distributed into `$list_of_clouds`, `$list_of_regions`, `$list_of_zones` **placement info** (of course all are on your laptop, those are just names)
+ - the cloud.region.zone matching `$read_replica_regexp` will be **read replicas** (also called obervers or witness replicas - they do not participate in raft quorum, they can lag but will never block writes)
+ - **master** are created first, the number is the **replication factor** set in `$replication_factor`
+ - once the masters are created, if `$read_replica_regexp` is defined, `cluster-config` will set the primary and read replica **topology**. You can look at its log to check what it defines. We this is set the tservers will be defined as `ro` for read replicas or `rw` for primary nodes depending on the pattern.
  - once all tservers are created, the `yb_servers()` topology is displayed
 
-2. check the cluster on the console http://localhost:7000/tablet-servers
+2. check the cluster on the console http://localhost:7000/tablet-servers as the port of the first master is exposed
 
-3. see demo app logs like `docker logs yb-demo-connect_1`. It calls `client/ybdemo.sh` using YBDemo.jar to run threads. `client/ybdemo.sh` takes 2 parameters: the workload to run and the number of threads. There are services to init (create the table), run read, writes, or, the default, just connect and show where it is connected. The connection settings are in `hikari.properties`. The default displays info about the currently connected session, every 1 second, with a prepared statement defined in HikariCP `connectionInitSql`. 
+3. see demo app logs like `docker logs yb-demo-connect_1`. It calls `client/ybdemo.sh` using [YBDemo.jar](https://github.com/FranckPachot/ybdemo/releases) to run threads. `client/ybdemo.sh` takes 2 parameters: the workload to run and the number of threads. There are commands to **init** (create the table), run **read**, **writes**, or, the default, just **connect** and show where it is connected. The connection settings are in `hikari.properties`. Only one endpoint is needed as the YugabyteDB JDBC Smart Driver will find the others. The default (connect) displays info about the currently connected session, every 1 second, with a prepared statement defined in HikariCP `connectionInitSql` to verify the smart driver behaviour.
 
-4. see all logs with `docker-compose logs -tf`. 
+4. see all logs with `docker-compose logs -tf` and have fun
+
+# Exercise ideas
 
 ## Test resilience
 
-In order to play with High Availability, look at where a thread is connected, stop that node, like with `docker stop yb-tserver-6` and check application continuity from the yb-lab_yb-demo_n logs. And the console to see the new leader election. Restart the node, and see how it re-balances.
+YugabyteDB, with a replication factor of RF=3, maintains continuous availability with one node failure. The quorum on writes guarantees a RPO=0 (no data loss) even with one node down (or two with RF=5) and Raft leader election guarantees RTO from 0 to 3 seconds (for the tablets that had their leader on the failed node, to elect a new leader). In order to play with High Availability, look at where a thread is connected. You can restart it (just in case) watch the logs:
+
+```
+docker restart yb-lab_yb-demo-init_1
+docker restart yb-lab_yb-demo-write_1
+docker logs -f yb-lab_yb-demo-write_1
+```
+
+You should see reads and writes distributed in http://localhost:7000/tablet-servers
+
+When you stop another node that the one the thread is connected, you should see at most a few seconds wait. And from the web console, the yb-tserver-1 taking no read/writes (they were rebalanced to the others) and becoming DEAD after 60 seconds
+
+```
+docker stop yb-tserver-1
+```
+
+Start it again (`docker start yb-tserver-1`) and all will be automatically re-balanced.
+
+When you do the same with the node you are connected to, and , thanks to the connection pool and the smart driver, it will reconnect to another node and continue.
 
 ## Test elasticity
 
-In order to play with elasticity, you can add more tservers, an easy way is to increase the number of replicas to `replicas: 3` for `yb-tserver-n` (but they don't have specific placement info). To remove t-servers, you should blacklist them first, like:
+In order to play with elasticity, you can add more tservers, an easy way is to increase the number of replicas to `replicas: 3` for `yb-tserver-n` (they are defined to quickly add more node but they don't have specific placement info). 
+
+```
+docker-compose service scale yb-tserver-n=3
+```
+
+On the console, you should see the number of tablets, and operations, re-balance to the new nodes
+
+To remove t-servers, you should blacklist them first, like:
+
 ```
 for i in {1..3} ; do docker exec -i yb-lab_yb-tserver-n_${i} bash <<< "/home/yugabyte/bin/yb-admin --master_addresses $(echo yb-master-{0..2}:7100|tr ' ' ,) change_blacklist ADD "'$(hostname):9100' ; done
 ```
-, check the completion of re-balancing with 
+Then check and wait for the completion of re-balancing:
 ```
 docker exec -it yb-master-0 /home/yugabyte/bin/yb-admin --master_addresses $(echo yb-master-{0..2}:7100|tr ' ' ,) get_load_move_completion
 ```
-Then you can clear the black list (same as above with REMOVE instead of ADD), stop those servers (`for i in {1..3} ; do docker stop yb-lab_yb-tserver-n_$i ; done`). If the load balancing above was completed, you can even remove them with their volume.
-When you want "dead" nodes to disappear from the UI http://localhost:7000/tablet-servers you can restart the master leader (find it from http://localhost:7000) to force a new leader election. In a lab, this can be: `for i in yb-master-{0..2} ; do docker restart $i -t 5 ; done`
+Now, stop those servers:
+
+ ````
+ for i in {1..3} ; do docker stop yb-lab_yb-tserver-n_$i ; done
+ ````
+
+If the load balancing above was 100% completed, you can even remove them with their volume.
+
+Then you can clear the black list (same as above with REMOVE instead of ADD):
+
+```
+for i in yb-lab_yb-tserver-n_{1..3} ; do docker exec -i yb-master-0 /home/yugabyte/bin/yb-admin --master_addresses $(echo yb-master-{0..2}:7100|tr ' ' ,) change_blacklist REMOVE $i ; done
+```
+
+When you want "dead" nodes to disappear from the UI http://localhost:7000/tablet-servers you can restart the master leader (find it from http://localhost:7000) to force a new leader election. In a lab, this can be: 
+
+```
+for i in yb-master-{0..2} ; do docker restart $i -t 5 ; done
+```
 
 ## Connect with psql
 
-you can go to any node with something like `docker exec -it yb-lab_yb-demo_1 bash` and use `ysqlsh` like you would use `psql`. You can also connect to a node (the 5433 port from yb-tserver-0 is redirected from localhost:5433, yb-tserver-2 from 5434...)
+you can go to any node with something like `docker exec -it yb-lab_yb-demo_1 bash` and use `ysqlsh` like you would use `psql`. 
+
+```
+docker exec -it yb-tserver-0 ysqlsh -h yb-tserver-0
+```
+
+You can also connect to a node from the laptop (the 5433 port from yb-tserver-0 is redirected from localhost:5433, yb-tserver-1 from 5434...)
 
 ## Test JDBC Smart Driver
 
-In a yb-lab_yb-demo container you can also test when client connects to a specic zone by changing `dataSource.url` in `client/hikari.properties` to `jdbc:yugabytedb://yb-tserver-0:5433/yugabyte?user=yugabyte&password=yugabyte&loggerLevel=INFO&load-balance=true&topology-keys=cloud1.region1.zone1,cloud1.region1.zone2` and restart or run `(cd client && java -jar YBDemo.jar <<<"execute ybdemo(1)")`
+In a yb-lab_yb-demo container you can also test when client connects to a specic zone by changing `dataSource.url` in `client/hikari.properties` to
 
-## Screenshots
+```
+jdbc:yugabytedb://yb-tserver-0:5433/yugabyte?user=yugabyte&password=yugabyte&loggerLevel=INFO&load-balance=true&topology-keys=cloud1.region1.zone1,cloud1.region1.zone2
+```
+
+and restart a yb-demo server, or run:
+
+```
+docker start   yb-lab_yb-demo-connect_1
+docker exec -i yb-lab_yb-demo-connect_1 bash -c "
+cat > hikari.properties <<INI
+dataSource.url=jdbc:yugabytedb://yb-tserver-0:5433/yugabyte?user=yugabyte&password=yugabyte&loggerLevel=INFO&load-balance=true&topology-keys=cloud1.region1.zone1,cloud1.region1.zone2
+INI
+grep -v ^dataSource.url client/hikari.properties >> hikari.properties
+java -jar client/YBDemo.jar <<SQL
+execute ybdemo(1000)
+SQL
+"
+
+```
+
+# Screenshots
 
 When started:
 
@@ -62,5 +136,4 @@ Smart driver demo:
 List of servers from the console:
 
 ![image](https://user-images.githubusercontent.com/33070466/150541890-b67e2540-9526-41fa-81a0-206831deb30a.png)
-
 

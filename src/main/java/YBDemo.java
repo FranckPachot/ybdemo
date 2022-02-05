@@ -6,10 +6,10 @@ public class YBDemo extends Thread {
 
  private HikariDataSource ds;
  private String sql;
- // I'll use exponential backoff for serialization errors
- int max_retries=5;
+ // I'll use exponential backoff for serialization or HA errors ( YugabyteDB worst case for HA is 3 seconds )
+ int max_retries=10;
  private void exponentialBackoffWait(int retry){
-  // waits random milliseconds between 0 and 10 plus exponential (10ms for first retry, then 20,40,80,160,320...)
+  // waits random milliseconds between 0 and 10 plus exponential (10ms for first retry, then 20,40,80,160,320,640,1280,2560,5120...)
   try {
    Thread.sleep( (int)(10*Math.random()+10*Math.pow(2,retry)) );
    } catch (InterruptedException e) { System.err.println(e); }
@@ -60,8 +60,12 @@ public class YBDemo extends Thread {
       // syntax error: print the SQL and stop the program to fix the demo
       System.exit(4);
       }
-     // Error handling // Serialization error: retry
-     else if ( e.getSQLState().startsWith("40001") ) {
+     // Error handling // Retriable error: retry
+     else if ( 
+       e.getSQLState().startsWith("40001") || // Serialization error (optimistic locking conflict)
+       e.getSQLState().startsWith("08006") || // Connection failure (node down, need to reconnect)
+       e.getSQLState().startsWith("XX000")    // Internal error (may happen during HA)
+       ) {
       // count the retry and wait exponentially ( a random between 0 and 10 milliseconds, plus 10ms for first retry, then 20,40,80...
       exponentialBackoffWait(retries);
       retries++;

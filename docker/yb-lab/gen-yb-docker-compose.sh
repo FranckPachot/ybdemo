@@ -109,6 +109,10 @@ services:
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","init"]
+      deploy:
+          replicas: 1
+          restart_policy:
+             condition: on-failure
       depends_on:
       - yb-tserver-$(( $replication_factor - 1))
 

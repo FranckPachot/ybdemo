@@ -28,7 +28,7 @@ public class YBDemo extends Thread {
       System.out.println(String.format("%9s %6.0fms SQLSTATE(%5s) %s",currentThread().getName(),(System.nanoTime()-timer)/1e6,e.getSQLState(),e) );
       // exit on non retryable errors (like transaction conflict or connection errors) https://www.postgresql.org/docs/current/errcodes-appendix.html
       if (!(e.getSQLState().startsWith("40") || e.getSQLState().startsWith("08") || e.getSQLState().startsWith("57") || e.getSQLState().startsWith("53"))) { 
-      // exit the program on those errors
+      // exit the program on those errors 
       System.exit(2);
       return ; 
       }

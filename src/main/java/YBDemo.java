@@ -64,11 +64,6 @@ public class YBDemo extends Thread {
      else if ( e.getSQLState().startsWith("40001") ) {
       // count the retry and wait exponentially ( a random between 0 and 10 milliseconds, plus 10ms for first retry, then 20,40,80...
       exponentialBackoffWait(retries);
-/*
-      try {
-       Thread.sleep( (int)(10*Math.random()+10*Math.pow(2,retries)) );
-       } catch (InterruptedException i) {}
-*/
       retries++;
       if (retries>max_retries) { System.exit(5); }
       }

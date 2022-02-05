@@ -25,15 +25,16 @@ public class YBDemo extends Thread {
      System.out.println(String.format("%9s %6.0fms: %s",currentThread().getName(),(System.nanoTime()-timer)/1e6,rs.getString(1)));
      connection.close();
      } catch(SQLException e) {
-      System.out.println(String.format("%9s %6.0fms SQLSTATE(%5s) %s",currentThread().getName(),(System.nanoTime()-timer)/1e6,e.getSQLState(),e) );
+      System.out.println(String.format("\nError in thread %9s %6.0fms SQLSTATE(%5s) %s",currentThread().getName(),(System.nanoTime()-timer)/1e6,e.getSQLState(),e) );
       // exit on non retryable errors (like transaction conflict or connection errors) https://www.postgresql.org/docs/current/errcodes-appendix.html
       if (!(e.getSQLState().startsWith("40") || e.getSQLState().startsWith("08") || e.getSQLState().startsWith("57") || e.getSQLState().startsWith("53"))) { 
-      return ; 
+      System.exit(2);
       }
      }
     }
    }
    public static void main(String[] args) throws SQLException , InterruptedException {
+    try {
      HikariConfig config = new HikariConfig( "hikari.properties" );
      HikariDataSource ds = new HikariDataSource ( config );
      if (ds.getConnectionInitSql() != null) {
@@ -41,7 +42,7 @@ public class YBDemo extends Thread {
       System.out.println("sql executed in each new connection:");
       System.out.println("--------------------------------------------------");
       System.out.println(ds.getConnectionInitSql().toString());
-     }
+      }
      System.out.println("--------------------------------------------------");
      YBDemo thread;
      Scanner input = new Scanner(System.in);
@@ -50,6 +51,11 @@ public class YBDemo extends Thread {
      while (input.hasNextLine()){
       thread=new YBDemo(ds,input.nextLine());
       thread.start();
-     }
-  }
- }
+      }
+     } catch(SQLException e) {
+      System.out.println(String.format("\nError in main:\n %s",e.getSQLState(),e) );
+      System.exit(1);
+      }
+    }
+
+   }

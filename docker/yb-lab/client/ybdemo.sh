@@ -10,19 +10,20 @@ SQL
   ;;
 read)
    {
-   for i in $(seq 1 ${2:-1}) ; do echo "
-   with random as (select (1000*random()+1)::int id) select row_to_json(demo) from random natural left outer join demo;
-   " ; done
+   for i in $(seq 1 ${2:-1}) ; do echo "\
+   with random as (select (1000*random()+1)::int id) select row_to_json(demo) from random natural left outer join demo;" ; done
    } | java -jar YBDemo.jar
   ;;
 write)
    {
-   echo "
-   select format('Rows inserted in the last minute: %s',to_char(count(*),'999999999')) from demo where ts > clock_timestamp() - interval '1 minute';
-   "
-   for i in $(seq 1 ${2:-1}) ; do echo "
-   insert into demo(message) values (format('inserted when connected to %s',current_setting('listen_addresses'))) returning row_to_json(demo);
-   " ; done 
+   for i in $(seq 1 ${2:-1}) ; do echo "\
+   insert into demo(message) values (format('inserted when connected to %s',current_setting('listen_addresses'))) returning row_to_json(demo)" ; done 
+   } | java -jar YBDemo.jar
+  ;;
+count)
+   {
+   echo "\
+   select format('Rows inserted in the last minute: %s',to_char(count(*),'999999999')) from demo where ts > clock_timestamp() - interval '1 minute'"
    } | java -jar YBDemo.jar
   ;;
 *)

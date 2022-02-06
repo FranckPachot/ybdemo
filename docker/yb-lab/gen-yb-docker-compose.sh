@@ -70,9 +70,9 @@ services:
       image: yugabytedb/yugabyte:${tag}
       volumes:
           - ./client:/home/yugabyte/client
-      command: ["bash","client/ybdemo.sh","connect","3"]
+      command: ["bash","client/ybdemo.sh","connect","9"]
       deploy:
-          replicas: 3
+          replicas: 1
           restart_policy:
              condition: on-failure
       depends_on:

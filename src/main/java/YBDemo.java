@@ -6,12 +6,14 @@ public class YBDemo extends Thread {
 
  private HikariDataSource ds;
  private String sql;
- // I'll use exponential backoff for serialization errors
- int max_retries=5;
+ // I'll use exponential backoff for serialization or HA errors ( YugabyteDB worst case for HA is 3 seconds )
+ int max_retries=10;
  private void exponentialBackoffWait(int retry){
-  // waits random milliseconds between 0 and 10 plus exponential (10ms for first retry, then 20,40,80,160,320...)
+  // waits random milliseconds between 0 and 10 plus exponential (10ms for first retry, then 20,40,80,160,320,640,1280,2560,5120...)
   try {
-   Thread.sleep( (int)(10*Math.random()+10*Math.pow(2,retry)) );
+   int ms=(int)(10*Math.random()+10*Math.pow(2,retry));
+   Thread.sleep(ms);
+   System.err.println(String.format(" wait in thread %9s %6d ms after %3d retries",currentThread().getName(),ms,retry));
    } catch (InterruptedException e) { System.err.println(e); }
  }
 
@@ -23,7 +25,7 @@ public class YBDemo extends Thread {
 
  // each thread will connet and run the sql in a loop
  public void run() {
-  Connection connection;
+  Connection connection=null;
   ResultSet rs;
   long timer;
   int retries=0;
@@ -36,20 +38,21 @@ public class YBDemo extends Thread {
     rs = connection.createStatement().executeQuery(sql);
     // display only first row and one column - you can get it as one json with with row_to_json() or json_agg()
     rs.next(); 
-    System.out.println(String.format("%9s %6.0fms: %s",currentThread().getName(),(System.nanoTime()-timer)/1e6,rs.getString(1)));
+    System.out.println(String.format("%9s %6.0f ms: %s",currentThread().getName(),(System.nanoTime()-timer)/1e6,rs.getString(1)));
     // we suppose autocommit, just close the connection
     connection.close();
-    // For demo purpose, errors will either continue the loop or exit the whole program (even if other threads are ok)
+    // if we get there without errors, reset the retry count
+    retries=0;
     } catch(SQLTransientConnectionException e) {
       // Error handling // connection pool error (no SQLSTATE): retry without waiting
-      System.err.println(String.format("\n%s\nError in thread %9s %6.0fms connection pool - retry %d/%d\n%s"
+      System.err.println(String.format("\n%s\nError in thread %9s %6.0f ms connection pool - retry %d/%d\n%s"
        ,sql,currentThread().getName(),(System.nanoTime()-timer)/1e6,retries,max_retries,e) );
       // count the retry but don't wait (already waited connectionTimeout)
       retries++;
       if (retries>max_retries) { System.exit(5); }
     } catch(SQLException e) {
      // For demo purpose, displays exception and SQLSTATE (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
-      System.err.println(String.format("\n%s\nError in thread %9s %6.0fms SQLSTATE(%5s) - retry %s/%s\n%s"
+      System.err.println(String.format("\n%s\nError in thread %9s %6.0f ms SQLSTATE(%5s) - retry %s/%s\n%s"
        ,sql,currentThread().getName(),(System.nanoTime()-timer)/1e6,e.getSQLState(),retries,max_retries,e) );
      // Error handling // Application error: stop the thread
      if ( e.getSQLState().startsWith("02000") ) {
@@ -60,11 +63,17 @@ public class YBDemo extends Thread {
       // syntax error: print the SQL and stop the program to fix the demo
       System.exit(4);
       }
-     // Error handling // Serialization error: retry
-     else if ( e.getSQLState().startsWith("40001") ) {
+     // Error handling // Retriable error: retry
+     else if ( 
+       e.getSQLState().startsWith("40001") || // Serialization error (optimistic locking conflict)
+       e.getSQLState().startsWith("40P01") || // Deadlock
+       e.getSQLState().startsWith("08006") || // Connection failure (node down, need to reconnect)
+       e.getSQLState().startsWith("XX000")    // Internal error (may happen during HA)
+       ) {
       // count the retry and wait exponentially ( a random between 0 and 10 milliseconds, plus 10ms for first retry, then 20,40,80...
       exponentialBackoffWait(retries);
       retries++;
+      try { connection.close(); } catch (SQLException x) {}
       if (retries>max_retries) { System.exit(5); }
       }
      // Error handling // System error: stop the program
@@ -76,11 +85,13 @@ public class YBDemo extends Thread {
       System.exit(255);
      }
     }
-   // if we get there without errors, reset the retry count
-   retries=0;
    }
   }
    public static void main(String[] args) throws SQLException , InterruptedException {
+    System.err.println("--------------------------------------------------");
+    System.err.println("----- YBDemo -- Franck Pachot -- 2022-02-06 ------");
+    System.err.println("----- https://github.com/FranckPachot/ybdemo -----");
+    System.err.println("--------------------------------------------------");
     try {
      // Tthe connection is defined in HikariCP properties
      HikariConfig config = new HikariConfig( "hikari.properties" );

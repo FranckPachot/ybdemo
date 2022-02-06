@@ -89,6 +89,7 @@ public class YBDemo extends Thread {
     System.err.println("--------------------------------------------------");
     System.err.println("----- YBDemo -- Franck Pachot -- 2022-02-06 ------");
     System.err.println("----- https://github.com/FranckPachot/ybdemo -----");
+    System.err.println("--------------------------------------------------");
     try {
      // Tthe connection is defined in HikariCP properties
      HikariConfig config = new HikariConfig( "hikari.properties" );

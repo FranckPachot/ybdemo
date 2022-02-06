@@ -33,7 +33,7 @@ services:
       image: yugabytedb/yugabyte:latest
       volumes:
           - ./client:/home/yugabyte/client
-      command: ["bash","client/ybdemo.sh","write","1"]
+      command: ["bash","client/ybdemo.sh","insert","1"]
       deploy:
           replicas: 1
           restart_policy:
@@ -48,6 +48,10 @@ services:
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","init"]
+      deploy:
+          replicas: 1
+          restart_policy:
+             condition: on-failure
       depends_on:
       - yb-tserver-2
 
@@ -206,7 +210,7 @@ services:
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
                 --replication_factor=3 
                 --ysql_num_shards_per_tserver=2
-                --placement_uuid=ro
+                
                 "
       ports:
       - "9003:9000"
@@ -306,7 +310,7 @@ services:
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
                 --replication_factor=3 
                 --ysql_num_shards_per_tserver=2
-                --placement_uuid=ro
+                
                 "
       ports:
       - "9007:9000"

@@ -94,7 +94,7 @@ services:
       image: yugabytedb/yugabyte:${tag}
       volumes:
           - ./client:/home/yugabyte/client
-      command: ["bash","client/ybdemo.sh","write","1"]
+      command: ["bash","client/ybdemo.sh","insert","1"]
       deploy:
           replicas: 1
           restart_policy:
@@ -109,6 +109,10 @@ services:
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","init"]
+      deploy:
+          replicas: 1
+          restart_policy:
+             condition: on-failure
       depends_on:
       - yb-tserver-$(( $replication_factor - 1))
 

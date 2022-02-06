@@ -38,7 +38,7 @@ public class YBDemo extends Thread {
     rs = connection.createStatement().executeQuery(sql);
     // display only first row and one column - you can get it as one json with with row_to_json() or json_agg()
     rs.next(); 
-    System.out.println(String.format("%9s %6.0fms: %s",currentThread().getName(),(System.nanoTime()-timer)/1e6,rs.getString(1)));
+    System.out.println(String.format("%9s %6.0f ms: %s",currentThread().getName(),(System.nanoTime()-timer)/1e6,rs.getString(1)));
     // we suppose autocommit, just close the connection
     connection.close();
     // if we get there without errors, reset the retry count

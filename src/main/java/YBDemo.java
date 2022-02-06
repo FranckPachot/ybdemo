@@ -13,7 +13,7 @@ public class YBDemo extends Thread {
   try {
    int ms=(int)(10*Math.random()+10*Math.pow(2,retry));
    Thread.sleep(ms);
-   System.err.println(String.format(" wait in thread %9s %5d ms before retry",currentThread().getName(),ms));
+   System.err.println(String.format(" wait in thread %9s %6d ms after %3d retries",currentThread().getName(),ms,retry));
    } catch (InterruptedException e) { System.err.println(e); }
  }
 
@@ -45,14 +45,14 @@ public class YBDemo extends Thread {
     retries=0;
     } catch(SQLTransientConnectionException e) {
       // Error handling // connection pool error (no SQLSTATE): retry without waiting
-      System.err.println(String.format("\n%s\nError in thread %9s %6.0fms connection pool - retry %d/%d\n%s"
+      System.err.println(String.format("\n%s\nError in thread %9s %6.0f ms connection pool - retry %d/%d\n%s"
        ,sql,currentThread().getName(),(System.nanoTime()-timer)/1e6,retries,max_retries,e) );
       // count the retry but don't wait (already waited connectionTimeout)
       retries++;
       if (retries>max_retries) { System.exit(5); }
     } catch(SQLException e) {
      // For demo purpose, displays exception and SQLSTATE (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
-      System.err.println(String.format("\n%s\nError in thread %9s %6.0fms SQLSTATE(%5s) - retry %s/%s\n%s"
+      System.err.println(String.format("\n%s\nError in thread %9s %6.0f ms SQLSTATE(%5s) - retry %s/%s\n%s"
        ,sql,currentThread().getName(),(System.nanoTime()-timer)/1e6,e.getSQLState(),retries,max_retries,e) );
      // Error handling // Application error: stop the thread
      if ( e.getSQLState().startsWith("02000") ) {

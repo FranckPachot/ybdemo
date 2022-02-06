@@ -11,7 +11,9 @@ public class YBDemo extends Thread {
  private void exponentialBackoffWait(int retry){
   // waits random milliseconds between 0 and 10 plus exponential (10ms for first retry, then 20,40,80,160,320,640,1280,2560,5120...)
   try {
-   Thread.sleep( (int)(10*Math.random()+10*Math.pow(2,retry)) );
+   int ms=(int)(10*Math.random()+10*Math.pow(2,retry));
+   Thread.sleep(ms);
+   System.err.println(String.format(" wait in thread %9s %5d ms before retry",currentThread().getName(),ms));
    } catch (InterruptedException e) { System.err.println(e); }
  }
 
@@ -23,7 +25,7 @@ public class YBDemo extends Thread {
 
  // each thread will connet and run the sql in a loop
  public void run() {
-  Connection connection;
+  Connection connection=null;
   ResultSet rs;
   long timer;
   int retries=0;
@@ -70,6 +72,7 @@ public class YBDemo extends Thread {
       // count the retry and wait exponentially ( a random between 0 and 10 milliseconds, plus 10ms for first retry, then 20,40,80...
       exponentialBackoffWait(retries);
       retries++;
+      try { connection.close(); } catch (SQLException x) {}
       if (retries>max_retries) { System.exit(5); }
       }
      // Error handling // System error: stop the program

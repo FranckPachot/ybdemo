@@ -1,21 +1,25 @@
 # YBDemo
 
-YBDemo is a simple Java program that creates an [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool from the ¨hikari.properties` file and takes SQL statements to execute as lines from stdin. 
+YBDemo is a simple Java program that creates an [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool from the ¨hikari.properties` file in the current directory, and takes SQL statements to execute as lines from stdin. There's no multi-line statement: each line is a thread, executing the statement in a loop. The goal is to make it easy to run a demo with concurrent threads by providing the set of queries in a simple way, interactive or though file redirection. Only the first column of the first row is displayed, I use `row_to_json()` or `json_agg()` to format a larger result into one value. The thread stops if no row is returned, I use RETURNING to get a row from DML.
 
-Each line will start a thread to execute the line content as a SQL statement, in a loop.
+The goal is to run it on PostgreSQL compatible databases, especially distributed ones like [YugabyteDB](https://www.yugabyte.com/). The [.jar](https://github.com/FranckPachot/ybdemo/releases/download/v0.0.1/YBDemo-0.0.1-SNAPSHOT-jar-with-dependencies.jar) includes the YugabyteDB JDBC driver, which is a fork of the PostgreSQL one with cluster-aware additions.
 
-Errors stop the threads except the following that will be retried:
+Error management is aimed demos on distributed SQL databases, where optimistic locking requires the application to implement a retry logic. In case of errors, depending on the [SQLSTATE](https://www.postgresql.org/docs/current/errcodes-appendix.html), we continue the loop to retry, stop the thread, or stop the program.
 
-- SQLSTATE 08xxx: Connection Exception
-- SQLSTATE 40xxx: Transaction Rollback
-- SQLSTATE 53xxx: Insufficient Resources
-- SQLSTATE 57xxx: Operator Intervention
+On SQLException the SQLSTATE determines the behavior:
+- SQLSTATE 02000 is "no data". The thread is stopped, but others continue. I use this to run a statement once, like creating a table (there's a 1 second delay between thread starts so the others should see the table)
+- SQLSTATE 42xxx are syntax error. The program stops because you probably want to fix your demo statements
+- SQLSTATE 5xxxx are system errors. The program stops because you probably want to fix your demo environment
+- SQLSTATE 40001 are serialization errors. They are retried with exponential backoff until a max_retries limit.
+- Other SQLSTATE stop the program because you probably want to define how to handle them.
 
-The primary purpose is to this program on [YugabyteDB](https://www.yugabyte.com), the open-source SQL distributed database, which is still available when a node is down. This is why those errors allow immediate retry.
+On SQLTransientConnectionException, the thread continues to retry, without waiting because there's already a timeout set in the connection pool settings. This error must be handled because transcient connection failures are exected in a distributed database, during unplanned (node, zone, region down) or planned (rolling upgrades) events.
+
+The code is simple, in order to show how to handle errors and retry logic in a distributed SQL database like [YugabyteDB](https://www.yugabyte.com), the open-source SQL distributed database, which is still available when a node is down. This is why those errors allow immediate retry. In this demo, each thread runs always the same statement, so the retry logic is just continuing the loop (and increase the retry count). In a application, you may have more logic related to retries.
 
 ## YugabyteDB 
 
-The docker folder has a docker-compose example file to start a local cluster
+The docker/yb-lab folder has a docker-compose example file to start a local cluster
 
 With the YugabyteDB Smart Driver (`YBClusterAwareDataSource`) there is only the need to define one endpoint (or a list to try in order) and other nodes will be discovered dynamically. Here is an example:
 ```

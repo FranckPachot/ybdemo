@@ -86,6 +86,9 @@ public class YBDemo extends Thread {
    }
   }
    public static void main(String[] args) throws SQLException , InterruptedException {
+    System.err.println("--------------------------------------------------");
+    System.err.println("----- YBDemo -- Franck Pachot -- 2022-02-06 ------");
+    System.err.println("----- https://github.com/FranckPachot/ybdemo -----");
     try {
      // Tthe connection is defined in HikariCP properties
      HikariConfig config = new HikariConfig( "hikari.properties" );

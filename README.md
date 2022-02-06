@@ -11,6 +11,7 @@ On SQLException the SQLSTATE determines the behavior:
 - SQLSTATE 42xxx are syntax error. The program stops because you probably want to fix your demo statements
 - SQLSTATE 5xxxx are system errors. The program stops because you probably want to fix your demo environment
 - SQLSTATE 40001 are serialization errors. They are retried with exponential backoff until a max_retries limit.
+- SQLSTATE 40P01 are deadlocks. They are retried with exponential backoff until a max_retries limit.
 - Other SQLSTATE stop the program because you probably want to define how to handle them.
 
 On SQLTransientConnectionException, the thread continues to retry, without waiting because there's already a timeout set in the connection pool settings. This error must be handled because transcient connection failures are exected in a distributed database, during unplanned (node, zone, region down) or planned (rolling upgrades) events.

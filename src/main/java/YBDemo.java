@@ -63,6 +63,7 @@ public class YBDemo extends Thread {
      // Error handling // Retriable error: retry
      else if ( 
        e.getSQLState().startsWith("40001") || // Serialization error (optimistic locking conflict)
+       e.getSQLState().startsWith("40P01") || // Deadlock
        e.getSQLState().startsWith("08006") || // Connection failure (node down, need to reconnect)
        e.getSQLState().startsWith("XX000")    // Internal error (may happen during HA)
        ) {

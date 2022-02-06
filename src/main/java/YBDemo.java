@@ -41,7 +41,8 @@ public class YBDemo extends Thread {
     System.out.println(String.format("%9s %6.0fms: %s",currentThread().getName(),(System.nanoTime()-timer)/1e6,rs.getString(1)));
     // we suppose autocommit, just close the connection
     connection.close();
-    // For demo purpose, errors will either continue the loop or exit the whole program (even if other threads are ok)
+    // if we get there without errors, reset the retry count
+    retries=0;
     } catch(SQLTransientConnectionException e) {
       // Error handling // connection pool error (no SQLSTATE): retry without waiting
       System.err.println(String.format("\n%s\nError in thread %9s %6.0fms connection pool - retry %d/%d\n%s"
@@ -84,8 +85,6 @@ public class YBDemo extends Thread {
       System.exit(255);
      }
     }
-   // if we get there without errors, reset the retry count
-   retries=0;
    }
   }
    public static void main(String[] args) throws SQLException , InterruptedException {

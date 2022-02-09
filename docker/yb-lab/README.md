@@ -47,7 +47,7 @@ When you do the same with the node you are connected to, and , thanks to the con
 In order to play with elasticity, you can add more tservers, an easy way is to increase the number of replicas to `replicas: 3` for `yb-tserver-n` (they are defined to quickly add more node but they don't have specific placement info). 
 
 ```
-docker-compose service scale yb-tserver-n=3
+docker-compose up -d --scale yb-tserver-n=3
 ```
 
 On the console, you should see the number of tablets, and operations, re-balance to the new nodes

@@ -231,9 +231,7 @@ done
 done
 done
 
-[ -n "$read_replica_regexp" ] && {
 cat <<CAT
-
 # adding a template to add more replicas
 
   yb-tserver-n:
@@ -255,6 +253,11 @@ cat <<CAT
           replicas: 0
       depends_on:
       - yb-master-$(( $number_of_masters - 1))
+CAT
+
+[ -n "$read_replica_regexp" ] && {
+cat <<CAT
+
 
 # ephemeral container to tag read replicas if defined
 

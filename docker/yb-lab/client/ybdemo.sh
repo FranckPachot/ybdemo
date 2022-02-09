@@ -1,5 +1,10 @@
 cd $(dirname $0)
-#curl -Ls https://github.com/FranckPachot/ybdemo/releases/download/v0.0.1/YBDemo-0.0.1-SNAPSHOT-jar-with-dependencies.jar > YBDemo.jar
+
+# get the latest YBDemo.jar (includes postgresql and yugabytedb drivers):
+#  curl -Ls https://github.com/FranckPachot/ybdemo/releases/download/v0.0.1/YBDemo-0.0.1-SNAPSHOT-jar-with-dependencies.jar > YBDemo.jar
+
+# the connection info is in client/hikari.properties
+
 case $1 in 
 init)
   # stop on error so that it is retried until sucessful

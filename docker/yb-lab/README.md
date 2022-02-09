@@ -1,14 +1,14 @@
-Here is my lab to test various [YugabyteDB](https://www.yugabyte.com/) configurations locally in Docker. The goal is to generate a `docker-compose.yaml` to test multi-cloud, multi-region, multi-zone, multi-node, and with read replicas in a lab. And run workloads with the YBDemo from this repository. It is highly configurarable, and will change depending on my needs, so better look at the scripts to understand them. Or ask me ([@FranckPachot](https://twitter.com/FranckPachot))
+Here is my lab to test various [YugabyteDB](https://www.yugabyte.com/) configurations locally in Docker. The `gen-yb-docker-compose.sh` generates a `docker-compose.yaml` to test multi-cloud, multi-region, multi-zone, multi-node, and with read replicas in a lab. It also creates some application containers running the YBDemo simple program from this repository. It is highly configurable, may change depending on my needs, so better look at the scripts to understand them. Or ask me ([@FranckPachot](https://twitter.com/FranckPachot))
 
 
 
 # Run the lab
 
-1. run `gen-yb-docker-compose.sh` to generate a `docker-compose.yaml` in the current directory, and start it. This creates a cluster with the settings are defined in the generation script though environment variables (and the first arg $1 of the script defines some iconfigurations of interrest)
+1. run `gen-yb-docker-compose.sh` to generate a `docker-compose.yaml` in the current directory, and start it. This creates a cluster with the settings are defined in the generation script though environment variables (and the first arg $1 of the script defines some configurations of interest)
  - the **tservers** will be created from yb-tserver-0 up to the number defined in `$number_of_tservers`
- - they will be distributed into `$list_of_clouds`, `$list_of_regions`, `$list_of_zones` **placement info** (of course all are on your laptop, those are just names)
- - the cloud.region.zone matching `$read_replica_regexp` will be **read replicas** (also called obervers or witness replicas - they do not participate in raft quorum, they can lag but will never block writes)
- - **master** are created first, the number is the **replication factor** set in `$replication_factor`
+ - they will be distributed into `$list_of_clouds`, `$list_of_regions`, `$list_of_zones` **placement info** (of course all are on your laptop, those are just names ;)
+ - the **cloud.region.zone** matching `$read_replica_regexp` will be **read replicas** (also called observers or witness replicas - they do not participate in raft quorum, they can lag but will never block writes)
+ - **master** containers are created first, the number is the **replication factor** set in `$replication_factor`
  - once the masters are created, if `$read_replica_regexp` is defined, `cluster-config` will set the primary and read replica **topology**. You can look at its log to check what it defines. We this is set the tservers will be defined as `ro` for read replicas or `rw` for primary nodes depending on the pattern.
  - once all tservers are created, the `yb_servers()` topology is displayed
 
@@ -18,7 +18,7 @@ Here is my lab to test various [YugabyteDB](https://www.yugabyte.com/) configura
 
 4. see all logs with `docker-compose logs -tf` and have fun
 
-# Exercise ideas
+# Exercising ideas
 
 ## Test resilience
 

@@ -1,3 +1,5 @@
+🐳 The best use of this is from the docker-compose environment set in [./docker/yb-lab](docker/yb-lab)
+
 # YBDemo
 
 YBDemo is a simple Java program that creates an [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool from the `hikari.properties` file in the current directory, and takes SQL statements to execute as lines from stdin. There's no multi-line statement: each line is a thread, executing the statement in a loop. The goal is to make it easy to run a demo with concurrent threads by providing the set of queries in a simple way, interactive or though file redirection. Only the first column of the first row is displayed, I use `row_to_json()` or `json_agg()` to format a larger result into one value. The thread stops if no row is returned, I use RETURNING to get a row from DML.

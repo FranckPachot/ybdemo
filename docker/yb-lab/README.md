@@ -32,13 +32,13 @@ docker logs -f yb-lab_yb-demo-write_1
 
 You should see reads and writes distributed in http://localhost:7000/tablet-servers
 
-When you stop another node that the one the thread is connected, you should see at most a few seconds wait. And from the web console, the yb-tserver-1 taking no read/writes (they were rebalanced to the others) and becoming DEAD after 60 seconds
+When you stop another node that the one the thread is connected, you should see at most a few seconds wait. Leaders will be lected on other nodes and only followers remain. From the web console, the yb-tserver-1 taking no read/writes (they were rebalanced to the others) and becoming DEAD after 60 seconds.
 
 ```
 docker stop yb-tserver-1
 ```
 
-Start it again (`docker start yb-tserver-1`) and all will be automatically re-balanced.
+Start it again (`docker start yb-tserver-1`) and the followers there will catch-up the last changes (kept by default 15 minutes as defined by `--log_min_seconds_to_retain`). If you don't start it up, the followers will be removed from the cluster and created elsewhere. This happens after `--follower_unavailable_considered_failed_sec` which also defaults to 15 seconds.
 
 When you do the same with the node you are connected to, and , thanks to the connection pool and the smart driver, it will reconnect to another node and continue.
 

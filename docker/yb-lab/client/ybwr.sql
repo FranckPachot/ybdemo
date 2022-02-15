@@ -53,11 +53,11 @@ select ybwr_snap();
 
 select ybwr_snap();
 
-select value,rate,namespace_name,table_name,metric_name,host,substr(tablet_id,1,6)||'...' tablet_id
+select value,rate,namespace_name,table_name,metric_name,host,tablet_id
 ,to_char(100*value/sum(value)over(partition by namespace_name,table_name,metric_name),'999%') as "%table"
 ,sum(value)over(partition by namespace_name,table_name,metric_name) as "table"
 from ybwr_last , ybwr_snap()
 where metric_name in ('rows_inserted','rocksdb_number_db_seek','rocksdb_number_db_next')
 and table_name not in ('metrics','ybwr_snapshots')
-order by ts desc,"table" desc,value desc,host,metric_name,table_name,tablet_id;
-\watch 1
+order by ts desc,namespace_name,table_name,host,tablet_id,"table" desc,value desc,metric_name;
+\watch 10

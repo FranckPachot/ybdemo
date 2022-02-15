@@ -89,7 +89,15 @@ you can go to any node with something like `docker exec -it yb-lab_yb-demo_1 bas
 docker exec -it yb-tserver-0 ysqlsh -h yb-tserver-0
 ```
 
-You can also connect to a node from the laptop (the 5433 port from yb-tserver-0 is redirected from localhost:5433, yb-tserver-1 from 5434...)
+## Inspect the performance metrics
+
+the `ybwr.sql` script collects the metrics from the tserver json endpoints, stores them, and displays a report every 10 seconds.
+
+```
+docker exec -it yb-lab_yb-demo-connect_1 bash client/ybdemo.sh ybwr
+```
+
+The most important metrics to identify any hotspots are `rows_inserted` for writes (those are key-value subdocuments, not SQL rows) and `rocksdb_number_db_seek`,`rocksdb_number_db_next` for reads and writes. The "%table" column shows the distribution of the per-tablet ones per the total for the table.
 
 ## Test JDBC Smart Driver
 
@@ -171,3 +179,6 @@ List of servers from the console:
 
 ![image](https://user-images.githubusercontent.com/33070466/150541890-b67e2540-9526-41fa-81a0-206831deb30a.png)
 
+Performance metrics between two snapshots:
+
+![Screenshot 2022-02-15 183046](https://user-images.githubusercontent.com/33070466/154118148-5906ed77-2240-4090-bf16-ab8ccddf29ec.png)

@@ -32,5 +32,5 @@ select ybwr_snap();
 select value,rate,namespace_name,table_name,metric_name,host,tablet_id
 ,to_char(100*value/sum(value)over(partition by namespace_name,table_name,metric_name),'999%') as "%table"
 ,sum(value)over(partition by namespace_name,table_name,metric_name) as "table"
-from ybwr_last where table_name='write_read_test'
+from ybwr_last 
 order by ts desc,"table" desc,value desc,host,metric_name,table_name,tablet_id;

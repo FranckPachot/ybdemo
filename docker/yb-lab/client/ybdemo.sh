@@ -40,6 +40,23 @@ count)
    select format('Rows inserted in the last minute: %s',to_char(count(*),'999999999')) from demo where ts > clock_timestamp() - interval '1 minute'"
    } | java -jar YBDemo.jar
   ;;
+ywr_init)
+  # stop on error so that it is retried until sucessful
+   PGCONNECT_TIMEOUT=5 ysqlsh -h yb-tserver-0 -v ON_ERROR_STOP=on -e -f ybwr.sql
+  ;;  
+ywr_snap)
+  # stop on error so that it is retried until sucessful
+   PGCONNECT_TIMEOUT=5 ysqlsh -h yb-tserver-0 -v ON_ERROR_STOP=on -e -f /dev/stdin <<'SQL'
+   select ybwr_snap();
+   select row_to_json(stat) from (
+   select value,rate,metric_name,host,tablet_id
+   ,to_char(100*value/sum(value)over(partition by namespace_name,table_name,metric_name),'999%') as "%table"
+   ,sum(value)over(partition by namespace_name,table_name,metric_name) as "table"
+   from ybwr_last where table_name='demo'
+   order by ts desc,"table" desc,value desc,host,metric_name,table_name,tablet_id
+   ) stat;   
+SQL   
+  ;;    
 *)
    for i in  $(seq 1 ${2:-1}) ; do echo "
    execute ybdemo(1000);

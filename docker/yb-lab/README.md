@@ -92,7 +92,7 @@ docker exec -it yb-tserver-0 ysqlsh -h yb-tserver-0
 ## Inspect the performance metrics
 
 the `ybwr.sql` script collects the metrics from the tserver json endpoints, stores them, and displays a report every 10 seconds.
-
+if the yb-lab_yb-demo-metrics service is not started you can run:
 ```
 docker exec -it yb-lab_yb-demo-connect_1 bash client/ybdemo.sh ybwr
 ```

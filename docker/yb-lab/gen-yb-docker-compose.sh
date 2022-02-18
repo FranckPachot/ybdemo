@@ -19,6 +19,16 @@ number_of_tservers=2
 read_replica_regexp=""
 break ;;
 
+minimal)
+# example RF-1 two nodes
+replication_factor=1
+list_of_clouds="cloud"
+list_of_regions="region"
+list_of_zones="zone1 zone2 zone3"
+number_of_tservers=1
+read_replica_regexp=""
+break ;;
+
 aws)
 # example Multi-AZ two node per AZ
 replication_factor=3
@@ -75,8 +85,6 @@ services:
           replicas: 1
           restart_policy:
              condition: on-failure
-      depends_on:
-      - yb-tserver-$(( $replication_factor - 1))
 
   yb-demo-read:
       image: yugabytedb/yugabyte:${tag}
@@ -87,8 +95,6 @@ services:
           replicas: 1
           restart_policy:
              condition: on-failure
-      depends_on:
-      - yb-tserver-$(( $replication_factor - 1))
 
   yb-demo-write:
       image: yugabytedb/yugabyte:${tag}
@@ -99,8 +105,6 @@ services:
           replicas: 1
           restart_policy:
              condition: on-failure
-      depends_on:
-      - yb-tserver-$(( $replication_factor - 1))
 
 # table create and other initialization for demos
 
@@ -113,8 +117,15 @@ services:
           replicas: 1
           restart_policy:
              condition: on-failure
-      depends_on:
-      - yb-tserver-$(( $replication_factor - 1))
+
+  yb-demo-metrics:
+      image: yugabytedb/yugabyte:${tag}
+      volumes:
+          - ./client:/home/yugabyte/client
+      command: ["bash","client/ybdemo.sh","ybwr"]
+      deploy:
+          restart_policy:
+             condition: on-failure
 
 # yb-master and yb-tservers
 

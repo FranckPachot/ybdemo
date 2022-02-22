@@ -6,7 +6,7 @@ YBDemo is a simple Java program that creates an [HikariCP](https://github.com/br
 
 The goal is to run it on PostgreSQL compatible databases, especially distributed ones like [YugabyteDB](https://www.yugabyte.com/). The [.jar](https://github.com/FranckPachot/ybdemo/releases/download/v0.0.1/YBDemo-0.0.1-SNAPSHOT-jar-with-dependencies.jar) includes the YugabyteDB JDBC driver, which is a fork of the PostgreSQL one with cluster-aware additions.
 
-Error management is aimed demos on distributed SQL databases, where optimistic locking requires the application to implement a retry logic. In case of errors, depending on the [SQLSTATE](https://www.postgresql.org/docs/current/errcodes-appendix.html), we continue the loop to retry, stop the thread, or stop the program.
+Error management is aimed at demos on distributed SQL databases, where optimistic locking requires the application to implement a retry logic. In case of errors, depending on the [SQLSTATE](https://www.postgresql.org/docs/current/errcodes-appendix.html), we continue the loop to retry, stop the thread, or stop the program.
 
 On SQLException the SQLSTATE determines the behavior:
 - SQLSTATE 02000 is "no data". The thread is stopped, but others continue. I use this to run a statement once, like creating a table (there's a 1 second delay between thread starts so the others should see the table)
@@ -14,6 +14,7 @@ On SQLException the SQLSTATE determines the behavior:
 - SQLSTATE 5xxxx are system errors. The program stops because you probably want to fix your demo environment
 - SQLSTATE 40001 are serialization errors. They are retried with exponential backoff until a max_retries limit.
 - SQLSTATE 40P01 are deadlocks. They are retried with exponential backoff until a max_retries limit.
+- SQLSTATE 08006 or XX000 can happen before or after the transaction commit. Retry must guarantee that duplicate transactions are detected. 
 - Other SQLSTATE stop the program because you probably want to define how to handle them.
 
 On SQLTransientConnectionException, the thread continues to retry, without waiting because there's already a timeout set in the connection pool settings. This error must be handled because transcient connection failures are exected in a distributed database, during unplanned (node, zone, region down) or planned (rolling upgrades) events.

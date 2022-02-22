@@ -65,8 +65,10 @@ public class YBDemo extends Thread {
       }
      // Error handling // Retriable error: retry
      else if ( 
+       // safe retry because we know the transaction has failed:
        e.getSQLState().startsWith("40001") || // Serialization error (optimistic locking conflict)
        e.getSQLState().startsWith("40P01") || // Deadlock
+       // the following may have been commited or not, retry only when duplicate transaction can be detected (integrity constraints, read before write...)
        e.getSQLState().startsWith("08006") || // Connection failure (node down, need to reconnect)
        e.getSQLState().startsWith("XX000")    // Internal error (may happen during HA)
        ) {

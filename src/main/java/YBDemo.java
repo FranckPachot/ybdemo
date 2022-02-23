@@ -52,8 +52,8 @@ public class YBDemo extends Thread {
       if (retries>max_retries) { System.exit(5); }
     } catch(SQLException e) {
      // For demo purpose, displays exception and SQLSTATE (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
-      System.err.println(String.format("\n%s\nError in thread %9s %6.0f ms SQLSTATE(%5s) - retry %s/%s\n%s"
-       ,sql,currentThread().getName(),(System.nanoTime()-timer)/1e6,e.getSQLState(),retries,max_retries,e) );
+      System.err.println(String.format("\n%s\nError in thread %9s %6.0f ms SQLSTATE(%5s) VendorCode(%d) - retry %s/%s\n%s"
+       ,sql,currentThread().getName(),(System.nanoTime()-timer)/1e6,e.getSQLState(),e.getErrorCode(),retries,max_retries,e) );
      // Error handling // Application error: stop the thread
      if ( e.getSQLState().startsWith("02000") ) {
       // no data: stop the thread (I use it to run DDL once in my demos)

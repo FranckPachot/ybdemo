@@ -52,8 +52,8 @@ public class YBDemo extends Thread {
       if (retries>max_retries) { System.exit(5); }
     } catch(SQLException e) {
      // For demo purpose, displays exception and SQLSTATE (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
-      System.err.println(String.format("\n%s\nError in thread %9s %6.0f ms SQLSTATE(%5s) - retry %s/%s\n%s"
-       ,sql,currentThread().getName(),(System.nanoTime()-timer)/1e6,e.getSQLState(),retries,max_retries,e) );
+      System.err.println(String.format("\n%s\nError in thread %9s %6.0f ms SQLSTATE(%5s) VendorCode(%d) - retry %s/%s\n%s"
+       ,sql,currentThread().getName(),(System.nanoTime()-timer)/1e6,e.getSQLState(),e.getErrorCode(),retries,max_retries,e) );
      // Error handling // Application error: stop the thread
      if ( e.getSQLState().startsWith("02000") ) {
       // no data: stop the thread (I use it to run DDL once in my demos)
@@ -65,8 +65,10 @@ public class YBDemo extends Thread {
       }
      // Error handling // Retriable error: retry
      else if ( 
+       // safe retry because we know the transaction has failed:
        e.getSQLState().startsWith("40001") || // Serialization error (optimistic locking conflict)
        e.getSQLState().startsWith("40P01") || // Deadlock
+       // the following may have been commited or not, retry only when duplicate transaction can be detected (integrity constraints, read before write...)
        e.getSQLState().startsWith("08006") || // Connection failure (node down, need to reconnect)
        e.getSQLState().startsWith("XX000")    // Internal error (may happen during HA)
        ) {

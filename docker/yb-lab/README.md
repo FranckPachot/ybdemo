@@ -1,14 +1,14 @@
-Here is my lab to test various [YugabyteDB](https://www.yugabyte.com/) configurations locally in Docker. The goal is to generate a `docker-compose.yaml` to test multi-cloud, multi-region, multi-zone, multi-node, and with read replicas in a lab. And run workloads with the YBDemo from this repository. It is highly configurarable, and will change depending on my needs, so better look at the scripts to understand them. Or ask me ([@FranckPachot](https://twitter.com/FranckPachot))
+Here is my lab to test various [YugabyteDB](https://www.yugabyte.com/) configurations locally in Docker. The `gen-yb-docker-compose.sh` generates a `docker-compose.yaml` to test multi-cloud, multi-region, multi-zone, multi-node, and with read replicas in a lab. It also creates some application containers running the YBDemo simple program from this repository. It is highly configurable, may change depending on my needs, so better look at the scripts to understand them. Or ask me ([@FranckPachot](https://twitter.com/FranckPachot))
 
 
 
 # Run the lab
 
-1. run `gen-yb-docker-compose.sh` to generate a `docker-compose.yaml` in the current directory, and start it. This creates a cluster with the settings are defined in the generation script though environment variables (and the first arg $1 of the script defines some iconfigurations of interrest)
+1. run `gen-yb-docker-compose.sh` to generate a `docker-compose.yaml` in the current directory, and start it. This creates a cluster with the settings are defined in the generation script though environment variables (and the first arg $1 of the script defines some configurations of interest)
  - the **tservers** will be created from yb-tserver-0 up to the number defined in `$number_of_tservers`
- - they will be distributed into `$list_of_clouds`, `$list_of_regions`, `$list_of_zones` **placement info** (of course all are on your laptop, those are just names)
- - the cloud.region.zone matching `$read_replica_regexp` will be **read replicas** (also called obervers or witness replicas - they do not participate in raft quorum, they can lag but will never block writes)
- - **master** are created first, the number is the **replication factor** set in `$replication_factor`
+ - they will be distributed into `$list_of_clouds`, `$list_of_regions`, `$list_of_zones` **placement info** (of course all are on your laptop, those are just names ;)
+ - the **cloud.region.zone** matching `$read_replica_regexp` will be **read replicas** (also called observers or witness replicas - they do not participate in raft quorum, they can lag but will never block writes)
+ - **master** containers are created first, the number is the **replication factor** set in `$replication_factor`
  - once the masters are created, if `$read_replica_regexp` is defined, `cluster-config` will set the primary and read replica **topology**. You can look at its log to check what it defines. We this is set the tservers will be defined as `ro` for read replicas or `rw` for primary nodes depending on the pattern.
  - once all tservers are created, the `yb_servers()` topology is displayed
 
@@ -18,7 +18,7 @@ Here is my lab to test various [YugabyteDB](https://www.yugabyte.com/) configura
 
 4. see all logs with `docker-compose logs -tf` and have fun
 
-# Exercise ideas
+# Exercising ideas
 
 ## Test resilience
 
@@ -32,13 +32,13 @@ docker logs -f yb-lab_yb-demo-write_1
 
 You should see reads and writes distributed in http://localhost:7000/tablet-servers
 
-When you stop another node that the one the thread is connected, you should see at most a few seconds wait. And from the web console, the yb-tserver-1 taking no read/writes (they were rebalanced to the others) and becoming DEAD after 60 seconds
+When you stop another node that the one the thread is connected, you should see at most a few seconds wait. Leaders will be lected on other nodes and only followers remain. From the web console, the yb-tserver-1 taking no read/writes (they were rebalanced to the others) and becoming DEAD after 60 seconds.
 
 ```
 docker stop yb-tserver-1
 ```
 
-Start it again (`docker start yb-tserver-1`) and all will be automatically re-balanced.
+Start it again (`docker start yb-tserver-1`) and the followers there will catch-up the last changes (kept by default 15 minutes as defined by `--log_min_seconds_to_retain`). If you don't start it up, the followers will be removed from the cluster and created elsewhere. This happens after `--follower_unavailable_considered_failed_sec` which also defaults to 15 seconds.
 
 When you do the same with the node you are connected to, and , thanks to the connection pool and the smart driver, it will reconnect to another node and continue.
 
@@ -47,7 +47,7 @@ When you do the same with the node you are connected to, and , thanks to the con
 In order to play with elasticity, you can add more tservers, an easy way is to increase the number of replicas to `replicas: 3` for `yb-tserver-n` (they are defined to quickly add more node but they don't have specific placement info). 
 
 ```
-docker-compose service scale yb-tserver-n=3
+docker-compose up -d --scale yb-tserver-n=3
 ```
 
 On the console, you should see the number of tablets, and operations, re-balance to the new nodes
@@ -89,7 +89,15 @@ you can go to any node with something like `docker exec -it yb-lab_yb-demo_1 bas
 docker exec -it yb-tserver-0 ysqlsh -h yb-tserver-0
 ```
 
-You can also connect to a node from the laptop (the 5433 port from yb-tserver-0 is redirected from localhost:5433, yb-tserver-1 from 5434...)
+## Inspect the performance metrics
+
+the `ybwr.sql` script collects the metrics from the tserver json endpoints, stores them, and displays a report every 10 seconds.
+if the yb-lab_yb-demo-metrics service is not started you can run:
+```
+docker exec -it yb-lab_yb-demo-connect_1 bash client/ybdemo.sh ybwr
+```
+
+The most important metrics to identify any hotspots are `rows_inserted` for writes (those are key-value subdocuments, not SQL rows) and `rocksdb_number_db_seek`,`rocksdb_number_db_next` for reads and writes. The "%table" column shows the distribution of the per-tablet ones per the total for the table.
 
 ## Test JDBC Smart Driver
 
@@ -171,3 +179,6 @@ List of servers from the console:
 
 ![image](https://user-images.githubusercontent.com/33070466/150541890-b67e2540-9526-41fa-81a0-206831deb30a.png)
 
+Performance metrics between two snapshots:
+
+![Screenshot 2022-02-15 183046](https://user-images.githubusercontent.com/33070466/154118148-5906ed77-2240-4090-bf16-ab8ccddf29ec.png)

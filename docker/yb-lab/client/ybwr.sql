@@ -47,19 +47,19 @@ from ybwr_snapshots
 -- a convenient "ybwr_last" shows the last snapshot:
 create or replace view ybwr_last as select * from ybwr_report where relative_snap_id=1;
 
--- a convenient "ybwr_snap_and_show_tablet_load" takes a snapshot and show the metrics I think are useful to identify hotspots:
+-- a convenient "ybwr_snap_and_show_tablet_load" takes a snapshot and show the metrics
 create or replace view ybwr_snap_and_show_tablet_load as 
 select value,rate,namespace_name,table_name,metric_name,host,tablet_id
 ,to_char(100*value/sum(value)over(partition by namespace_name,table_name,metric_name),'999%') as "%table"
 ,sum(value)over(partition by namespace_name,table_name,metric_name) as "table"
 from ybwr_last , ybwr_snap()
-where metric_name in ('rows_inserted','rocksdb_number_db_seek','rocksdb_number_db_next')
-and table_name not in ('metrics','ybwr_snapshots')
+where table_name not in ('metrics','ybwr_snapshots')
+and metric_name not in ('follower_lag_ms')
 order by ts desc,namespace_name,table_name,host,tablet_id,"table" desc,value desc,metric_name;
 
 -- example:
 
 select ybwr_snap();
 
-select * from ybwr_snap_and_show_tablet_load;
+select * from ybwr_snap_and_show_tablet_load where namespace_name not in ('system') and metric_name in ('rows_inserted','rocksdb_number_db_seek','rocksdb_number_db_next');
 \watch 10

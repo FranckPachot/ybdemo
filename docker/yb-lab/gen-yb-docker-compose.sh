@@ -1,4 +1,3 @@
-docker-compose down
 
 ####################################################################
 # creates a docker-compose.yaml to build a RF=$replication_factor 
@@ -294,6 +293,9 @@ CAT
 
 } | tee docker-compose.yaml
 
+echo "$*" | grep "generate-only" || {
+
+docker-compose down
 docker-compose up -d
 sleep 3 
 until docker exec -it yb-tserver-0 ysqlsh -h yb-tserver-0 -c 'select  cloud,region,zone,host,port,node_type,public_ip from yb_servers() order by 1,2,3,6' | grep -B $(( $number_of_tservers + 5)) "$number_of_tservers rows" ; do sleep 1 ; done 
@@ -305,6 +307,8 @@ change docker-compose.yaml and reload:  docker-compose up -d
 
 
 echo
+
+}
 
 exit
 

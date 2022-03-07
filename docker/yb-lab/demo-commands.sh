@@ -67,6 +67,29 @@ cygstart http://localhost:7000/tablet-servers \
 # force master re-election
 for i in yb-master-{0..2} ; do docker restart $i -t 5 ; sleep 1 ; done
 
+cygstart http://localhost:7000/tablet-servers \
+
+curl -s http://localhost:7000/logs?raw | grep --color=auto -iE "(cluster_balance|async_rpc_tasks|Leader Stepdown|Moving leader)" \
+
+
+# connect
+docker exec -it yb-tserver-0 ysqlsh -h yb-tserver-0
+
+# perf
+timeout 30 docker exec -i yb-lab-yb-demo-connect-1 bash client/ybdemo.sh ybwr &
+
+
+# connect
+docker exec -it yb-tserver-0 ysqlsh -h yb-tserver-0
+select * from ybwr_snap_and_show_tablet_load where table_name='franck';
+create table franck (id int primary key, val int);
+select * from ybwr_snap_and_show_tablet_load where table_name='franck';
+insert into franck select generate_series(1,1000);
+select * from ybwr_snap_and_show_tablet_load where table_name='franck';
+update franck set val=val+1 where id=1;
+select * from ybwr_snap_and_show_tablet_load where table_name='franck';
+
+
 
 
 

@@ -61,5 +61,6 @@ order by ts desc,namespace_name,table_name,host,tablet_id,"table" desc,value des
 
 select ybwr_snap();
 
-select * from ybwr_snap_and_show_tablet_load where namespace_name not in ('system') and metric_name in ('rows_inserted','rocksdb_number_db_seek','rocksdb_number_db_next');
+prepare snap1 as select * from ybwr_snap_and_show_tablet_load where namespace_name not in ('system') and metric_name in ('rows_inserted','rocksdb_number_db_seek','rocksdb_number_db_next');
+execute snap1;
 \watch 10

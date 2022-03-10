@@ -16,6 +16,18 @@ list_of_regions="region"
 list_of_zones="zone1 zone2 zone3"
 number_of_tservers=2
 read_replica_regexp=""
+demo=0
+break ;;
+
+rf3)
+# example RF-1 two nodes
+replication_factor=3
+list_of_clouds="cloud"
+list_of_regions="region"
+list_of_zones="zone1 zone2 zone3"
+number_of_tservers=3
+read_replica_regexp=""
+demo=0
 break ;;
 
 minimal)
@@ -26,6 +38,7 @@ list_of_regions="region"
 list_of_zones="zone1 zone2 zone3"
 number_of_tservers=1
 read_replica_regexp=""
+demo=1
 break ;;
 
 aws)
@@ -36,6 +49,7 @@ list_of_regions="eu-west-1"
 list_of_zones="eu-west-1a eu-west-1b eu-west-1c"
 number_of_tservers=6
 read_replica_regexp=""
+demo=1
 break ;;
 
 rr) 
@@ -46,6 +60,7 @@ list_of_regions="region1 region2"
 list_of_zones="zone1 zone2"
 number_of_tservers=8
 read_replica_regexp="cloud2.region2.zone[1-2]"
+demo=1
 break ;;
 
 *)
@@ -56,6 +71,7 @@ list_of_regions="region1 region2"
 list_of_zones="zone1 zone2"
 number_of_tservers=8
 read_replica_regexp=""
+demo=1
 ;;
 
 esac
@@ -81,7 +97,7 @@ services:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","connect","9"]
       deploy:
-          replicas: 1
+          replicas: $demo
           restart_policy:
              condition: on-failure
 
@@ -91,7 +107,7 @@ services:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","read","1"]
       deploy:
-          replicas: 1
+          replicas: $demo
           restart_policy:
              condition: on-failure
 
@@ -101,7 +117,7 @@ services:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","insert","1"]
       deploy:
-          replicas: 1
+          replicas: $demo
           restart_policy:
              condition: on-failure
 
@@ -113,7 +129,7 @@ services:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","init"]
       deploy:
-          replicas: 1
+          replicas: $demo
           restart_policy:
              condition: on-failure
 

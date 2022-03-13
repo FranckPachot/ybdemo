@@ -308,6 +308,9 @@ CAT
 }
 
 } | tee docker-compose.yaml
+cp docker-compose.yaml "example-docker-compose-${1:-ybdemo}.yaml"
+
+
 
 echo "$*" | grep "generate-only" || {
 

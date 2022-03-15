@@ -1,0 +1,125 @@
+
+version: '2'
+
+services:
+
+# demos with connect / read / write workloads
+
+  yb-demo-connect:
+      image: yugabytedb/yugabyte:latest
+      volumes:
+          - ./client:/home/yugabyte/client
+      command: ["bash","client/ybdemo.sh","connect","9"]
+      deploy:
+          replicas: 1
+          restart_policy:
+             condition: on-failure
+
+  yb-demo-read:
+      image: yugabytedb/yugabyte:latest
+      volumes:
+          - ./client:/home/yugabyte/client
+      command: ["bash","client/ybdemo.sh","read","1"]
+      deploy:
+          replicas: 1
+          restart_policy:
+             condition: on-failure
+
+  yb-demo-write:
+      image: yugabytedb/yugabyte:latest
+      volumes:
+          - ./client:/home/yugabyte/client
+      command: ["bash","client/ybdemo.sh","insert","1"]
+      deploy:
+          replicas: 1
+          restart_policy:
+             condition: on-failure
+
+# table create and other initialization for demos
+
+  yb-demo-init:
+      image: yugabytedb/yugabyte:latest
+      volumes:
+          - ./client:/home/yugabyte/client
+      command: ["bash","client/ybdemo.sh","init"]
+      deploy:
+          replicas: 1
+          restart_policy:
+             condition: on-failure
+
+  yb-demo-metrics:
+      image: yugabytedb/yugabyte:latest
+      volumes:
+          - ./client:/home/yugabyte/client
+      command: ["bash","client/ybdemo.sh","ybwr"]
+      deploy:
+          restart_policy:
+             condition: on-failure
+
+# yb-master and yb-tservers
+
+
+  yb-master-0:
+      image: yugabytedb/yugabyte:latest
+      container_name: yb-master-0
+      hostname: yb-master-0
+      command: bash -c "
+                rm -rf /tmp/.yb* ; 
+                /home/yugabyte/bin/yb-master 
+                --fs_data_dirs=/home/yugabyte/data
+                --placement_cloud=cloud
+                --placement_region=region
+                --placement_zone=zone1
+                --rpc_bind_addresses=yb-master-0:7100
+                --master_addresses=yb-master-0:7100
+                --replication_factor=1
+                "
+      ports:
+      - "7000:7000"
+
+
+  yb-tserver-0:
+      image: yugabytedb/yugabyte:latest
+      container_name: yb-tserver-0
+      hostname: yb-tserver-0
+      command: bash -c "
+                rm -rf /tmp/.yb* ; 
+                /home/yugabyte/bin/yb-tserver 
+                --placement_cloud=cloud 
+                --placement_region=region 
+                --placement_zone=zone1 
+                --enable_ysql=true 
+                --fs_data_dirs=/home/yugabyte/data 
+                --rpc_bind_addresses=yb-tserver-0:9100 
+                --tserver_master_addrs=yb-master-0:7100 
+                --replication_factor=1 
+                --ysql_num_shards_per_tserver=2
+                
+                "
+      ports:
+      - "9000:9000"
+      - "5433:5433"
+      depends_on:
+      - yb-master-0
+
+# adding a template to add more replicas
+
+  yb-tserver-n:
+      image: yugabytedb/yugabyte:latest
+      command: bash -c "
+                rm -rf /tmp/.yb* ; 
+                /home/yugabyte/bin/yb-tserver 
+                --placement_cloud=cloud 
+                --placement_region=region 
+                --placement_zone=zone3 
+                --enable_ysql=true 
+                --fs_data_dirs=/home/yugabyte/data 
+                --tserver_master_addrs=yb-master-0:7100 
+                --replication_factor=1 
+                --ysql_num_shards_per_tserver=2
+                
+                "
+      deploy:
+          replicas: 0
+      depends_on:
+      - yb-master-0

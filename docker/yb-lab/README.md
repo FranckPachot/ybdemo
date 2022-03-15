@@ -38,7 +38,7 @@ When you stop another node that the one the thread is connected, you should see 
 docker stop yb-tserver-1
 ```
 
-Start it again (`docker start yb-tserver-1`) and the followers there will catch-up the last changes (kept by default 15 minutes as defined by `--log_min_seconds_to_retain`). If you don't start it up, the followers will be removed from the cluster and created elsewhere. This happens after `--follower_unavailable_considered_failed_sec` which also defaults to 15 seconds.
+Start it again (`docker start yb-tserver-1`) and the followers there will catch-up the last changes (kept by default 15 minutes as defined by `--log_min_seconds_to_retain`). If you don't start it up, the followers will be removed from the cluster and created elsewhere. This happens after `--follower_unavailable_considered_failed_sec` which also defaults to 15 minutes.
 
 When you do the same with the node you are connected to, and , thanks to the connection pool and the smart driver, it will reconnect to another node and continue.
 

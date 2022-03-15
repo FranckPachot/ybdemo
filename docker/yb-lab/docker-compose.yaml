@@ -67,8 +67,8 @@ services:
                 rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-master 
                 --fs_data_dirs=/home/yugabyte/data
-                --placement_cloud=cloud1
-                --placement_region=region1
+                --placement_cloud=cloud
+                --placement_region=region
                 --placement_zone=zone1
                 --rpc_bind_addresses=yb-master-0:7100
                 --master_addresses=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100
@@ -85,8 +85,8 @@ services:
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-tserver 
-                --placement_cloud=cloud1 
-                --placement_region=region1 
+                --placement_cloud=cloud 
+                --placement_region=region 
                 --placement_zone=zone1 
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
@@ -111,15 +111,9 @@ services:
                 rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-master 
                 --fs_data_dirs=/home/yugabyte/data
-<<<<<<< HEAD
-                --placement_cloud=cloud2
-                --placement_region=region1
-                --placement_zone=zone1
-=======
                 --placement_cloud=cloud
                 --placement_region=region
                 --placement_zone=zone2
->>>>>>> 3a4ffda30ed1caddf32faaff2e9a5b1d26ea98cb
                 --rpc_bind_addresses=yb-master-1:7100
                 --master_addresses=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100
                 --replication_factor=3
@@ -137,15 +131,9 @@ services:
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-tserver 
-<<<<<<< HEAD
-                --placement_cloud=cloud2 
-                --placement_region=region1 
-                --placement_zone=zone1 
-=======
                 --placement_cloud=cloud 
                 --placement_region=region 
                 --placement_zone=zone2 
->>>>>>> 3a4ffda30ed1caddf32faaff2e9a5b1d26ea98cb
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-1:9100 
@@ -169,15 +157,9 @@ services:
                 rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-master 
                 --fs_data_dirs=/home/yugabyte/data
-<<<<<<< HEAD
-                --placement_cloud=cloud1
-                --placement_region=region2
-                --placement_zone=zone1
-=======
                 --placement_cloud=cloud
                 --placement_region=region
                 --placement_zone=zone3
->>>>>>> 3a4ffda30ed1caddf32faaff2e9a5b1d26ea98cb
                 --rpc_bind_addresses=yb-master-2:7100
                 --master_addresses=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100
                 --replication_factor=3
@@ -195,15 +177,9 @@ services:
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-tserver 
-<<<<<<< HEAD
-                --placement_cloud=cloud1 
-                --placement_region=region2 
-                --placement_zone=zone1 
-=======
                 --placement_cloud=cloud 
                 --placement_region=region 
                 --placement_zone=zone3 
->>>>>>> 3a4ffda30ed1caddf32faaff2e9a5b1d26ea98cb
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-2:9100 
@@ -218,134 +194,6 @@ services:
       depends_on:
       - yb-master-2
 
-<<<<<<< HEAD
-
-  yb-tserver-3:
-      image: yugabytedb/yugabyte:latest
-      container_name: yb-tserver-3
-      hostname: yb-tserver-3
-      command: bash -c "
-                rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
-                --placement_cloud=cloud2 
-                --placement_region=region2 
-                --placement_zone=zone1 
-                --enable_ysql=true 
-                --fs_data_dirs=/home/yugabyte/data 
-                --rpc_bind_addresses=yb-tserver-3:9100 
-                --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
-                --ysql_num_shards_per_tserver=2
-                
-                "
-      ports:
-      - "9003:9000"
-      - "5436:5433"
-      depends_on:
-      - yb-master-2
-
-
-  yb-tserver-4:
-      image: yugabytedb/yugabyte:latest
-      container_name: yb-tserver-4
-      hostname: yb-tserver-4
-      command: bash -c "
-                rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
-                --placement_cloud=cloud1 
-                --placement_region=region1 
-                --placement_zone=zone2 
-                --enable_ysql=true 
-                --fs_data_dirs=/home/yugabyte/data 
-                --rpc_bind_addresses=yb-tserver-4:9100 
-                --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
-                --ysql_num_shards_per_tserver=2
-                
-                "
-      ports:
-      - "9004:9000"
-      - "5437:5433"
-      depends_on:
-      - yb-master-2
-
-
-  yb-tserver-5:
-      image: yugabytedb/yugabyte:latest
-      container_name: yb-tserver-5
-      hostname: yb-tserver-5
-      command: bash -c "
-                rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
-                --placement_cloud=cloud2 
-                --placement_region=region1 
-                --placement_zone=zone2 
-                --enable_ysql=true 
-                --fs_data_dirs=/home/yugabyte/data 
-                --rpc_bind_addresses=yb-tserver-5:9100 
-                --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
-                --ysql_num_shards_per_tserver=2
-                
-                "
-      ports:
-      - "9005:9000"
-      - "5438:5433"
-      depends_on:
-      - yb-master-2
-
-
-  yb-tserver-6:
-      image: yugabytedb/yugabyte:latest
-      container_name: yb-tserver-6
-      hostname: yb-tserver-6
-      command: bash -c "
-                rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
-                --placement_cloud=cloud1 
-                --placement_region=region2 
-                --placement_zone=zone2 
-                --enable_ysql=true 
-                --fs_data_dirs=/home/yugabyte/data 
-                --rpc_bind_addresses=yb-tserver-6:9100 
-                --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
-                --ysql_num_shards_per_tserver=2
-                
-                "
-      ports:
-      - "9006:9000"
-      - "5439:5433"
-      depends_on:
-      - yb-master-2
-
-
-  yb-tserver-7:
-      image: yugabytedb/yugabyte:latest
-      container_name: yb-tserver-7
-      hostname: yb-tserver-7
-      command: bash -c "
-                rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
-                --placement_cloud=cloud2 
-                --placement_region=region2 
-                --placement_zone=zone2 
-                --enable_ysql=true 
-                --fs_data_dirs=/home/yugabyte/data 
-                --rpc_bind_addresses=yb-tserver-7:9100 
-                --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
-                --ysql_num_shards_per_tserver=2
-                
-                "
-      ports:
-      - "9007:9000"
-      - "5440:5433"
-      depends_on:
-      - yb-master-2
-
-=======
->>>>>>> 3a4ffda30ed1caddf32faaff2e9a5b1d26ea98cb
 # adding a template to add more replicas
 
   yb-tserver-n:
@@ -353,9 +201,9 @@ services:
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-tserver 
-                --placement_cloud=cloud2 
-                --placement_region=region2 
-                --placement_zone=zone2 
+                --placement_cloud=cloud 
+                --placement_region=region 
+                --placement_zone=zone3 
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 

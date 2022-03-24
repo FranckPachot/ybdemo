@@ -63,6 +63,8 @@ select ybwr_snap();
 
 -- prepare some statements to take a snap and display per table or per tables insterresting stats
 
+prepare snap_reset as select ybwr_snap() "      " limit 0;
+
 create extension if not exists tablefunc;
 
 prepare snap_table as

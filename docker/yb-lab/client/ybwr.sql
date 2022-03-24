@@ -2,7 +2,7 @@
 
 create table if not exists ybwr_snapshots(host text default '', ts timestamptz default now(),  metrics jsonb, primary key (host,ts));
 
-create or replace function ybwr_snap(snaps_to_keep int default 1000) returns timestamptz as $DO$
+create or replace function ybwr_snap(snaps_to_keep int default 1) returns timestamptz as $DO$
 declare i record; 
 begin
 delete from ybwr_snapshots where ts not in (select distinct ts from ybwr_snapshots order by ts desc limit snaps_to_keep);
@@ -28,7 +28,7 @@ from (
 select ts,host,metric_name,namespace_name,table_name,tablet_id
 ,metric_value-lead(metric_value)over(partition by host,namespace_name,table_name,tablet_id,metric_name order by ts desc) as value
 ,extract(epoch from ts-lead(ts)over(partition by host,namespace_name,table_name,tablet_id,metric_name order by ts desc)) as seconds
-,rank()over(partition by host,namespace_name,table_name,tablet_id,metric_name order by ts desc) as relative_snap_id
+,rank()over() as relative_snap_id
 ,metric_value,metric_sum,metric_count
 from (
 select host,ts

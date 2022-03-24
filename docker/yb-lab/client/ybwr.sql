@@ -61,6 +61,16 @@ order by ts desc,namespace_name,table_name,host,tablet_id,"table" desc,value des
 
 select ybwr_snap();
 
-prepare snap1 as select * from ybwr_snap_and_show_tablet_load where namespace_name not in ('system') and metric_name in ('rows_inserted','rocksdb_number_db_seek','rocksdb_number_db_next');
-execute snap1;
+-- prepare some statements to take a snap and display per table or per tables insterresting stats
+
+create extension if not exists tablefunc;
+
+prepare snap_table as
+select * from crosstab($$select format('%s %s %s %s',namespace_name,table_name,host,tablet_id) row_name, metric_name category, value from ybwr_snap_and_show_tablet_load where name
+space_name not in ('system') and metric_name in ('rocksdb_number_db_seek','rocksdb_number_db_next') order by 1,2 desc,3$$) as (row_name text, rocksdb_number_db_seek bigint, rocksdb_number_db
+_next bigint) ;
+
+prepare snap_tablet as 
+select * from ybwr_snap_and_show_tablet_load where namespace_name not in ('system') and metric_name in ('rows_inserted','rocksdb_number_db_seek','rocksdb_number_db_next');
+execute snap_tablet;
 \watch 10

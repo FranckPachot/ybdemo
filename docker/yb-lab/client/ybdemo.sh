@@ -25,13 +25,13 @@ read)
 update)
    {
    for i in $(seq 1 ${2:-1}) ; do echo "\
-   update demo set message=format('updated $i when connected to %s',current_setting('listen_addresses')),u=u+1, ts=clock_timestamp() where id=$i returning row_to_json(demo)" ; done 
+   update demo set message=format('updated $i when connected to %s',replace(current_setting('listen_addresses'),'0.0.0.0',host(inet_server_addr())::text),u=u+1, ts=clock_timestamp() where id=$i returning row_to_json(demo)" ; done 
    } | java -jar YBDemo.jar
   ;;
 insert)
    {
    for i in $(seq 1 ${2:-1}) ; do echo "\
-   insert into demo(message) values (format('inserted when connected to %s',current_setting('listen_addresses'))) returning row_to_json(demo)" ; done 
+   insert into demo(message) values (format('inserted when connected to %s',replace(current_setting('listen_addresses'),'0.0.0.0',host(inet_server_addr())::text) )) returning row_to_json(demo)" ; done 
    } | java -jar YBDemo.jar
   ;;
 count)

@@ -6,6 +6,7 @@ ADD hikari.properties ybdemo.sh YBDemo.jar metrics_snap.sh ybwr.sql .
 ENV YBDEMO_DOMAIN ""
 ENV YBDEMO_CASE "connect"
 ENV YBDEMO_THREADS "5"
+RUN sed -e 'ysqlsh/psql/g' ybdemo.sh
 ENTRYPOINT [ -n "${YBDEMO_DOMAIN}" ] && sed -e 's?yb-tserver-[0-9]*?&.'"${YBDEMO_DOMAIN}"'?' -i hikari.properties ; \
  bash ybdemo.sh "${YBDEMO_CASE}" "${YBDEMO_THREADS}" 
 

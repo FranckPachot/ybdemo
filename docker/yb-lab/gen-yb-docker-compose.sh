@@ -31,14 +31,14 @@ demo=0
 break ;;
 
 minimal)
-# example RF-1 two nodes
+# example RF-1 one nodes
 replication_factor=1
 list_of_clouds="cloud"
 list_of_regions="region"
 list_of_zones="zone1 zone2 zone3"
 number_of_tservers=1
 read_replica_regexp=""
-demo=1
+demo=0
 break ;;
 
 aws)

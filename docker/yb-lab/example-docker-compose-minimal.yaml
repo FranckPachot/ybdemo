@@ -11,7 +11,7 @@ services:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","connect","9"]
       deploy:
-          replicas: 1
+          replicas: 0
           restart_policy:
              condition: on-failure
 
@@ -21,7 +21,7 @@ services:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","read","1"]
       deploy:
-          replicas: 1
+          replicas: 0
           restart_policy:
              condition: on-failure
 
@@ -31,7 +31,7 @@ services:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","insert","1"]
       deploy:
-          replicas: 1
+          replicas: 0
           restart_policy:
              condition: on-failure
 
@@ -43,7 +43,7 @@ services:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","init"]
       deploy:
-          replicas: 1
+          replicas: 0
           restart_policy:
              condition: on-failure
 

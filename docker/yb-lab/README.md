@@ -1,6 +1,7 @@
 Here is my lab to test various [YugabyteDB](https://www.yugabyte.com/) configurations locally in Docker. The `gen-yb-docker-compose.sh` generates a `docker-compose.yaml` to test multi-cloud, multi-region, multi-zone, multi-node, and with read replicas in a lab. It also creates some application containers running the YBDemo simple program from this repository. It is highly configurable, may change depending on my needs, so better look at the scripts to understand them. Or ask me ([@FranckPachot](https://twitter.com/FranckPachot))
 
-
+A demo using this lab:
+[Demo at DSS Asia 2022](https://www.youtube.com/watch?v=3dziM3kmTqI&list=PLTcxfDUDn3Zvm0SRBUJxpETtfYy1i_bAj)
 
 # Run the lab
 

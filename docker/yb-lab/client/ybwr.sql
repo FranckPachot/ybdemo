@@ -63,17 +63,17 @@ select ybwr_snap();
 
 -- prepare some statements to take a snap and display per table or per tables insterresting stats
 
-prepare snap_reset as select ybwr_snap() "      " limit 0;
+prepare snap_reset as select '' as "ybwr metrics" where ybwr_snap() is null;
 
 create extension if not exists tablefunc;
-
+deallocate snap_table;
 prepare snap_table as
 select * from crosstab($$
 select format('%s %s %s %s',namespace_name,table_name,host,tablet_id) row_name, metric_name category, value 
 from ybwr_snap_and_show_tablet_load 
 where namespace_name not in ('system') and metric_name in ('rocksdb_number_db_seek','rocksdb_number_db_next') 
 order by 1,2 desc,3
-$$) as (row_name text, rocksdb_number_db_seek bigint, rocksdb_number_db_next bigint) ;
+$$) as (row_name text, "rocksdb_#_db_seek" bigint, "rocksdb_#_db_next" bigint) ;
 
 prepare snap_tablet as 
 select * from ybwr_snap_and_show_tablet_load where namespace_name not in ('system') and metric_name in ('rows_inserted','rocksdb_number_db_seek','rocksdb_number_db_next');

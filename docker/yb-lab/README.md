@@ -1,6 +1,7 @@
 Here is my lab to test various [YugabyteDB](https://www.yugabyte.com/) configurations locally in Docker. The `gen-yb-docker-compose.sh` generates a `docker-compose.yaml` to test multi-cloud, multi-region, multi-zone, multi-node, and with read replicas in a lab. It also creates some application containers running the YBDemo simple program from this repository. It is highly configurable, may change depending on my needs, so better look at the scripts to understand them. Or ask me ([@FranckPachot](https://twitter.com/FranckPachot))
 
-
+A demo using this lab:
+[Demo at DSS Asia 2022](https://www.youtube.com/watch?v=3dziM3kmTqI&list=PLTcxfDUDn3Zvm0SRBUJxpETtfYy1i_bAj)
 
 # Run the lab
 
@@ -74,6 +75,7 @@ Then you can clear the black list (same as above with REMOVE instead of ADD):
 ```
 for i in yb-lab-yb-tserver-n-{1..3} ; do docker exec -i yb-master-0 /home/yugabyte/bin/yb-admin --master_addresses $(echo yb-master-{0..2}:7100|tr ' ' ,) change_blacklist REMOVE $i ; done
 ```
+You can also see the list of blacklisted servers in http://localhost:7000/cluster-config
 
 When you want "dead" nodes to disappear from the UI http://localhost:7000/tablet-servers you can restart the master leader (find it from http://localhost:7000) to force a new leader election. In a lab, this can be: 
 

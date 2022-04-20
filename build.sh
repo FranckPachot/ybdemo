@@ -1,3 +1,5 @@
+# mvn package && java -jar target/YBDemo-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+
 while sleep 1 
 do
 [ src/main/java/YBDemo.java -nt $0 ] && {

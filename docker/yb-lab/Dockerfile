@@ -7,7 +7,7 @@ ENV POSTGRES_DB       demo
 ENV YUGABYTED_FLAGS --listen 0.0.0.0
 CMD pip install --upgrade pip
 CMD pip install sqlalchemy pandas psycopg2-yugabytedb 
-ADD client .
+ADD client ./client
 EXPOSE 5433
 EXPOSE 7000
 CMD  \

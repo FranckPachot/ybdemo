@@ -99,6 +99,10 @@ public class YBDemo extends Thread {
      HikariConfig config = new HikariConfig( "hikari.properties" );
      HikariDataSource ds = new HikariDataSource ( config );
      // I set parameters or prepare statements in connection init
+      System.err.println("--------------------------------------------------");
+     System.err.println("Driver: "
+      +ds.getConnection().getMetaData().getDriverName()+" "
+      +ds.getConnection().getMetaData().getDriverVersion());
      if (ds.getConnectionInitSql() != null) {
       System.err.println("--------------------------------------------------");
       System.err.println("sql executed in each new connection init:");

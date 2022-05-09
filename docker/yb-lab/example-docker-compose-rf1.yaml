@@ -96,6 +96,8 @@ services:
                 --ysql_num_shards_per_tserver=2
                 
                 "
+      environment:
+      - SERVICE_5433_NAME=ysql
       ports:
       - "9000:9000"
       - "5433:5433"
@@ -121,6 +123,8 @@ services:
                 --ysql_num_shards_per_tserver=2
                 
                 "
+      environment:
+      - SERVICE_5433_NAME=ysql
       ports:
       - "9001:9000"
       - "5434:5433"

@@ -3,6 +3,58 @@ version: '2'
 
 services:
 
+# demos with connect / read / write workloads
+
+  yb-demo-connect:
+      image: yugabytedb/yugabyte:latest
+      volumes:
+          - ./client:/home/yugabyte/client
+      command: ["bash","client/ybdemo.sh","connect","9"]
+      deploy:
+          replicas: 0
+          restart_policy:
+             condition: on-failure
+
+  yb-demo-read:
+      image: yugabytedb/yugabyte:latest
+      volumes:
+          - ./client:/home/yugabyte/client
+      command: ["bash","client/ybdemo.sh","read","1"]
+      deploy:
+          replicas: 0
+          restart_policy:
+             condition: on-failure
+
+  yb-demo-write:
+      image: yugabytedb/yugabyte:latest
+      volumes:
+          - ./client:/home/yugabyte/client
+      command: ["bash","client/ybdemo.sh","insert","1"]
+      deploy:
+          replicas: 0
+          restart_policy:
+             condition: on-failure
+
+# table create and other initialization for demos
+
+  yb-demo-init:
+      image: yugabytedb/yugabyte:latest
+      volumes:
+          - ./client:/home/yugabyte/client
+      command: ["bash","client/ybdemo.sh","init"]
+      deploy:
+          replicas: 0
+          restart_policy:
+             condition: on-failure
+
+  yb-demo-metrics:
+      image: yugabytedb/yugabyte:latest
+      volumes:
+          - ./client:/home/yugabyte/client
+      command: ["bash","client/ybdemo.sh","ybwr"]
+      deploy:
+          restart_policy:
+             condition: on-failure
 
 # yb-master and yb-tservers
 

@@ -50,7 +50,7 @@ def mythread():
   """,yb.connect()).to_string(index=False,header=False))
 
 
-threading.Thread(target=mythread).start()
+t=threading.Thread(target=mythread) ; t.start() 
 
 print(""" 
 docker exec -it yb0 yb-admin -init_master_addrs=yb0:7100 list_all_masters
@@ -65,8 +65,14 @@ yugabytedb/yugabyte:latest yugabyted start --daemon=false --listen yb2 --join yb
 
 docker exec -it yb0 yb-admin -init_master_addrs=yb0:7100 list_all_masters
 
+psql -h localhost -p 5433 -U yugabyte -d yugabyte
+\pset pager off
+select * from yb_servers();
+
 
 """)
+
+t.join()
 
 for fivethreads in range(9):
  threading.Thread(target=mythread).start()

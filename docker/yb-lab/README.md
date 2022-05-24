@@ -2,6 +2,7 @@ Here is my lab to test various [YugabyteDB](https://www.yugabyte.com/) configura
 
 A demo using this lab:
 [Demo at DSS Asia 2022](https://www.youtube.com/watch?v=3dziM3kmTqI&list=PLTcxfDUDn3Zvm0SRBUJxpETtfYy1i_bAj)
+I use docker-compose version 2. You may have to change some `-` to `_` in version one, like `%s/yb-lab-yb-tserver-n-${i}/yb-lab_yb-tserver-n_${i}/g`
 
 # Run the lab
 

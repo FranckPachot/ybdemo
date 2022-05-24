@@ -1,5 +1,4 @@
 🐳 The best use of this is from the docker-compose environment set in [./docker/yb-lab](docker/yb-lab)
-I use docker-compose version 2. You may have to change some `-` to `_` in version one, like `%s/yb-lab-yb-tserver-n-${i}/yb-lab_yb-tserver-n_${i}/g`
 
 # YBDemo
 

@@ -1,5 +1,6 @@
 # author="Franck Pachot"
 # description="YugabyteDB for labs and demos - creates a database with environment parameters compatible with the PostgreSQL image"
+# docker build -t pachot/yugabytedb . && docker push pachot/yugabytedb
 FROM docker.io/yugabytedb/yugabyte:latest
 ENV POSTGRES_USER     demo
 ENV POSTGRES_PASSWORD demo

@@ -180,6 +180,7 @@ cat <<CAT
                 --rpc_bind_addresses=yb-master-$master:7100
                 --master_addresses=$master_addresses
                 --replication_factor=$replication_factor
+                --rpc_connection_timeout_ms=15000
                 "
       ports:
       - "$((7000 + $master)):7000"
@@ -236,6 +237,7 @@ cat <<CAT
                 --tserver_master_addrs=$master_addresses 
                 --replication_factor=$replication_factor 
                 --ysql_num_shards_per_tserver=2
+                --rpc_connection_timeout_ms=15000
                 $placement_uuid
                 "
       ports:
@@ -273,6 +275,7 @@ cat <<CAT
                 --tserver_master_addrs=$master_addresses 
                 --replication_factor=$replication_factor 
                 --ysql_num_shards_per_tserver=2
+                --rpc_connection_timeout_ms=15000
                 $placement_uuid
                 "
       deploy:

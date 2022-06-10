@@ -66,7 +66,7 @@ select ybwr_snap();
 prepare snap_reset as select '' as "ybwr metrics" where ybwr_snap() is null;
 
 create extension if not exists tablefunc;
-deallocate snap_table;
+
 prepare snap_table as
 select * from crosstab($$
 select format('%s %s %s %s',namespace_name,table_name,host,tablet_id) row_name, metric_name category, value 

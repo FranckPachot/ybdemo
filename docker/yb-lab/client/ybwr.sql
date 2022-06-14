@@ -37,9 +37,9 @@ select host,ts
  ,jsonb_array_elements(metrics)->'attributes'->>'namespace_name'  as namespace_name
  ,jsonb_array_elements(metrics)->'attributes'->>'table_name'  as table_name
  ,jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'name' as metric_name
- ,(jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'value')::bigint as metric_value
- ,(jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'total_sum')::bigint as metric_sum
- ,(jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'total_count')::bigint as metric_count
+ ,(jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'value')::decimal as metric_value
+ ,(jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'total_sum')::decimal as metric_sum
+ ,(jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'total_count')::decimal as metric_count
 from ybwr_snapshots
 ) tablets
 ) tablets_delta where value>0;
@@ -68,12 +68,13 @@ prepare snap_reset as select '' as "ybwr metrics" where ybwr_snap() is null;
 create extension if not exists tablefunc;
 
 prepare snap_table as
-select * from crosstab($$
+select "rocksdb_#_db_seek","rocksdb_#_db_next",row_name as "dbname / relname / tserver / tabletid"
+from crosstab($$
 select format('%s %s %s %s',namespace_name,table_name,host,tablet_id) row_name, metric_name category, value 
 from ybwr_snap_and_show_tablet_load 
 where namespace_name not in ('system') and metric_name in ('rocksdb_number_db_seek','rocksdb_number_db_next') 
 order by 1,2 desc,3
-$$) as (row_name text, "rocksdb_#_db_seek" bigint, "rocksdb_#_db_next" bigint) ;
+$$) as (row_name text, "rocksdb_#_db_seek" decimal, "rocksdb_#_db_next" decimal) ;
 
 prepare snap_tablet as 
 select * from ybwr_snap_and_show_tablet_load where namespace_name not in ('system') and metric_name in ('rows_inserted','rocksdb_number_db_seek','rocksdb_number_db_next');

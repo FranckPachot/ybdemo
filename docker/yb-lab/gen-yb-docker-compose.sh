@@ -78,8 +78,9 @@ esac
 
 number_of_masters=$replication_factor
 
-#tag=2.11.1.0-b305
 tag=latest
+# this gets the latest tag for stable release (when preview=0) or preview release (preview=1):
+tag=$( curl -Ls "https:""//registry.hub.docker.com/v2/repositories/yugabytedb/yugabyte/tags?page_size=999" | jq -r '."results"[]["name"]' | sort -rV | awk -F. '!/latest/ && ($2/2)==preview/2+int($2/2){print;exit}' preview=1 )
 
 {
 

@@ -6,7 +6,7 @@ services:
 # demos with connect / read / write workloads
 
   yb-demo-connect:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.13.2.0-b135
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","connect","9"]
@@ -16,7 +16,7 @@ services:
              condition: on-failure
 
   yb-demo-read:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.13.2.0-b135
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","read","1"]
@@ -26,7 +26,7 @@ services:
              condition: on-failure
 
   yb-demo-write:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.13.2.0-b135
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","insert","1"]
@@ -38,7 +38,7 @@ services:
 # table create and other initialization for demos
 
   yb-demo-init:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.13.2.0-b135
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","init"]
@@ -48,7 +48,7 @@ services:
              condition: on-failure
 
   yb-demo-metrics:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.13.2.0-b135
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","ybwr"]
@@ -60,7 +60,7 @@ services:
 
 
   yb-master-0:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.13.2.0-b135
       container_name: yb-master-0
       hostname: yb-master-0
       command: bash -c "
@@ -73,13 +73,14 @@ services:
                 --rpc_bind_addresses=yb-master-0:7100
                 --master_addresses=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100
                 --replication_factor=3
+                --rpc_connection_timeout_ms=15000
                 "
       ports:
       - "7000:7000"
 
 
   yb-tserver-0:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.13.2.0-b135
       container_name: yb-tserver-0
       hostname: yb-tserver-0
       command: bash -c "
@@ -94,6 +95,7 @@ services:
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
                 --replication_factor=3 
                 --ysql_num_shards_per_tserver=2
+                --rpc_connection_timeout_ms=15000
                 
                 "
       ports:
@@ -104,7 +106,7 @@ services:
 
 
   yb-master-1:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.13.2.0-b135
       container_name: yb-master-1
       hostname: yb-master-1
       command: bash -c "
@@ -117,6 +119,7 @@ services:
                 --rpc_bind_addresses=yb-master-1:7100
                 --master_addresses=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100
                 --replication_factor=3
+                --rpc_connection_timeout_ms=15000
                 "
       ports:
       - "7001:7000"
@@ -125,7 +128,7 @@ services:
 
 
   yb-tserver-1:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.13.2.0-b135
       container_name: yb-tserver-1
       hostname: yb-tserver-1
       command: bash -c "
@@ -140,6 +143,7 @@ services:
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
                 --replication_factor=3 
                 --ysql_num_shards_per_tserver=2
+                --rpc_connection_timeout_ms=15000
                 
                 "
       ports:
@@ -150,7 +154,7 @@ services:
 
 
   yb-master-2:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.13.2.0-b135
       container_name: yb-master-2
       hostname: yb-master-2
       command: bash -c "
@@ -163,6 +167,7 @@ services:
                 --rpc_bind_addresses=yb-master-2:7100
                 --master_addresses=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100
                 --replication_factor=3
+                --rpc_connection_timeout_ms=15000
                 "
       ports:
       - "7002:7000"
@@ -171,7 +176,7 @@ services:
 
 
   yb-tserver-2:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.13.2.0-b135
       container_name: yb-tserver-2
       hostname: yb-tserver-2
       command: bash -c "
@@ -186,6 +191,7 @@ services:
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
                 --replication_factor=3 
                 --ysql_num_shards_per_tserver=2
+                --rpc_connection_timeout_ms=15000
                 
                 "
       ports:
@@ -197,7 +203,7 @@ services:
 # adding a template to add more replicas
 
   yb-tserver-n:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.13.2.0-b135
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-tserver 
@@ -209,6 +215,7 @@ services:
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
                 --replication_factor=3 
                 --ysql_num_shards_per_tserver=2
+                --rpc_connection_timeout_ms=15000
                 
                 "
       deploy:

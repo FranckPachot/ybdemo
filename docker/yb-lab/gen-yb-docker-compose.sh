@@ -353,7 +353,10 @@ docker exec -it yb-master-0 /home/yugabyte/bin/yb-admin   \
 "
 
 alias yb-lab="
-docker exec -it yb-tserver-0 ysqlsh -h yb-tserver-0 -c '
+curl -Ls http://localhost:7000//api/v1/cluster-config | jq
+yb-admin list_all_masters
+
+ysqlsh -h yb-tserver-0 -c '
 select version();
 ' -c '
 select * from yb_servers() order by 1,2,3,6

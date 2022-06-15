@@ -1,8 +1,7 @@
 -- the "ybwr_snapshots" table stores snapshots of tserver metrics, gathered by "ybwr_snap", reading all endpoints known by "yb_servers()"
+create table if not exists ybwr_snapshots(host text default '', ts timestamptz default now(),  metrics jsonb, primary key (ts asc, host));
 
-create table if not exists ybwr_snapshots(host text default '', ts timestamptz default now(),  metrics jsonb, primary key (host,ts));
-
-create or replace function ybwr_snap(snaps_to_keep int default 1) returns timestamptz as $DO$
+create or replace function ybwr_snap(snaps_to_keep int default 6) returns timestamptz as $DO$
 declare i record; 
 begin
 delete from ybwr_snapshots where ts not in (select distinct ts from ybwr_snapshots order by ts desc limit snaps_to_keep);

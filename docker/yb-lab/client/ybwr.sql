@@ -77,6 +77,7 @@ order by 1,2 desc,3
 $$) as (row_name text, "rocksdb_#_db_seek" decimal, "rocksdb_#_db_next" decimal) ;
 
 prepare snap_tablet as 
-select * from ybwr_snap_and_show_tablet_load where namespace_name not in ('system') and metric_name in ('rows_inserted','rocksdb_number_db_seek','rocksdb_number_db_next');
+select * from ybwr_snap_and_show_tablet_load where namespace_name not in ('system') 
+and metric_name in ('rows_inserted') or metric_name like 'rocksdb_number_db%'; 
 execute snap_tablet;
 \watch 10

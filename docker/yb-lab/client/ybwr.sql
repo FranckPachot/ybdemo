@@ -1,5 +1,5 @@
 -- the "ybwr_snapshots" table stores snapshots of tserver metrics, gathered by "ybwr_snap", reading all endpoints known by "yb_servers()"
-create table if not exists ybwr_snapshots(host text default '', ts timestamptz default now(),  metrics jsonb, primary key (ts asc, host));
+create table if not exists ybwr_snapshots(host text default '', ts timestamptz default clock_timestamp(),  metrics jsonb, primary key (ts asc, host));
 
 create or replace function ybwr_snap(snaps_to_keep int default 6) returns timestamptz as $DO$
 declare i record; 
@@ -15,7 +15,7 @@ for i in (select host from yb_servers()) loop
   $COPY$
  ,i.host,i.host); 
 end loop; 
-return now(); 
+return clock_timestamp(); 
 end; 
 $DO$ language plpgsql;
 

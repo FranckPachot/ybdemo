@@ -17,7 +17,7 @@ list_of_zones="zone1 zone2 zone3"
 number_of_tservers=2
 read_replica_regexp=""
 demo=0
-break ;;
+;;
 
 rf3)
 # example RF-1 two nodes
@@ -28,7 +28,7 @@ list_of_zones="zone1 zone2 zone3"
 number_of_tservers=3
 read_replica_regexp=""
 demo=0
-break ;;
+;;
 
 minimal)
 # example RF-1 one nodes
@@ -39,7 +39,7 @@ list_of_zones="zone1 zone2 zone3"
 number_of_tservers=1
 read_replica_regexp=""
 demo=0
-break ;;
+;;
 
 aws)
 # example Multi-AZ two node per AZ
@@ -50,7 +50,7 @@ list_of_zones="eu-west-1a eu-west-1b eu-west-1c"
 number_of_tservers=6
 read_replica_regexp=""
 demo=1
-break ;;
+;;
 
 rr) 
 # example cloud/region/zone + read replicas
@@ -61,7 +61,7 @@ list_of_zones="zone1 zone2"
 number_of_tservers=8
 read_replica_regexp="cloud2.region2.zone[1-2]"
 demo=1
-break ;;
+;;
 
 *)
 # example cloud/region/zone
@@ -333,5 +333,34 @@ echo
 
 }
 
-exit
+# set aliases (when sourced)
+{
+
+for i in $( docker-compose ps | awk 'NR>1{print $1}' )
+do
+alias $i="\
+docker exec -it $i bash \
+" 
+done
+
+alias ysqlsh="\
+docker exec -it yb-tserver-0 ysqlsh -h yb-tserver-0 \
+" 
+
+alias yb-admin="\
+docker exec -it yb-master-0 /home/yugabyte/bin/yb-admin   \
+ --master_addresses $(echo yb-master-{0..2}:7100|tr ' ' ,)\
+"
+
+alias yb-lab="
+docker exec -it yb-tserver-0 ysqlsh -h yb-tserver-0 -c '
+select version();
+' -c '
+select  cloud,region,zone,host,port,node_type,public_ip from yb_servers() order by 1,2,3,6
+'
+cd '$PWD' && docker-compose -f ./docker-compose.yaml ps
+"
+
+}
+
 

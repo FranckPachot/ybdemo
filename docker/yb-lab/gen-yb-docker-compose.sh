@@ -356,7 +356,7 @@ alias yb-lab="
 docker exec -it yb-tserver-0 ysqlsh -h yb-tserver-0 -c '
 select version();
 ' -c '
-select  cloud,region,zone,host,port,node_type,public_ip from yb_servers() order by 1,2,3,6
+select * from yb_servers() order by 1,2,3,6
 '
 cd '$PWD' && docker-compose -f ./docker-compose.yaml ps
 "

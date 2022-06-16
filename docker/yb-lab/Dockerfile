@@ -24,4 +24,4 @@ CMD  \
       2>/dev/null && ./yugabyted-ui ; do \
        echo 'Waiting for YugabyteDB to be up...' ; sleep 3 ; \
       done & \
-     bin/yugabyted start --daemon=false --tserver_flags='ysql_enable_auth=true' $YUGABYTED_FLAGS \
+     bin/yugabyted start --daemon=false --tserver_flags='ysql_enable_auth=true' $YUGABYTED_FLAGS

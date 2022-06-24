@@ -160,7 +160,7 @@ services:
                 /home/yugabyte/bin/yb-tserver 
                 --placement_cloud=cloud 
                 --placement_region=AP 
-                --placement_uuid=ReadOnly1
+                --placement_uuid=ReadOnly
                 --placement_zone=zone 
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
@@ -187,7 +187,7 @@ services:
                 /home/yugabyte/bin/yb-tserver 
                 --placement_cloud=cloud 
                 --placement_region=AU 
-                --placement_uuid=ReadOnly2
+                --placement_uuid=ReadOnly
                 --placement_zone=zone 
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
@@ -221,7 +221,8 @@ services:
                 add_read_replica_placement_info
                 cloud.AP.zone:1,cloud.AU.zone:1
                 2
-                ReadOnly3;
+                ReadOnly
+                ;
                 curl -qs http://yb-master-0:7000/cluster-config?raw
                 "
       depends_on:

@@ -1,0 +1,229 @@
+
+version: '2'
+
+services:
+
+  yb-master-0:
+      image: yugabytedb/yugabyte:2.13.2.0-b135
+      container_name: yb-master-0
+      hostname: yb-master-0
+      command: bash -c "
+                rm -rf /tmp/.yb* ; 
+                /home/yugabyte/bin/yb-master 
+                --fs_data_dirs=/home/yugabyte/data
+                --placement_cloud=cloud
+                --placement_region=EU
+                --placement_zone=zone1
+                --placement_uuid=ReadWrite
+                --rpc_bind_addresses=yb-master-0:7100
+                --master_addresses=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100
+                --replication_factor=3
+                --rpc_connection_timeout_ms=15000
+                "
+      ports:
+      - "7000:7000"
+
+
+  yb-tserver-0:
+      image: yugabytedb/yugabyte:2.13.2.0-b135
+      container_name: yb-tserver-0
+      hostname: yb-tserver-0
+      command: bash -c "
+                rm -rf /tmp/.yb* ; 
+                /home/yugabyte/bin/yb-tserver 
+                --placement_cloud=cloud 
+                --placement_region=EU 
+                --placement_zone=zone1 
+                --placement_uuid=ReadWrite
+                --enable_ysql=true 
+                --fs_data_dirs=/home/yugabyte/data 
+                --rpc_bind_addresses=yb-tserver-0:9100 
+                --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
+                --replication_factor=3 
+                --ysql_num_shards_per_tserver=2
+                --rpc_connection_timeout_ms=15000
+                
+                "
+      ports:
+      - "9000:9000"
+      - "5433:5433"
+      depends_on:
+      - yb-master-2
+
+
+  yb-master-1:
+      image: yugabytedb/yugabyte:2.13.2.0-b135
+      container_name: yb-master-1
+      hostname: yb-master-1
+      command: bash -c "
+                rm -rf /tmp/.yb* ; 
+                /home/yugabyte/bin/yb-master 
+                --fs_data_dirs=/home/yugabyte/data
+                --placement_cloud=cloud
+                --placement_region=EU 
+                --placement_zone=zone2 
+                --placement_uuid=ReadWrite
+                --rpc_bind_addresses=yb-master-1:7100
+                --master_addresses=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100
+                --replication_factor=3
+                --rpc_connection_timeout_ms=15000
+                "
+      ports:
+      - "7001:7000"
+      depends_on:
+      - yb-master-0
+
+
+  yb-tserver-1:
+      image: yugabytedb/yugabyte:2.13.2.0-b135
+      container_name: yb-tserver-1
+      hostname: yb-tserver-1
+      command: bash -c "
+                rm -rf /tmp/.yb* ; 
+                /home/yugabyte/bin/yb-tserver 
+                --placement_cloud=cloud
+                --placement_region=EU 
+                --placement_zone=zone2 
+                --placement_uuid=ReadWrite
+                --enable_ysql=true 
+                --fs_data_dirs=/home/yugabyte/data 
+                --rpc_bind_addresses=yb-tserver-1:9100 
+                --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
+                --replication_factor=3 
+                --ysql_num_shards_per_tserver=2
+                --rpc_connection_timeout_ms=15000
+                
+                "
+      ports:
+      - "9001:9000"
+      - "5434:5433"
+      depends_on:
+      - yb-master-2
+
+
+  yb-master-2:
+      image: yugabytedb/yugabyte:2.13.2.0-b135
+      container_name: yb-master-2
+      hostname: yb-master-2
+      command: bash -c "
+                rm -rf /tmp/.yb* ; 
+                /home/yugabyte/bin/yb-master 
+                --fs_data_dirs=/home/yugabyte/data
+                --placement_cloud=cloud
+                --placement_region=US
+                --placement_zone=zone
+                --placement_uuid=ReadWrite
+                --rpc_bind_addresses=yb-master-2:7100
+                --master_addresses=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100
+                --replication_factor=3
+                --rpc_connection_timeout_ms=15000
+                "
+      ports:
+      - "7002:7000"
+      depends_on:
+      - yb-master-1
+
+
+  yb-tserver-2:
+      image: yugabytedb/yugabyte:2.13.2.0-b135
+      container_name: yb-tserver-2
+      hostname: yb-tserver-2
+      command: bash -c "
+                rm -rf /tmp/.yb* ; 
+                /home/yugabyte/bin/yb-tserver 
+                --placement_cloud=cloud
+                --placement_region=US
+                --placement_zone=zone
+                --placement_uuid=ReadWrite
+                --enable_ysql=true 
+                --fs_data_dirs=/home/yugabyte/data 
+                --rpc_bind_addresses=yb-tserver-2:9100 
+                --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
+                --replication_factor=3 
+                --ysql_num_shards_per_tserver=2
+                --rpc_connection_timeout_ms=15000
+                
+                "
+      ports:
+      - "9002:9000"
+      - "5435:5433"
+      depends_on:
+      - yb-master-2
+
+
+  yb-tserver-3:
+      image: yugabytedb/yugabyte:2.13.2.0-b135
+      container_name: yb-tserver-3
+      hostname: yb-tserver-3
+      command: bash -c "
+                rm -rf /tmp/.yb* ; 
+                /home/yugabyte/bin/yb-tserver 
+                --placement_cloud=cloud 
+                --placement_region=AP 
+                --placement_uuid=ReadOnly1
+                --placement_zone=zone 
+                --enable_ysql=true 
+                --fs_data_dirs=/home/yugabyte/data 
+                --rpc_bind_addresses=yb-tserver-3:9100 
+                --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
+                --replication_factor=3 
+                --ysql_num_shards_per_tserver=2
+                --rpc_connection_timeout_ms=15000
+                
+                "
+      ports:
+      - "9003:9000"
+      - "5436:5433"
+      depends_on:
+      - yb-master-2
+
+
+  yb-tserver-4:
+      image: yugabytedb/yugabyte:2.13.2.0-b135
+      container_name: yb-tserver-4
+      hostname: yb-tserver-4
+      command: bash -c "
+                rm -rf /tmp/.yb* ; 
+                /home/yugabyte/bin/yb-tserver 
+                --placement_cloud=cloud 
+                --placement_region=AU 
+                --placement_uuid=ReadOnly2
+                --placement_zone=zone 
+                --enable_ysql=true 
+                --fs_data_dirs=/home/yugabyte/data 
+                --rpc_bind_addresses=yb-tserver-4:9100 
+                --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
+                --replication_factor=3 
+                --ysql_num_shards_per_tserver=2
+                --rpc_connection_timeout_ms=15000
+                
+                "
+      ports:
+      - "9004:9000"
+      - "5437:5433"
+      depends_on:
+      - yb-master-2
+
+# ephemeral container to tag read replicas if defined
+
+  cluster-config:
+      image: yugabytedb/yugabyte:2.13.2.0-b135
+      command: bash -c "
+                /home/yugabyte/bin/yb-admin 
+                -master_addresses yb-master-0:7100,yb-master-1:7100,yb-master-2:7100
+                modify_placement_info
+                cloud.EU.zone1:1,cloud.EU.zone2:1,cloud.US.zone1:1
+                3
+                ReadWrite
+               ;
+                /home/yugabyte/bin/yb-admin 
+                --master_addresses yb-master-0:7100,yb-master-1:7100,yb-master-2:7100
+                add_read_replica_placement_info
+                cloud.AP.zone:1,cloud.AU.zone:1
+                2
+                ReadOnly3;
+                curl -qs http://yb-master-0:7000/cluster-config?raw
+                "
+      depends_on:
+      - yb-master-2
+

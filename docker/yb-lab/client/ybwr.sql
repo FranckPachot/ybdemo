@@ -67,13 +67,15 @@ prepare snap_reset as select '' as "ybwr metrics" where ybwr_snap() is null;
 create extension if not exists tablefunc;
 
 prepare snap_table as
-select "rocksdb_#_db_seek","rocksdb_#_db_next",row_name as "dbname / relname / tserver / tabletid"
+select "rocksdb_seek","rocksdb_next","rocksdb_insert",row_name as "dbname / relname / tserver / tabletid"
 from crosstab($$
-select format('%s %s %s %s',namespace_name,table_name,host,tablet_id) row_name, metric_name category, value 
-from ybwr_snap_and_show_tablet_load 
-where namespace_name not in ('system') and metric_name in ('rocksdb_number_db_seek','rocksdb_number_db_next') 
+select format('%s %s %s %s',namespace_name,table_name,host,tablet_id) row_name, metric_name category, sum(value)
+from ybwr_snap_and_show_tablet_load
+where namespace_name not in ('system') and metric_name in ('rocksdb_number_db_seek','rocksdb_number_db_next','rows_inserted')
+group by namespace_name,table_name,host,tablet_id, metric_name
 order by 1,2 desc,3
-$$) as (row_name text, "rocksdb_#_db_seek" decimal, "rocksdb_#_db_next" decimal) ;
+$$) as (row_name text, "rocksdb_insert" decimal, "rocksdb_seek" decimal, "rocksdb_next" decimal)
+;
 
 prepare snap_tablet as 
 select * from ybwr_snap_and_show_tablet_load where namespace_name not in ('system') 

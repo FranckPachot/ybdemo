@@ -63,6 +63,17 @@ read_replica_regexp="cloud2.region2.zone[1-2]"
 demo=1
 ;;
 
+ss) 
+# example multi-region in the solar system ;)
+replication_factor=3
+list_of_clouds="star"
+list_of_regions="earth moon mars"
+list_of_zones="base"
+number_of_tservers=3
+read_replica_regexp=""
+demo=0
+;;
+
 *)
 # example cloud/region/zone
 replication_factor=3

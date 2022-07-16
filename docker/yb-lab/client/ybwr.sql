@@ -85,4 +85,6 @@ prepare snap_tablet as
 select * from ybwr_snap_and_show_tablet_load where namespace_name not in ('system') 
 and metric_name in ('rows_inserted') or metric_name like 'rocksdb_number_db%'; 
 execute snap_tablet;
+
+execute snap_table;
 \watch 10

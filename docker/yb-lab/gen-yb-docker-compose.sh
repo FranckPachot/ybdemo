@@ -65,7 +65,7 @@ demo=1
 
 ss) 
 # example multi-region in the solar system ;)
-replication_factor=3
+replication_factor=1
 list_of_clouds="star"
 list_of_regions="earth moon mars"
 list_of_zones="base"

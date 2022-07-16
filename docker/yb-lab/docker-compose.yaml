@@ -71,8 +71,8 @@ services:
                 --placement_region=earth
                 --placement_zone=base
                 --rpc_bind_addresses=yb-master-0:7100
-                --master_addresses=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100
-                --replication_factor=3
+                --master_addresses=yb-master-0:7100
+                --replication_factor=1
                 --rpc_connection_timeout_ms=15000
                 "
       ports:
@@ -92,8 +92,8 @@ services:
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-0:9100 
-                --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
+                --tserver_master_addrs=yb-master-0:7100 
+                --replication_factor=1 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 
@@ -101,28 +101,6 @@ services:
       ports:
       - "9000:9000"
       - "5433:5433"
-      depends_on:
-      - yb-master-2
-
-
-  yb-master-1:
-      image: yugabytedb/yugabyte:2.15.0.1-b4
-      container_name: yb-master-1
-      hostname: yb-master-1
-      command: bash -c "
-                rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-master 
-                --fs_data_dirs=/home/yugabyte/data
-                --placement_cloud=star
-                --placement_region=moon
-                --placement_zone=base
-                --rpc_bind_addresses=yb-master-1:7100
-                --master_addresses=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100
-                --replication_factor=3
-                --rpc_connection_timeout_ms=15000
-                "
-      ports:
-      - "7001:7000"
       depends_on:
       - yb-master-0
 
@@ -140,8 +118,8 @@ services:
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-1:9100 
-                --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
+                --tserver_master_addrs=yb-master-0:7100 
+                --replication_factor=1 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 
@@ -150,29 +128,7 @@ services:
       - "9001:9000"
       - "5434:5433"
       depends_on:
-      - yb-master-2
-
-
-  yb-master-2:
-      image: yugabytedb/yugabyte:2.15.0.1-b4
-      container_name: yb-master-2
-      hostname: yb-master-2
-      command: bash -c "
-                rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-master 
-                --fs_data_dirs=/home/yugabyte/data
-                --placement_cloud=star
-                --placement_region=mars
-                --placement_zone=base
-                --rpc_bind_addresses=yb-master-2:7100
-                --master_addresses=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100
-                --replication_factor=3
-                --rpc_connection_timeout_ms=15000
-                "
-      ports:
-      - "7002:7000"
-      depends_on:
-      - yb-master-1
+      - yb-master-0
 
 
   yb-tserver-2:
@@ -188,8 +144,8 @@ services:
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-2:9100 
-                --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
+                --tserver_master_addrs=yb-master-0:7100 
+                --replication_factor=1 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 
@@ -198,7 +154,7 @@ services:
       - "9002:9000"
       - "5435:5433"
       depends_on:
-      - yb-master-2
+      - yb-master-0
 
 # adding a template to add more replicas
 
@@ -212,8 +168,8 @@ services:
                 --placement_zone=base 
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
-                --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
+                --tserver_master_addrs=yb-master-0:7100 
+                --replication_factor=1 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 
@@ -221,4 +177,4 @@ services:
       deploy:
           replicas: 0
       depends_on:
-      - yb-master-2
+      - yb-master-0

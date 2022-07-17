@@ -1,3 +1,4 @@
+\pset pager off
 -- if cannot create extension (crosstab) and execute program from COPY (read json enpoint) we can stop here
 \\set ON_ERROR_STOP on
  do $$ begin execute format('grant yb_extension, pg_execute_server_program to %I',user); end; $$;

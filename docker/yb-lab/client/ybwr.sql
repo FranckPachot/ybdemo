@@ -84,7 +84,8 @@ from ybwr_snap_and_show_tablet_load
 where namespace_name not in ('system') and metric_name in ('rocksdb_number_db_seek','rocksdb_number_db_next','rows_inserted')
 group by namespace_name,table_name,host,tablet_id,is_raft_leader, metric_name
 order by 1,2 desc,3
-$$) as (row_name text, "rocksdb_insert" decimal, "rocksdb_seek" decimal, "rocksdb_next" decimal)
+$$,$$values('rows_inserted'),('rocksdb_number_db_seek'),('rocksdb_number_db_next')$$) 
+as (row_name text, "rocksdb_insert" decimal, "rocksdb_seek" decimal, "rocksdb_next" decimal)
 ;
 
 prepare snap_tablet as 

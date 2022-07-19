@@ -1,8 +1,9 @@
+--https://github.com/FranckPachot/ybdemo/blob/main/docker/yb-lab/client/ybwr.sql
 \pset pager off
 -- if cannot create extension (crosstab) and execute program from COPY (read json enpoint) we can stop here
-\\set ON_ERROR_STOP on
+\set ON_ERROR_STOP on
  do $$ begin execute format('grant yb_extension, pg_execute_server_program to %I',user); end; $$;
-\\set ON_ERROR_STOP off
+\set ON_ERROR_STOP off
 
 -- the "ybwr_snapshots" table stores snapshots of tserver metrics, gathered by "ybwr_snap", reading all endpoints known by "yb_servers()"
 create table if not exists ybwr_snapshots(host text default '', ts timestamptz default clock_timestamp(),  metrics jsonb, primary key (ts asc, host));

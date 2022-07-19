@@ -1,4 +1,16 @@
---https://github.com/FranckPachot/ybdemo/blob/main/docker/yb-lab/client/ybwr.sql
+/*
+
+   This installs YBWR to collect metrics from YugabyteDB metrics endpoints, store them and query them from YSQL
+
+   github:
+
+     https://github.com/FranckPachot/ybdemo/blob/main/docker/yb-lab/client/ybwr.sql
+     
+   run (must be superuser or have yb_extension, pg_execute_server_program privileges):
+     
+     curl -sL ybwr.pachot.net > ybwr.sql && psql -f ybwr.sql
+     
+*/  
 \pset pager off
 -- if cannot create extension (crosstab) and execute program from COPY (read json enpoint) we can stop here
 \set ON_ERROR_STOP on

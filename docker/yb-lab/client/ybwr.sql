@@ -101,9 +101,15 @@ $$,$$values('rows_inserted'),('rocksdb_number_db_seek'),('rocksdb_number_db_next
 as (row_name text, "rocksdb_insert" decimal, "rocksdb_seek" decimal, "rocksdb_next" decimal)
 ;
 
+
 prepare snap_tablet as 
-select * from ybwr_snap_and_show_tablet_load where namespace_name not in ('system') 
-and metric_name in ('rows_inserted') or metric_name like 'rocksdb_number_db%'; 
+--select * from ybwr_snap_and_show_tablet_load where namespace_name not in ('system') 
+--and metric_name in ('rows_inserted') or metric_name like 'rocksdb_number_db%'
+select value,namespace_name,table_name,metric_name,tablet_id,regexp_replace(host,'[.].*','') host,case is_raft_leader when 0 then ' ' else 'L' end
+"Raft" ,"table"
+from ybwr_snap_and_show_tablet_load 
+order by metric_name,namespace_name,table_name,tablet_id,is_raft_leader,host
+;
 execute snap_tablet;
 
 execute snap_table;

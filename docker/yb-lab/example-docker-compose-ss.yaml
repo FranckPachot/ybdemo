@@ -93,7 +93,6 @@ services:
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-0:9100 
                 --tserver_master_addrs=yb-master-0:7100 
-                --replication_factor=1 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 
@@ -119,7 +118,6 @@ services:
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-1:9100 
                 --tserver_master_addrs=yb-master-0:7100 
-                --replication_factor=1 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 
@@ -145,7 +143,6 @@ services:
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-2:9100 
                 --tserver_master_addrs=yb-master-0:7100 
-                --replication_factor=1 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 
@@ -169,7 +166,6 @@ services:
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
                 --tserver_master_addrs=yb-master-0:7100 
-                --replication_factor=1 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 

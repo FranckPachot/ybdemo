@@ -249,7 +249,6 @@ cat <<CAT
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-$tserver:9100 
                 --tserver_master_addrs=$master_addresses 
-                --replication_factor=$replication_factor 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 $placement_uuid
@@ -287,7 +286,6 @@ cat <<CAT
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
                 --tserver_master_addrs=$master_addresses 
-                --replication_factor=$replication_factor 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 $placement_uuid

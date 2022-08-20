@@ -7,8 +7,8 @@
 ####################################################################
 
 
-# this is a lab, I set all new and beta features
-flags="--ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true"
+# this is a lab, I set all new and beta features and low memory
+flags="--ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true --default_memory_limit_to_ram_ratio=0.20"
 
 case $1 in
 
@@ -74,6 +74,17 @@ list_of_clouds="star"
 list_of_regions="earth moon mars"
 list_of_zones="base"
 number_of_tservers=3
+read_replica_regexp=""
+demo=0
+;;
+
+geo) 
+# example multi-region in the solar system ;)
+replication_factor=1
+list_of_clouds="cloud"
+list_of_regions="eu-west us-east us-west"
+list_of_zones="az1 az2 az3"
+number_of_tservers=18
 read_replica_regexp=""
 demo=0
 ;;
@@ -187,7 +198,7 @@ cat <<CAT
   yb-master-$master:
       image: yugabytedb/yugabyte:${tag}
       container_name: yb-master-$master
-      hostname: yb-master-$master
+      hostname: yb-master-$master.$zone.$region.$cloud
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-master $flags
@@ -195,7 +206,7 @@ cat <<CAT
                 --placement_cloud=$cloud
                 --placement_region=$region
                 --placement_zone=$zone
-                --rpc_bind_addresses=yb-master-$master:7100
+                --rpc_bind_addresses=yb-master-$master.$zone.$region.$cloud:7100
                 --master_addresses=$master_addresses
                 --replication_factor=$replication_factor
                 --rpc_connection_timeout_ms=15000
@@ -242,7 +253,7 @@ cat <<CAT
   yb-tserver-$tserver:
       image: yugabytedb/yugabyte:${tag}
       container_name: yb-tserver-$tserver
-      hostname: yb-tserver-$tserver
+      hostname: yb-tserver-$tserver.$zone.$region.$cloud
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-tserver $flags
@@ -251,7 +262,7 @@ cat <<CAT
                 --placement_zone=$zone 
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
-                --rpc_bind_addresses=yb-tserver-$tserver:9100 
+                --rpc_bind_addresses=yb-tserver-$tserver.$zone.$region.$cloud:9100 
                 --tserver_master_addrs=$master_addresses 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000

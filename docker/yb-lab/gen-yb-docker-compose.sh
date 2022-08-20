@@ -80,7 +80,7 @@ demo=0
 
 geo) 
 # example multi-region in the solar system ;)
-replication_factor=3
+replication_factor=1
 list_of_clouds="cloud"
 list_of_regions="eu-west us-east us-west"
 list_of_zones="az1 az2 az3"
@@ -168,7 +168,6 @@ services:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","ybwr"]
       deploy:
-          replicas: $demo
           restart_policy:
              condition: on-failure
 

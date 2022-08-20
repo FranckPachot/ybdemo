@@ -6,7 +6,11 @@ services:
 # demos with connect / read / write workloads
 
   yb-demo-connect:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.0.0-b11
+=======
+      image: yugabytedb/yugabyte:2.15.1.0-b175
+>>>>>>> c97a99f211152fb4de599e943c9403aa31a0e7e8
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","connect","9"]
@@ -16,7 +20,11 @@ services:
              condition: on-failure
 
   yb-demo-read:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.0.0-b11
+=======
+      image: yugabytedb/yugabyte:2.15.1.0-b175
+>>>>>>> c97a99f211152fb4de599e943c9403aa31a0e7e8
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","read","1"]
@@ -26,7 +34,11 @@ services:
              condition: on-failure
 
   yb-demo-write:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.0.0-b11
+=======
+      image: yugabytedb/yugabyte:2.15.1.0-b175
+>>>>>>> c97a99f211152fb4de599e943c9403aa31a0e7e8
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","insert","1"]
@@ -38,7 +50,11 @@ services:
 # table create and other initialization for demos
 
   yb-demo-init:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.0.0-b11
+=======
+      image: yugabytedb/yugabyte:2.15.1.0-b175
+>>>>>>> c97a99f211152fb4de599e943c9403aa31a0e7e8
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","init"]
@@ -48,7 +64,11 @@ services:
              condition: on-failure
 
   yb-demo-metrics:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.0.0-b11
+=======
+      image: yugabytedb/yugabyte:2.15.1.0-b175
+>>>>>>> c97a99f211152fb4de599e943c9403aa31a0e7e8
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","ybwr"]
@@ -61,7 +81,11 @@ services:
 
 
   yb-master-0:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.0.0-b11
+=======
+      image: yugabytedb/yugabyte:2.15.1.0-b175
+>>>>>>> c97a99f211152fb4de599e943c9403aa31a0e7e8
       container_name: yb-master-0
       hostname: yb-master-0
       command: bash -c "
@@ -81,7 +105,11 @@ services:
 
 
   yb-tserver-0:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.0.0-b11
+=======
+      image: yugabytedb/yugabyte:2.15.1.0-b175
+>>>>>>> c97a99f211152fb4de599e943c9403aa31a0e7e8
       container_name: yb-tserver-0
       hostname: yb-tserver-0
       command: bash -c "
@@ -94,7 +122,6 @@ services:
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-0:9100 
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 
@@ -107,7 +134,11 @@ services:
 
 
   yb-master-1:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.0.0-b11
+=======
+      image: yugabytedb/yugabyte:2.15.1.0-b175
+>>>>>>> c97a99f211152fb4de599e943c9403aa31a0e7e8
       container_name: yb-master-1
       hostname: yb-master-1
       command: bash -c "
@@ -129,7 +160,11 @@ services:
 
 
   yb-tserver-1:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.0.0-b11
+=======
+      image: yugabytedb/yugabyte:2.15.1.0-b175
+>>>>>>> c97a99f211152fb4de599e943c9403aa31a0e7e8
       container_name: yb-tserver-1
       hostname: yb-tserver-1
       command: bash -c "
@@ -142,7 +177,6 @@ services:
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-1:9100 
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 
@@ -155,7 +189,11 @@ services:
 
 
   yb-master-2:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.0.0-b11
+=======
+      image: yugabytedb/yugabyte:2.15.1.0-b175
+>>>>>>> c97a99f211152fb4de599e943c9403aa31a0e7e8
       container_name: yb-master-2
       hostname: yb-master-2
       command: bash -c "
@@ -177,7 +215,11 @@ services:
 
 
   yb-tserver-2:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.0.0-b11
+=======
+      image: yugabytedb/yugabyte:2.15.1.0-b175
+>>>>>>> c97a99f211152fb4de599e943c9403aa31a0e7e8
       container_name: yb-tserver-2
       hostname: yb-tserver-2
       command: bash -c "
@@ -190,7 +232,6 @@ services:
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-2:9100 
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 
@@ -204,7 +245,11 @@ services:
 # adding a template to add more replicas
 
   yb-tserver-n:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.0.0-b11
+=======
+      image: yugabytedb/yugabyte:2.15.1.0-b175
+>>>>>>> c97a99f211152fb4de599e943c9403aa31a0e7e8
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-tserver 
@@ -214,7 +259,6 @@ services:
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 

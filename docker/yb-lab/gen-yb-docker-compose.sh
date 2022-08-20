@@ -63,6 +63,17 @@ read_replica_regexp="cloud2.region2.zone[1-2]"
 demo=1
 ;;
 
+ss) 
+# example multi-region in the solar system ;)
+replication_factor=1
+list_of_clouds="star"
+list_of_regions="earth moon mars"
+list_of_zones="base"
+number_of_tservers=3
+read_replica_regexp=""
+demo=0
+;;
+
 *)
 # example cloud/region/zone
 replication_factor=3
@@ -238,7 +249,6 @@ cat <<CAT
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-$tserver:9100 
                 --tserver_master_addrs=$master_addresses 
-                --replication_factor=$replication_factor 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 $placement_uuid
@@ -276,7 +286,6 @@ cat <<CAT
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
                 --tserver_master_addrs=$master_addresses 
-                --replication_factor=$replication_factor 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 $placement_uuid

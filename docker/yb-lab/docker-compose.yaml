@@ -6,7 +6,7 @@ services:
 # demos with connect / read / write workloads
 
   yb-demo-connect:
-      image: yugabytedb/yugabyte:2.13.2.0-b135
+      image: yugabytedb/yugabyte:2.15.0.0-b11
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","connect","9"]
@@ -16,7 +16,7 @@ services:
              condition: on-failure
 
   yb-demo-read:
-      image: yugabytedb/yugabyte:2.13.2.0-b135
+      image: yugabytedb/yugabyte:2.15.0.0-b11
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","read","1"]
@@ -26,7 +26,7 @@ services:
              condition: on-failure
 
   yb-demo-write:
-      image: yugabytedb/yugabyte:2.13.2.0-b135
+      image: yugabytedb/yugabyte:2.15.0.0-b11
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","insert","1"]
@@ -38,7 +38,7 @@ services:
 # table create and other initialization for demos
 
   yb-demo-init:
-      image: yugabytedb/yugabyte:2.13.2.0-b135
+      image: yugabytedb/yugabyte:2.15.0.0-b11
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","init"]
@@ -48,7 +48,7 @@ services:
              condition: on-failure
 
   yb-demo-metrics:
-      image: yugabytedb/yugabyte:2.13.2.0-b135
+      image: yugabytedb/yugabyte:2.15.0.0-b11
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","ybwr"]
@@ -60,7 +60,7 @@ services:
 
 
   yb-master-0:
-      image: yugabytedb/yugabyte:2.13.2.0-b135
+      image: yugabytedb/yugabyte:2.15.0.0-b11
       container_name: yb-master-0
       hostname: yb-master-0
       command: bash -c "
@@ -68,11 +68,7 @@ services:
                 /home/yugabyte/bin/yb-master 
                 --fs_data_dirs=/home/yugabyte/data
                 --placement_cloud=cloud
-<<<<<<< HEAD
                 --placement_region=region
-=======
-                --placement_region=EU
->>>>>>> 57396e55220f82daa051925c8cd72f5bdde03df7
                 --placement_zone=zone1
                 --rpc_bind_addresses=yb-master-0:7100
                 --master_addresses=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100
@@ -84,18 +80,14 @@ services:
 
 
   yb-tserver-0:
-      image: yugabytedb/yugabyte:2.13.2.0-b135
+      image: yugabytedb/yugabyte:2.15.0.0-b11
       container_name: yb-tserver-0
       hostname: yb-tserver-0
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-tserver 
                 --placement_cloud=cloud 
-<<<<<<< HEAD
                 --placement_region=region 
-=======
-                --placement_region=EU 
->>>>>>> 57396e55220f82daa051925c8cd72f5bdde03df7
                 --placement_zone=zone1 
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
@@ -114,7 +106,7 @@ services:
 
 
   yb-master-1:
-      image: yugabytedb/yugabyte:2.13.2.0-b135
+      image: yugabytedb/yugabyte:2.15.0.0-b11
       container_name: yb-master-1
       hostname: yb-master-1
       command: bash -c "
@@ -122,13 +114,8 @@ services:
                 /home/yugabyte/bin/yb-master 
                 --fs_data_dirs=/home/yugabyte/data
                 --placement_cloud=cloud
-<<<<<<< HEAD
                 --placement_region=region
                 --placement_zone=zone2
-=======
-                --placement_region=US
-                --placement_zone=zone1
->>>>>>> 57396e55220f82daa051925c8cd72f5bdde03df7
                 --rpc_bind_addresses=yb-master-1:7100
                 --master_addresses=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100
                 --replication_factor=3
@@ -141,20 +128,15 @@ services:
 
 
   yb-tserver-1:
-      image: yugabytedb/yugabyte:2.13.2.0-b135
+      image: yugabytedb/yugabyte:2.15.0.0-b11
       container_name: yb-tserver-1
       hostname: yb-tserver-1
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-tserver 
                 --placement_cloud=cloud 
-<<<<<<< HEAD
                 --placement_region=region 
                 --placement_zone=zone2 
-=======
-                --placement_region=US 
-                --placement_zone=zone1 
->>>>>>> 57396e55220f82daa051925c8cd72f5bdde03df7
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-1:9100 
@@ -172,7 +154,7 @@ services:
 
 
   yb-master-2:
-      image: yugabytedb/yugabyte:2.13.2.0-b135
+      image: yugabytedb/yugabyte:2.15.0.0-b11
       container_name: yb-master-2
       hostname: yb-master-2
       command: bash -c "
@@ -180,13 +162,8 @@ services:
                 /home/yugabyte/bin/yb-master 
                 --fs_data_dirs=/home/yugabyte/data
                 --placement_cloud=cloud
-<<<<<<< HEAD
                 --placement_region=region
                 --placement_zone=zone3
-=======
-                --placement_region=AP
-                --placement_zone=zone1
->>>>>>> 57396e55220f82daa051925c8cd72f5bdde03df7
                 --rpc_bind_addresses=yb-master-2:7100
                 --master_addresses=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100
                 --replication_factor=3
@@ -199,20 +176,15 @@ services:
 
 
   yb-tserver-2:
-      image: yugabytedb/yugabyte:2.13.2.0-b135
+      image: yugabytedb/yugabyte:2.15.0.0-b11
       container_name: yb-tserver-2
       hostname: yb-tserver-2
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-tserver 
                 --placement_cloud=cloud 
-<<<<<<< HEAD
                 --placement_region=region 
                 --placement_zone=zone3 
-=======
-                --placement_region=AP 
-                --placement_zone=zone1 
->>>>>>> 57396e55220f82daa051925c8cd72f5bdde03df7
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-2:9100 
@@ -228,115 +200,25 @@ services:
       depends_on:
       - yb-master-2
 
-<<<<<<< HEAD
 # adding a template to add more replicas
 
   yb-tserver-n:
-      image: yugabytedb/yugabyte:latest
-=======
-
-  yb-tserver-3:
-      image: yugabytedb/yugabyte:2.13.2.0-b135
-      container_name: yb-tserver-3
-      hostname: yb-tserver-3
+      image: yugabytedb/yugabyte:2.15.0.0-b11
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-tserver 
                 --placement_cloud=cloud 
-                --placement_region=EU 
-                --placement_zone=zone1 
-                --enable_ysql=true 
-                --fs_data_dirs=/home/yugabyte/data 
-                --rpc_bind_addresses=yb-tserver-3:9100 
-                --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
-                --ysql_num_shards_per_tserver=2
-                --rpc_connection_timeout_ms=15000
-                
-                "
-      ports:
-      - "9003:9000"
-      - "5436:5433"
-      depends_on:
-      - yb-master-2
-
-
-  yb-tserver-4:
-      image: yugabytedb/yugabyte:2.13.2.0-b135
-      container_name: yb-tserver-4
-      hostname: yb-tserver-4
-      command: bash -c "
-                rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
-                --placement_cloud=cloud 
-                --placement_region=EU 
-                --placement_zone=zone2 
-                --enable_ysql=true 
-                --fs_data_dirs=/home/yugabyte/data 
-                --rpc_bind_addresses=yb-tserver-4:9100 
-                --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
-                --ysql_num_shards_per_tserver=2
-                --rpc_connection_timeout_ms=15000
-                
-                "
-      ports:
-      - "9004:9000"
-      - "5437:5433"
-      depends_on:
-      - yb-master-2
-
-# adding a template to add more replicas
-
-  yb-tserver-n:
-      image: yugabytedb/yugabyte:2.13.2.0-b135
->>>>>>> 57396e55220f82daa051925c8cd72f5bdde03df7
-      command: bash -c "
-                rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
-                --placement_cloud=cloud 
-<<<<<<< HEAD
                 --placement_region=region 
                 --placement_zone=zone3 
-=======
-                --placement_region=EU 
-                --placement_zone=zone2 
->>>>>>> 57396e55220f82daa051925c8cd72f5bdde03df7
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
                 --replication_factor=3 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
-<<<<<<< HEAD
-=======
                 
                 "
       deploy:
           replicas: 0
       depends_on:
       - yb-master-2
-
-
-# ephemeral container to tag read replicas if defined
-
-  cluster-config:
-      image: yugabytedb/yugabyte:2.13.2.0-b135
-      command: bash -c "
-                /home/yugabyte/bin/yb-admin --master_addresses yb-master-0:7100,yb-master-1:7100,yb-master-2:7100
-                modify_placement_info
-                
-                3
-                rw ;
-                /home/yugabyte/bin/yb-admin 
-                --master_addresses yb-master-0:7100,yb-master-1:7100,yb-master-2:7100
-                add_read_replica_placement_info
->>>>>>> 57396e55220f82daa051925c8cd72f5bdde03df7
-                
-                1
-                ro;
-                curl -qs http://yb-master-0:7000/cluster-config?raw
-                "
-      depends_on:
-      - yb-master-2
-

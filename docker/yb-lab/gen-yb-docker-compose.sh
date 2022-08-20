@@ -6,6 +6,10 @@
 # (to simulate multi-cloud, multi-region, multi-AZ cluster)
 ####################################################################
 
+
+# this is a lab, I set all new and beta features
+flags="--ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true"
+
 case $1 in
 
 rf1)
@@ -186,7 +190,7 @@ cat <<CAT
       hostname: yb-master-$master
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-master 
+                /home/yugabyte/bin/yb-master $flags
                 --fs_data_dirs=/home/yugabyte/data
                 --placement_cloud=$cloud
                 --placement_region=$region
@@ -241,7 +245,7 @@ cat <<CAT
       hostname: yb-tserver-$tserver
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
+                /home/yugabyte/bin/yb-tserver $flags
                 --placement_cloud=$cloud 
                 --placement_region=$region 
                 --placement_zone=$zone 
@@ -279,7 +283,7 @@ cat <<CAT
       image: yugabytedb/yugabyte:${tag}
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
+                /home/yugabyte/bin/yb-tserver $flags
                 --placement_cloud=$cloud 
                 --placement_region=$region 
                 --placement_zone=$zone 

@@ -6,7 +6,7 @@ services:
 # demos with connect / read / write workloads
 
   yb-demo-connect:
-      image: yugabytedb/yugabyte:2.15.0.1-b4
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","connect","9"]
@@ -16,7 +16,7 @@ services:
              condition: on-failure
 
   yb-demo-read:
-      image: yugabytedb/yugabyte:2.15.0.1-b4
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","read","1"]
@@ -26,7 +26,7 @@ services:
              condition: on-failure
 
   yb-demo-write:
-      image: yugabytedb/yugabyte:2.15.0.1-b4
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","insert","1"]
@@ -38,7 +38,7 @@ services:
 # table create and other initialization for demos
 
   yb-demo-init:
-      image: yugabytedb/yugabyte:2.15.0.1-b4
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","init"]
@@ -48,7 +48,7 @@ services:
              condition: on-failure
 
   yb-demo-metrics:
-      image: yugabytedb/yugabyte:2.15.0.1-b4
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","ybwr"]
@@ -60,17 +60,17 @@ services:
 
 
   yb-master-0:
-      image: yugabytedb/yugabyte:2.15.0.1-b4
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       container_name: yb-master-0
-      hostname: yb-master-0
+      hostname: yb-master-0.base.earth.star
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-master 
+                /home/yugabyte/bin/yb-master --ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true
                 --fs_data_dirs=/home/yugabyte/data
                 --placement_cloud=star
                 --placement_region=earth
                 --placement_zone=base
-                --rpc_bind_addresses=yb-master-0:7100
+                --rpc_bind_addresses=yb-master-0.base.earth.star:7100
                 --master_addresses=yb-master-0:7100
                 --replication_factor=1
                 --rpc_connection_timeout_ms=15000
@@ -80,18 +80,18 @@ services:
 
 
   yb-tserver-0:
-      image: yugabytedb/yugabyte:2.15.0.1-b4
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       container_name: yb-tserver-0
-      hostname: yb-tserver-0
+      hostname: yb-tserver-0.base.earth.star
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
+                /home/yugabyte/bin/yb-tserver --ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true
                 --placement_cloud=star 
                 --placement_region=earth 
                 --placement_zone=base 
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
-                --rpc_bind_addresses=yb-tserver-0:9100 
+                --rpc_bind_addresses=yb-tserver-0.base.earth.star:9100 
                 --tserver_master_addrs=yb-master-0:7100 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
@@ -105,18 +105,18 @@ services:
 
 
   yb-tserver-1:
-      image: yugabytedb/yugabyte:2.15.0.1-b4
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       container_name: yb-tserver-1
-      hostname: yb-tserver-1
+      hostname: yb-tserver-1.base.moon.star
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
+                /home/yugabyte/bin/yb-tserver --ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true
                 --placement_cloud=star 
                 --placement_region=moon 
                 --placement_zone=base 
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
-                --rpc_bind_addresses=yb-tserver-1:9100 
+                --rpc_bind_addresses=yb-tserver-1.base.moon.star:9100 
                 --tserver_master_addrs=yb-master-0:7100 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
@@ -130,18 +130,18 @@ services:
 
 
   yb-tserver-2:
-      image: yugabytedb/yugabyte:2.15.0.1-b4
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       container_name: yb-tserver-2
-      hostname: yb-tserver-2
+      hostname: yb-tserver-2.base.mars.star
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
+                /home/yugabyte/bin/yb-tserver --ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true
                 --placement_cloud=star 
                 --placement_region=mars 
                 --placement_zone=base 
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
-                --rpc_bind_addresses=yb-tserver-2:9100 
+                --rpc_bind_addresses=yb-tserver-2.base.mars.star:9100 
                 --tserver_master_addrs=yb-master-0:7100 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
@@ -156,10 +156,10 @@ services:
 # adding a template to add more replicas
 
   yb-tserver-n:
-      image: yugabytedb/yugabyte:2.15.0.1-b4
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
+                /home/yugabyte/bin/yb-tserver --ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true
                 --placement_cloud=star 
                 --placement_region=mars 
                 --placement_zone=base 

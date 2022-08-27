@@ -1,0 +1,965 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 14,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "doc",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "ybwr.sql",
+      "tooltip": "The queries comes from this",
+      "type": "link",
+      "url": "https://github.com/FranckPachot/ybdemo/blob/main/docker/yb-lab/client/ybwr.sql"
+    }
+  ],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "qEe8N2_Gk"
+      },
+      "description": "Takes a snapshot and display all",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto",
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Time"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 145
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "snapshot"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 143
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "hosts"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 192
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "num"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 13
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 5,
+        "x": 0,
+        "y": 0
+      },
+      "id": 5,
+      "options": {
+        "footer": {
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "9.0.5",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "qEe8N2_Gk"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select to_char(min(ts),'d yyyy-mm-dd hh24:mi') as snapshot,string_agg(distinct host,',') as hosts,(count(*)/count(distinct host)) num \nfrom ybwr_snap($retention) --> this takes a snapshot\n,ybwr_snapshots \ngroup by date_trunc('minute', ts) order by 1 desc;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "rate"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ybwr_report",
+          "timeColumn": "ts",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Snapshots",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "qEe8N2_Gk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 2,
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rocksdb_number_db_seek"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rocksdb_number_db_next"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rocksdb_number_db_next_found"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rocksdb_number_db_prev"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rocksdb_number_db_prev_found"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 19,
+        "x": 5,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "barRadius": 0.2,
+        "barWidth": 1,
+        "groupWidth": 1,
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "list",
+          "placement": "right"
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "text": {},
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xField": "dbname / relname / tserver / tabletid",
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "qEe8N2_Gk"
+          },
+          "format": "table",
+          "group": [],
+          "key": "Q-6f1d0873-aff2-411b-b3cc-809db3d8a65d-0",
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "delete from ybwr_snapshots where not ($__timeFilter(ts));\nwith \nybwr_last as (\nselect * from ybwr_report where relative_snap_id=1\n),\nybwr_snap_and_show_tablet_load as (\nselect value,rate,namespace_name,table_name,metric_name,host,tablet_id\n,to_char(100*value/sum(value)over(partition by namespace_name,table_name,metric_name),'999%') as \"%table\"\n,sum(value)over(partition by namespace_name,table_name,metric_name) as \"table\"\nfrom ybwr_last\nwhere table_name not in ('metrics','ybwr_snapshots')\nand metric_name not in ('follower_lag_ms')\norder by ts desc,namespace_name,table_name,host,tablet_id,\"table\" desc,value desc,metric_name\n)\nselect \"rocksdb_number_db_seek\",\"rocksdb_number_db_next\",\"rocksdb_number_db_next_found\",\"rocksdb_number_db_prev\",\"rocksdb_number_db_prev_found\",row_name as \"dbname / relname / tserver / tabletid\"\nfrom crosstab($$\nselect format('%s %s %s',namespace_name,table_name,host) row_name, metric_name category, value \nfrom ybwr_snap_and_show_tablet_load \nwhere namespace_name not in ('system') and metric_name in ('rocksdb_number_db_seek','rocksdb_number_db_next','rocksdb_number_db_next_found','rocksdb_number_db_prev','rocksdb_number_db_prev_found') \norder by row_name\n$$) as (row_name text, \"rocksdb_number_db_seek\" decimal, \"rocksdb_number_db_next\" decimal, \"rocksdb_number_db_next_found\" decimal, \"rocksdb_number_db_prev\" decimal, \"rocksdb_number_db_prev_found\" decimal)",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "rate"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ybwr_report",
+          "timeColumn": "ts",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Show last tablet metrics",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "qEe8N2_Gk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto",
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Time"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 145
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "snapshot"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 143
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "hosts"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 203
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "host"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 89
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "port"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 46
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cloud"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 55
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "region"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 58
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "zone"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 55
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 5,
+        "x": 0,
+        "y": 6
+      },
+      "id": 6,
+      "options": {
+        "footer": {
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "9.0.5",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "qEe8N2_Gk"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select host,port,cloud,region,zone,node_type from yb_servers()",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "rate"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ybwr_report",
+          "timeColumn": "ts",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "yb_servers()",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "qEe8N2_Gk"
+      },
+      "description": "Filter: ${metrics_to_hide_list:raw}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds",
+            "seriesBy": "last"
+          },
+          "custom": {
+            "axisLabel": "values",
+            "axisPlacement": "left",
+            "axisSoftMin": 1,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 80,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 0,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "log": 10,
+              "type": "log"
+            },
+            "showPoints": "always",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "super-light-green",
+                "value": null
+              },
+              {
+                "color": "dark-green",
+                "value": 10
+              },
+              {
+                "color": "super-light-blue",
+                "value": 100
+              },
+              {
+                "color": "blue",
+                "value": 1000
+              },
+              {
+                "color": "dark-blue",
+                "value": 10000
+              },
+              {
+                "color": "super-light-yellow",
+                "value": 100000
+              },
+              {
+                "color": "dark-yellow",
+                "value": 1000000
+              },
+              {
+                "color": "super-light-red",
+                "value": 10000000
+              },
+              {
+                "color": "red",
+                "value": 100000000
+              },
+              {
+                "color": "dark-red",
+                "value": 1000000000
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 17,
+        "x": 0,
+        "y": 13
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "list",
+          "placement": "right"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "qEe8N2_Gk"
+          },
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with\nybwr_report as (\nselect value,round(value/seconds) rate,host,tablet_id,namespace_name,table_name,metric_name,ts,relative_snap_id\nfrom (\nselect ts,host,metric_name,namespace_name,table_name,tablet_id\n,metric_value-lead(metric_value)over(partition by host,namespace_name,table_name,tablet_id,metric_name order by ts desc) as value\n,extract(epoch from ts-lead(ts)over(partition by host,namespace_name,table_name,tablet_id,metric_name order by ts desc)) as seconds\n,rank()over() as relative_snap_id\n,metric_value,metric_sum,metric_count\nfrom (\nselect host,ts\n ,jsonb_array_elements(metrics)->>'type' as type\n ,jsonb_array_elements(metrics)->>'id'   as tablet_id\n ,jsonb_array_elements(metrics)->'attributes'->>'namespace_name'  as namespace_name\n ,jsonb_array_elements(metrics)->'attributes'->>'table_name'  as table_name\n ,jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'name' as metric_name\n ,(jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'value')::decimal as metric_value\n ,(jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'total_sum')::decimal as metric_sum\n ,(jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'total_count')::decimal as metric_count\nfrom ybwr_snapshots where $__timeFilter(ts)\n) tablets\n) tablets_delta where value>0\n)\nselect ts as time, metric_name, max(value) as value \nfrom ybwr_report \nwhere  metric_name  ${metrics_to_hide_list:raw}\ngroup by ts, metric_name order by ts asc, value desc\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "rate"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ybwr_report",
+          "timeColumn": "ts",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "All metrics in timelime ",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "qEe8N2_Gk"
+      },
+      "description": "Visible: ${metrics_to_hide}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds",
+            "seriesBy": "last"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto",
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "super-light-green",
+                "value": null
+              },
+              {
+                "color": "dark-green",
+                "value": 10
+              },
+              {
+                "color": "super-light-blue",
+                "value": 100
+              },
+              {
+                "color": "blue",
+                "value": 1000
+              },
+              {
+                "color": "dark-blue",
+                "value": 10000
+              },
+              {
+                "color": "super-light-yellow",
+                "value": 100000
+              },
+              {
+                "color": "dark-yellow",
+                "value": 1000000
+              },
+              {
+                "color": "super-light-red",
+                "value": 10000000
+              },
+              {
+                "color": "red",
+                "value": 100000000
+              },
+              {
+                "color": "dark-red",
+                "value": 1000000000
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "metric_name"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 263
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "value/second"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 7,
+        "x": 17,
+        "y": 13
+      },
+      "id": 7,
+      "options": {
+        "footer": {
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "9.0.5",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "qEe8N2_Gk"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with\nybwr_report as (\nselect value,round(value/seconds) rate,host,tablet_id,namespace_name,table_name,metric_name,ts,relative_snap_id\nfrom (\nselect ts,host,metric_name,namespace_name,table_name,tablet_id\n,metric_value-lead(metric_value)over(partition by host,namespace_name,table_name,tablet_id,metric_name order by ts desc) as value\n,extract(epoch from ts-lead(ts)over(partition by host,namespace_name,table_name,tablet_id,metric_name order by ts desc)) as seconds\n,rank()over() as relative_snap_id\n,metric_value,metric_sum,metric_count\nfrom (\nselect host,ts\n ,jsonb_array_elements(metrics)->>'type' as type\n ,jsonb_array_elements(metrics)->>'id'   as tablet_id\n ,jsonb_array_elements(metrics)->'attributes'->>'namespace_name'  as namespace_name\n ,jsonb_array_elements(metrics)->'attributes'->>'table_name'  as table_name\n ,jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'name' as metric_name\n ,(jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'value')::decimal as metric_value\n ,(jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'total_sum')::decimal as metric_sum\n ,(jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'total_count')::decimal as metric_count\nfrom ybwr_snapshots where $__timeFilter(ts)\n) tablets\n) tablets_delta where value>0\n)\nselect max(value)/extract(epoch from max(ts)-min(ts)) as \"max()/second\",metric_name\n,case when metric_name  ${metrics_to_hide_list:raw} then '✔' else '❌' end \"Visible?\"\nfrom ybwr_report \n--where  metric_name  ${metrics_to_hide_list:raw}\ngroup by metric_name having max(ts)>min(ts) order by \"max()/second\" desc\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "rate"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ybwr_report",
+          "timeColumn": "ts",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "All metrics in timelime ",
+      "type": "table"
+    }
+  ],
+  "refresh": "1m",
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": "24",
+          "value": "24"
+        },
+        "description": "number of snapshots to keep",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Snapshots to keep",
+        "multi": false,
+        "name": "retention",
+        "options": [
+          {
+            "selected": false,
+            "text": "2",
+            "value": "2"
+          },
+          {
+            "selected": false,
+            "text": "4",
+            "value": "4"
+          },
+          {
+            "selected": false,
+            "text": "12",
+            "value": "12"
+          },
+          {
+            "selected": true,
+            "text": "24",
+            "value": "24"
+          },
+          {
+            "selected": false,
+            "text": "60",
+            "value": "60"
+          }
+        ],
+        "query": "2,4,12,24,60",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "hybrid_clock_hybrid_time"
+          ],
+          "value": [
+            "hybrid_clock_hybrid_time"
+          ]
+        },
+        "datasource": {
+          "type": "postgres",
+          "uid": "qEe8N2_Gk"
+        },
+        "definition": "create extension if not exists tablefunc;\n-- the \"ybwr_snapshots\" table stores snapshots of tserver metrics, gathered by \"ybwr_snap\", reading all endpoints known by \"yb_servers()\"\ncreate table if not exists ybwr_snapshots(host text default '', ts timestamptz default clock_timestamp(),  metrics jsonb, primary key (ts asc, host));\ncreate or replace function ybwr_snap(snaps_to_keep int default 6) returns timestamptz as $DO$\ndeclare i record; \nbegin\ndelete from ybwr_snapshots where ts not in (select distinct ts from ybwr_snapshots order by ts desc limit snaps_to_keep);\nfor i in (select host from yb_servers()) loop \n execute format(\n  $COPY$\n  copy ybwr_snapshots(host,metrics) from program\n   $BASH$\n   exec 5<>/dev/tcp/%s/9000 ; awk 'BEGIN{printf \"%s\\t\"}/[[]/{in_json=1}in_json==1{printf $0}' <&5 & printf \"GET /metrics HTTP/1.0\\r\\n\\r\\n\" >&5\n   $BASH$\n  $COPY$\n ,i.host,i.host); \nend loop; \nreturn clock_timestamp(); \nend; \n$DO$ language plpgsql;\ncreate or replace view ybwr_report as\nselect value,round(value/seconds) rate,host,tablet_id,is_raft_leader,namespace_name,table_name,metric_name,ts,relative_snap_id\nfrom (\nselect ts,host,metric_name,namespace_name,table_name\n,tablet_id,\nsum(case when metric_name='is_raft_leader' then metric_value end)\n  over(partition by host,namespace_name,table_name,tablet_id,ts)\n is_raft_leader\n,metric_value-lead(metric_value)over(partition by host,namespace_name,table_name,tablet_id,metric_name order by ts desc) as value\n,extract(epoch from ts-lead(ts)over(partition by host,namespace_name,table_name,tablet_id,metric_name order by ts desc)) as seconds\n,rank()over(partition by host,namespace_name,table_name,tablet_id,metric_name order by ts desc) as relative_snap_id\n,metric_value,metric_sum,metric_count\nfrom (\nselect host,ts\n ,jsonb_array_elements(metrics)->>'type' as type\n ,jsonb_array_elements(metrics)->>'id'   as tablet_id\n ,jsonb_array_elements(metrics)->'attributes'->>'namespace_name'  as namespace_name\n ,jsonb_array_elements(metrics)->'attributes'->>'table_name'  as table_name\n ,jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'name' as metric_name\n ,(jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'value')::decimal as metric_value\n ,(jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'total_sum')::decimal as metric_sum\n ,(jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'total_count')::decimal as metric_count\nfrom ybwr_snapshots\n) tablets\n) tablets_delta where value>0;\n-- a convenient \"ybwr_last\" shows the last snapshot:\ncreate or replace view ybwr_last as select * from ybwr_report where relative_snap_id=1;\n-- a convenient \"ybwr_snap_and_show_tablet_load\" takes a snapshot and show the metrics\ncreate or replace view ybwr_snap_and_show_tablet_load as \nselect value,rate,namespace_name,table_name,metric_name,host,tablet_id,is_raft_leader\n,to_char(100*value/sum(value)over(partition by namespace_name,table_name,metric_name),'999%') as \"%table\"\n,sum(value)over(partition by namespace_name,table_name,metric_name) as \"table\"\nfrom ybwr_last\nwhere table_name not in ('metrics','ybwr_snapshots')\nand metric_name not in ('follower_lag_ms')\norder by ts desc,namespace_name,table_name,host,tablet_id,\"table\" desc,value desc,metric_name;\nselect distinct metric_name as \"__value\",metric_name as \"__text\" from ybwr_report,ybwr_snap($retention) order by 1;",
+        "description": "Create YBWR functions and views if not exists and show available metrics (to hide them)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Metrics to hide",
+        "multi": true,
+        "name": "metrics_to_hide",
+        "options": [],
+        "query": "create extension if not exists tablefunc;\n-- the \"ybwr_snapshots\" table stores snapshots of tserver metrics, gathered by \"ybwr_snap\", reading all endpoints known by \"yb_servers()\"\ncreate table if not exists ybwr_snapshots(host text default '', ts timestamptz default clock_timestamp(),  metrics jsonb, primary key (ts asc, host));\ncreate or replace function ybwr_snap(snaps_to_keep int default 6) returns timestamptz as $DO$\ndeclare i record; \nbegin\ndelete from ybwr_snapshots where ts not in (select distinct ts from ybwr_snapshots order by ts desc limit snaps_to_keep);\nfor i in (select host from yb_servers()) loop \n execute format(\n  $COPY$\n  copy ybwr_snapshots(host,metrics) from program\n   $BASH$\n   exec 5<>/dev/tcp/%s/9000 ; awk 'BEGIN{printf \"%s\\t\"}/[[]/{in_json=1}in_json==1{printf $0}' <&5 & printf \"GET /metrics HTTP/1.0\\r\\n\\r\\n\" >&5\n   $BASH$\n  $COPY$\n ,i.host,i.host); \nend loop; \nreturn clock_timestamp(); \nend; \n$DO$ language plpgsql;\ncreate or replace view ybwr_report as\nselect value,round(value/seconds) rate,host,tablet_id,is_raft_leader,namespace_name,table_name,metric_name,ts,relative_snap_id\nfrom (\nselect ts,host,metric_name,namespace_name,table_name\n,tablet_id,\nsum(case when metric_name='is_raft_leader' then metric_value end)\n  over(partition by host,namespace_name,table_name,tablet_id,ts)\n is_raft_leader\n,metric_value-lead(metric_value)over(partition by host,namespace_name,table_name,tablet_id,metric_name order by ts desc) as value\n,extract(epoch from ts-lead(ts)over(partition by host,namespace_name,table_name,tablet_id,metric_name order by ts desc)) as seconds\n,rank()over(partition by host,namespace_name,table_name,tablet_id,metric_name order by ts desc) as relative_snap_id\n,metric_value,metric_sum,metric_count\nfrom (\nselect host,ts\n ,jsonb_array_elements(metrics)->>'type' as type\n ,jsonb_array_elements(metrics)->>'id'   as tablet_id\n ,jsonb_array_elements(metrics)->'attributes'->>'namespace_name'  as namespace_name\n ,jsonb_array_elements(metrics)->'attributes'->>'table_name'  as table_name\n ,jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'name' as metric_name\n ,(jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'value')::decimal as metric_value\n ,(jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'total_sum')::decimal as metric_sum\n ,(jsonb_array_elements(jsonb_array_elements(metrics)->'metrics')->>'total_count')::decimal as metric_count\nfrom ybwr_snapshots\n) tablets\n) tablets_delta where value>0;\n-- a convenient \"ybwr_last\" shows the last snapshot:\ncreate or replace view ybwr_last as select * from ybwr_report where relative_snap_id=1;\n-- a convenient \"ybwr_snap_and_show_tablet_load\" takes a snapshot and show the metrics\ncreate or replace view ybwr_snap_and_show_tablet_load as \nselect value,rate,namespace_name,table_name,metric_name,host,tablet_id,is_raft_leader\n,to_char(100*value/sum(value)over(partition by namespace_name,table_name,metric_name),'999%') as \"%table\"\n,sum(value)over(partition by namespace_name,table_name,metric_name) as \"table\"\nfrom ybwr_last\nwhere table_name not in ('metrics','ybwr_snapshots')\nand metric_name not in ('follower_lag_ms')\norder by ts desc,namespace_name,table_name,host,tablet_id,\"table\" desc,value desc,metric_name;\nselect distinct metric_name as \"__value\",metric_name as \"__text\" from ybwr_report,ybwr_snap($retention) order by 1;",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "not in ('hybrid_clock_hybrid_time') ",
+          "value": "not in ('hybrid_clock_hybrid_time') "
+        },
+        "datasource": {
+          "type": "postgres",
+          "uid": "qEe8N2_Gk"
+        },
+        "definition": "select case when length($$${metrics_to_hide:singlequote}$$)>0 then $$not in (${metrics_to_hide:singlequote}) $$ else ' is not null ' end",
+        "hide": 2,
+        "includeAll": false,
+        "multi": true,
+        "name": "metrics_to_hide_list",
+        "options": [],
+        "query": "select case when length($$${metrics_to_hide:singlequote}$$)>0 then $$not in (${metrics_to_hide:singlequote}) $$ else ' is not null ' end",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "YBWR",
+  "uid": "kWdNnPC7z",
+  "version": 36,
+  "weekStart": ""
+}

@@ -6,6 +6,10 @@
 # (to simulate multi-cloud, multi-region, multi-AZ cluster)
 ####################################################################
 
+
+# this is a lab, I set all new and beta features and low memory
+flags="--ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true --default_memory_limit_to_ram_ratio=0.20"
+
 case $1 in
 
 rf1)
@@ -17,7 +21,7 @@ list_of_zones="zone1 zone2 zone3"
 number_of_tservers=2
 read_replica_regexp=""
 demo=0
-break ;;
+;;
 
 rf3)
 # example RF-1 two nodes
@@ -28,7 +32,7 @@ list_of_zones="zone1 zone2 zone3"
 number_of_tservers=3
 read_replica_regexp=""
 demo=0
-break ;;
+;;
 
 minimal)
 # example RF-1 one nodes
@@ -39,7 +43,7 @@ list_of_zones="zone1 zone2 zone3"
 number_of_tservers=1
 read_replica_regexp=""
 demo=0
-break ;;
+;;
 
 aws)
 # example Multi-AZ two node per AZ
@@ -50,7 +54,7 @@ list_of_zones="eu-west-1a eu-west-1b eu-west-1c"
 number_of_tservers=6
 read_replica_regexp=""
 demo=1
-break ;;
+;;
 
 rr) 
 # example cloud/region/zone + read replicas
@@ -61,7 +65,29 @@ list_of_zones="zone1 zone2"
 number_of_tservers=8
 read_replica_regexp="cloud2.region2.zone[1-2]"
 demo=1
-break ;;
+;;
+
+ss) 
+# example multi-region in the solar system ;)
+replication_factor=1
+list_of_clouds="star"
+list_of_regions="earth moon mars"
+list_of_zones="base"
+number_of_tservers=3
+read_replica_regexp=""
+demo=0
+;;
+
+geo) 
+# example multi-region in the solar system ;)
+replication_factor=1
+list_of_clouds="cloud"
+list_of_regions="eu-west us-east us-west"
+list_of_zones="az1 az2 az3"
+number_of_tservers=15
+read_replica_regexp=""
+demo=0
+;;
 
 *)
 # example cloud/region/zone
@@ -78,8 +104,11 @@ esac
 
 number_of_masters=$replication_factor
 
-#tag=2.11.1.0-b305
-tag=latest
+# this gets the latest tag for stable release (when preview=0) or preview release (preview=1):
+tag=$( curl -Ls "https:""//registry.hub.docker.com/v2/repositories/yugabytedb/yugabyte/tags?page_size=999" | jq -r '."results"[]["name"]' | sort -rV | awk -F. '!/latest/ && ($2/2)==preview/2+int($2/2){print;exit}' preview=1 )
+# if nothing (not having curl, jq, ...) take the latest
+tag="${tag:-latest}"
+
 
 {
 
@@ -169,15 +198,15 @@ cat <<CAT
   yb-master-$master:
       image: yugabytedb/yugabyte:${tag}
       container_name: yb-master-$master
-      hostname: yb-master-$master
+      hostname: yb-master-$master.$zone.$region.$cloud
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-master 
+                /home/yugabyte/bin/yb-master $flags
                 --fs_data_dirs=/home/yugabyte/data
                 --placement_cloud=$cloud
                 --placement_region=$region
                 --placement_zone=$zone
-                --rpc_bind_addresses=yb-master-$master:7100
+                --rpc_bind_addresses=yb-master-$master.$zone.$region.$cloud:7100
                 --master_addresses=$master_addresses
                 --replication_factor=$replication_factor
                 --rpc_connection_timeout_ms=15000
@@ -224,18 +253,17 @@ cat <<CAT
   yb-tserver-$tserver:
       image: yugabytedb/yugabyte:${tag}
       container_name: yb-tserver-$tserver
-      hostname: yb-tserver-$tserver
+      hostname: yb-tserver-$tserver.$zone.$region.$cloud
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
+                /home/yugabyte/bin/yb-tserver $flags
                 --placement_cloud=$cloud 
                 --placement_region=$region 
                 --placement_zone=$zone 
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
-                --rpc_bind_addresses=yb-tserver-$tserver:9100 
+                --rpc_bind_addresses=yb-tserver-$tserver.$zone.$region.$cloud:9100 
                 --tserver_master_addrs=$master_addresses 
-                --replication_factor=$replication_factor 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 $placement_uuid
@@ -266,14 +294,13 @@ cat <<CAT
       image: yugabytedb/yugabyte:${tag}
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
+                /home/yugabyte/bin/yb-tserver $flags
                 --placement_cloud=$cloud 
                 --placement_region=$region 
                 --placement_zone=$zone 
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
                 --tserver_master_addrs=$master_addresses 
-                --replication_factor=$replication_factor 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 $placement_uuid
@@ -332,5 +359,37 @@ echo
 
 }
 
-exit
+# set aliases (when sourced)
+{
+
+for i in $( docker-compose ps | awk 'NR>1{print $1}' )
+do
+alias $i="\
+docker exec -it $i bash \
+" 
+done
+
+alias ysqlsh="\
+docker exec -it yb-tserver-0 ysqlsh -h yb-tserver-0 \
+" 
+
+alias yb-admin="\
+docker exec -it yb-master-0 /home/yugabyte/bin/yb-admin   \
+ --master_addresses $(echo yb-master-{0..2}:7100|tr ' ' ,)\
+"
+
+alias yb-lab="
+curl -Ls http://localhost:7000//api/v1/cluster-config | jq
+yb-admin list_all_masters
+
+ysqlsh -h yb-tserver-0 -c '
+select version();
+' -c '
+select * from yb_servers() order by 1,2,3,6
+'
+cd '$PWD' && docker-compose -f ./docker-compose.yaml ps
+"
+
+}
+
 

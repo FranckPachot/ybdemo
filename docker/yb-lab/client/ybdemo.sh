@@ -34,6 +34,12 @@ insert)
    insert into demo(message) values (format('inserted when connected to %s',replace(current_setting('listen_addresses'),'0.0.0.0',host(inet_server_addr())::text) )) returning row_to_json(demo)" ; done 
    } | java -jar YBDemo.jar
   ;;
+delete)
+   {
+   echo "\
+   delete from demo where ts < clock_timestamp() - interval '3 minute' returning format('id %s (from %s) deleted',id,ts)"
+   } | java -jar YBDemo.jar
+  ;;
 count)
    {
    echo "\

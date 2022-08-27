@@ -6,7 +6,7 @@ services:
 # demos with connect / read / write workloads
 
   yb-demo-connect:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","connect","9"]
@@ -16,7 +16,7 @@ services:
              condition: on-failure
 
   yb-demo-read:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","read","1"]
@@ -26,7 +26,7 @@ services:
              condition: on-failure
 
   yb-demo-write:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","insert","1"]
@@ -38,7 +38,7 @@ services:
 # table create and other initialization for demos
 
   yb-demo-init:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","init"]
@@ -48,7 +48,7 @@ services:
              condition: on-failure
 
   yb-demo-metrics:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","ybwr"]
@@ -60,12 +60,12 @@ services:
 
 
   yb-master-0:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       container_name: yb-master-0
       hostname: yb-master-0
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-master 
+                /home/yugabyte/bin/yb-master --ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true
                 --fs_data_dirs=/home/yugabyte/data
                 --placement_cloud=cloud1
                 --placement_region=region1
@@ -80,12 +80,12 @@ services:
 
 
   yb-tserver-0:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       container_name: yb-tserver-0
       hostname: yb-tserver-0
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
+                /home/yugabyte/bin/yb-tserver --ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true
                 --placement_cloud=cloud1 
                 --placement_region=region1 
                 --placement_zone=zone1 
@@ -93,7 +93,6 @@ services:
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-0:9100 
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 
@@ -106,12 +105,12 @@ services:
 
 
   yb-master-1:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       container_name: yb-master-1
       hostname: yb-master-1
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-master 
+                /home/yugabyte/bin/yb-master --ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true
                 --fs_data_dirs=/home/yugabyte/data
                 --placement_cloud=cloud2
                 --placement_region=region1
@@ -128,12 +127,12 @@ services:
 
 
   yb-tserver-1:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       container_name: yb-tserver-1
       hostname: yb-tserver-1
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
+                /home/yugabyte/bin/yb-tserver --ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true
                 --placement_cloud=cloud2 
                 --placement_region=region1 
                 --placement_zone=zone1 
@@ -141,7 +140,6 @@ services:
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-1:9100 
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 
@@ -154,12 +152,12 @@ services:
 
 
   yb-master-2:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       container_name: yb-master-2
       hostname: yb-master-2
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-master 
+                /home/yugabyte/bin/yb-master --ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true
                 --fs_data_dirs=/home/yugabyte/data
                 --placement_cloud=cloud1
                 --placement_region=region2
@@ -176,12 +174,12 @@ services:
 
 
   yb-tserver-2:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       container_name: yb-tserver-2
       hostname: yb-tserver-2
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
+                /home/yugabyte/bin/yb-tserver --ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true
                 --placement_cloud=cloud1 
                 --placement_region=region2 
                 --placement_zone=zone1 
@@ -189,7 +187,6 @@ services:
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-2:9100 
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 
@@ -202,12 +199,12 @@ services:
 
 
   yb-tserver-3:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       container_name: yb-tserver-3
       hostname: yb-tserver-3
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
+                /home/yugabyte/bin/yb-tserver --ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true
                 --placement_cloud=cloud2 
                 --placement_region=region2 
                 --placement_zone=zone1 
@@ -215,7 +212,6 @@ services:
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-3:9100 
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 
@@ -228,12 +224,12 @@ services:
 
 
   yb-tserver-4:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       container_name: yb-tserver-4
       hostname: yb-tserver-4
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
+                /home/yugabyte/bin/yb-tserver --ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true
                 --placement_cloud=cloud1 
                 --placement_region=region1 
                 --placement_zone=zone2 
@@ -241,7 +237,6 @@ services:
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-4:9100 
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 
@@ -254,12 +249,12 @@ services:
 
 
   yb-tserver-5:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       container_name: yb-tserver-5
       hostname: yb-tserver-5
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
+                /home/yugabyte/bin/yb-tserver --ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true
                 --placement_cloud=cloud2 
                 --placement_region=region1 
                 --placement_zone=zone2 
@@ -267,7 +262,6 @@ services:
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-5:9100 
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 
@@ -280,12 +274,12 @@ services:
 
 
   yb-tserver-6:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       container_name: yb-tserver-6
       hostname: yb-tserver-6
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
+                /home/yugabyte/bin/yb-tserver --ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true
                 --placement_cloud=cloud1 
                 --placement_region=region2 
                 --placement_zone=zone2 
@@ -293,7 +287,6 @@ services:
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-6:9100 
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 
@@ -306,12 +299,12 @@ services:
 
 
   yb-tserver-7:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       container_name: yb-tserver-7
       hostname: yb-tserver-7
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
+                /home/yugabyte/bin/yb-tserver --ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true
                 --placement_cloud=cloud2 
                 --placement_region=region2 
                 --placement_zone=zone2 
@@ -319,7 +312,6 @@ services:
                 --fs_data_dirs=/home/yugabyte/data 
                 --rpc_bind_addresses=yb-tserver-7:9100 
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 
@@ -333,17 +325,16 @@ services:
 # adding a template to add more replicas
 
   yb-tserver-n:
-      image: yugabytedb/yugabyte:latest
+      image: yugabytedb/yugabyte:2.15.1.0-b175
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
-                /home/yugabyte/bin/yb-tserver 
+                /home/yugabyte/bin/yb-tserver --ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true
                 --placement_cloud=cloud2 
                 --placement_region=region2 
                 --placement_zone=zone2 
                 --enable_ysql=true 
                 --fs_data_dirs=/home/yugabyte/data 
                 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 
-                --replication_factor=3 
                 --ysql_num_shards_per_tserver=2
                 --rpc_connection_timeout_ms=15000
                 

@@ -92,15 +92,14 @@ create extension if not exists tablefunc;
 prepare snap_table as
 select "rocksdb_seek","rocksdb_next","rocksdb_insert",row_name as "dbname / relname / tserver / tabletid / leader"
 from crosstab($$
-select format('%s %s %s %s %s',namespace_name,table_name,host,tablet_id,case is_raft_leader when 0 then ' ' else 'L' end) row_name, metric_name category, sum(value)
+select format('%s %s %s %s %s',namespace_name,table_name,host,substr(tablet_id,1,12)||'...',case is_raft_leader when 0 then ' ' else 'L' end) row_name, metric_name category, sum(value)
 from ybwr_snap_and_show_tablet_load
 where namespace_name not in ('system') and metric_name in ('rocksdb_number_db_seek','rocksdb_number_db_next','rows_inserted')
-group by namespace_name,table_name,host,tablet_id,is_raft_leader, metric_name
+group by namespace_name,table_name,host,substr(tablet_id,1,12),is_raft_leader, metric_name
 order by 1,2 desc,3
 $$,$$values('rows_inserted'),('rocksdb_number_db_seek'),('rocksdb_number_db_next')$$) 
 as (row_name text, "rocksdb_insert" decimal, "rocksdb_seek" decimal, "rocksdb_next" decimal)
 ;
-
 
 prepare snap_tablet as 
 --select * from ybwr_snap_and_show_tablet_load where namespace_name not in ('system') 

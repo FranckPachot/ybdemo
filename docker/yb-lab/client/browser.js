@@ -15,7 +15,7 @@ document.getElementsByClassName("sidebar-wrapper")[0].style.width="99px";
   
 //  clock on "message" header to hide those columns
 document.querySelectorAll(
-    '.table-striped:nth-child(4) tr>th:nth-child(6)'
+    '.table-striped:nth-child(4) tr>th:nth-child(7)'
     ).forEach(el => el.onclick = 
 function runme(){
 document.querySelectorAll(

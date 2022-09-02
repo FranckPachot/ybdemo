@@ -6,7 +6,7 @@ https://microsoftedge.microsoft.com/addons/detail/my-script/pjnkcmipfmmcpehaoemn
 */
 
 // table
-if ( window.location.href.match(/:7000[/]table[?]id=[0-9a-z]*/) )
+if ( window.location.href.match(/:[0-9]+7000[/]table[?]id=[0-9a-z]*/) )
 {
   
 // reduces the side bar  

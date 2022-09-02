@@ -17,6 +17,7 @@ select format('drop table if exists %I.%I cascade;',schemaname,tablename) from p
 \gexec
 select format('drop tablespace if exists %I;',spcname) from pg_tablespace where spcoptions is not null;
 \gexec
+drop table ybwr_snapshots cascade;
 \! clear
 \c
 
@@ -131,7 +132,7 @@ create tablespace "rf5-pref-eu" with ( replica_placement= $$
     ]
 } $$) ;
 
-
+alter table demo_gdpr_ch set tablespace "rf5-pref-eu";
 
 ---# region failure
 select host, cloud, region, zone from yb_servers() order by 2,3,4;
@@ -139,18 +140,18 @@ select host, cloud, region, zone from yb_servers() order by 2,3,4;
 \! docker pause yb-tserver-0  
 \! docker pause yb-tserver-9  
 
-\c - - - 5450
-show listen_addresses ;
 
-with countries(country) as (
- values ('CH'),('FR'),('DE'),('IT'),('UK'),('US')
-) insert into demo_gdpr(user_country)
- select country from countries, generate_series(1,1000);
+---with countries(country) as (
+ ---values ('CH'),('FR'),('DE'),('IT'),('UK'),('US')
+---) insert into demo_gdpr(user_country)
+ ---select country from countries, generate_series(1,1000);
 
-select * from demo_gdpr order by user_uuid;
+select *  from demo_gdpr order by user_uuid;
 
 \! docker unpause yb-tserver-0  
 \! docker unpause yb-tserver-9  
+
+\c
 
 --  yb_is_local_table
 
@@ -163,15 +164,22 @@ insert into demo_gdpr values  ('US'),('CH'),('FR'),( 'DE'),( 'IT'),('UK') ;
 \pset pager off
 explain 
 select * from demo_gdpr;
+select * from demo_gdpr;
+
+show listen_addresses ;
+
 select * from demo_gdpr where yb_is_local_table(tableoid);
+
 explain 
 select * from demo_gdpr where yb_is_local_table(tableoid);
-show listen_addresses;
-\c - - - 5433
-show listen_addresses;
-select * from demo_gdpr where yb_is_local_table(tableoid) order by 2;
-explain 
-select * from demo_gdpr where yb_is_local_table(tableoid) order by 2;
+
+--- end
+
+
+
+
+
+
 
 ---# duplicate index
 alter table demo add column answer int;
@@ -180,6 +188,7 @@ explain select * from demo where answer=42;
 create index demo_answer_covering_eu on demo (answer) include (id) tablespace "eu-west";
 create index demo_answer_covering_us on demo (answer) include (id) tablespace "us-west";
 explain select * from demo where answer=42;
+show listen_addresses;
 \c - - - 5450
 show listen_addresses;
 explain select * from demo where answer=42;

@@ -1,4 +1,7 @@
-/*
+-- Here is what I've run in https://www.youtube.com/watch?v=a0b37XOh4ZM&list=PL8Z3vt4qJTkLTIqB9eTLuqOdpzghX8H40&index=33
+-- Postgres TABLESPACE in a Cloud Native World | YugabyteDB Friday Tech Talks | Episode 33
+
+/* 
 ssh -L 5433:localhost:5433 -L 7000:localhost:7000 root@docker
 [ -f ybdemo ] || git clone git@github.com:FranckPachot/ybdemo.git
 cd ybdemo/docker/yb-lab 
@@ -7,7 +10,6 @@ sh gen-yb-docker-compose.sh geo
 
 df -h /
 psql -h localhost -p 5433 -d yugabyte -U yugabyte 
---\i client/yftt-tablespaces.sql
 \pset pager off
 create extension pgcrypto;
 */

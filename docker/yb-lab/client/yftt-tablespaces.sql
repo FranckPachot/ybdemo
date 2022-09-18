@@ -182,7 +182,7 @@ create index demo_answer_covering_us on demo (answer) include (id) tablespace "u
 explain select * from demo where answer=42;
 \c - - - 5450
 show listen_addresses;
-explain select * from demo where answer=42;
+yftt-tablespaces.sqlexplain select * from demo where answer=42;
 drop index demo_answer_covering_us;
 explain select * from demo where answer=42;
 

@@ -3,5 +3,7 @@
 # and commit this file to your remote git repository to share the goodness with others.
 
 tasks:
-  - init: docker-compose -f docker/yb-lab/example-docker-compose-rf3.yaml up
+  - init: ( cd /var/tmp && curl -sSL https://downloads.yugabyte.com/get_clients.sh | bash | grep -- "sudo ln -s" | bash )
+    command: docker-compose -f docker/yb-lab/example-docker-compose-rf3.yaml up
+
 

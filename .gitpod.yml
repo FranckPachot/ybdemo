@@ -5,5 +5,41 @@
 tasks:
   - init: bash -c 'cd /var/tmp && curl -sSL https://downloads.yugabyte.com/get_clients.sh | bash | grep -- "sudo ln -s" | bash'
     command: docker-compose -f docker/yb-lab/example-docker-compose-rf3.yaml up
-
+ports:
+  - name: yb-master-1
+    description: YugabyteDB Master UI
+    port: 7000
+    onOpen: open-browser
+  - name: yb-master-2
+    description: YugabyteDB Master UI
+    port: 7001
+    onOpen: open-browser
+  - name: yb-master-3
+    description: YugabyteDB Master UI
+    port: 7002
+    onOpen: open-browser
+  - name: yb-tserver-1
+    description: YugabyteDB TServer UI
+    port: 9000
+    onOpen: open-browser
+  - name: yb-tserver-2
+    description: YugabyteDB TServer UI
+    port: 9001
+    onOpen: open-browser
+  - name: yb-tserver-3
+    description: YugabyteDB TServer UI
+    port: 9002
+    onOpen: open-browser
+  - name: YSQL-5433
+    description: PostgreSQL API
+    port: 5433
+    onOpen: ignore
+  - name: YSQL-5434
+    description: PostgreSQL API
+    port: 5434
+    onOpen: ignore
+  - name: YSQL-5435
+    description: PostgreSQL API
+    port: 5435
+    onOpen: ignore
 

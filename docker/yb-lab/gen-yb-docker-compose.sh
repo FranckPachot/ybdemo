@@ -177,7 +177,9 @@ services:
       ports:
           - '3000:3000'
       depends_on:
-      - yb-tserver-1
+          - yb-tserver-1
+      volumes:
+          - ./sqlpad:/var/lib/sqlpad
       environment:
           SQLPAD_AUTH_DISABLED: true
           SQLPAD_ADMIN: 'admin'

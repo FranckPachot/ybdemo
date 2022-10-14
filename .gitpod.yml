@@ -4,8 +4,12 @@
 
 tasks:
   - init: bash -c 'cd /var/tmp && curl -sSL https://downloads.yugabyte.com/get_clients.sh | bash | grep -- "sudo ln -s" | bash'
-    command: docker-compose -f docker/yb-lab/example-docker-compose-rf3.yaml up
+    command: bash -c 'cd docker/yb-lab && sh gen-yb-docker-compose.sh rf3'
 ports:
+  - name: SQLPad
+    description: SQLPad (web app for writing and running SQL queries and visualizing the results)
+    port: 3000
+    onOpen: open-browser
   - name: UI yb-master-1
     description: YugabyteDB Master UI
     port: 7000

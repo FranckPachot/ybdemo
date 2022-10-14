@@ -179,7 +179,7 @@ services:
       depends_on:
           - yb-tserver-1
       volumes:
-          - ./sqlpad:/var/lib/sqlpad
+          - /var/tmp/sqlpad:/var/lib/sqlpad
       environment:
           SQLPAD_AUTH_DISABLED: true
           SQLPAD_ADMIN: 'admin'

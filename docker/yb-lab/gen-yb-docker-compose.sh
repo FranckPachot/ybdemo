@@ -187,6 +187,15 @@ services:
           SQLPAD_APP_LOG_LEVEL: debug
           SQLPAD_WEB_LOG_LEVEL: warn
           SQLPAD_SEED_DATA_PATH: /etc/sqlpad/seed-data
+          SQLPAD_CONNECTIONS__yb-tserver-0__name: yb-tserver-0
+          SQLPAD_CONNECTIONS__yb-tserver-0__driver: postgres
+          SQLPAD_CONNECTIONS__yb-tserver-0__host: yb-tserver-0
+          SQLPAD_CONNECTIONS__yb-tserver-0__port: 5433
+          SQLPAD_CONNECTIONS__yb-tserver-0__database: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-0__username: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-0__password: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-0__multiStatementTransactionEnabled: 'true'
+          SQLPAD_CONNECTIONS__yb-tserver-0__idleTimeoutSeconds: 86400
           SQLPAD_CONNECTIONS__yb-tserver-1__name: yb-tserver-1
           SQLPAD_CONNECTIONS__yb-tserver-1__driver: postgres
           SQLPAD_CONNECTIONS__yb-tserver-1__host: yb-tserver-1
@@ -205,15 +214,6 @@ services:
           SQLPAD_CONNECTIONS__yb-tserver-2__password: yugabyte
           SQLPAD_CONNECTIONS__yb-tserver-2__multiStatementTransactionEnabled: 'true'
           SQLPAD_CONNECTIONS__yb-tserver-2__idleTimeoutSeconds: 86400
-          SQLPAD_CONNECTIONS__yb-tserver-3__name: yb-tserver-3
-          SQLPAD_CONNECTIONS__yb-tserver-3__driver: postgres
-          SQLPAD_CONNECTIONS__yb-tserver-3__host: yb-tserver-3
-          SQLPAD_CONNECTIONS__yb-tserver-3__port: 5433
-          SQLPAD_CONNECTIONS__yb-tserver-3__database: yugabyte
-          SQLPAD_CONNECTIONS__yb-tserver-3__username: yugabyte
-          SQLPAD_CONNECTIONS__yb-tserver-3__password: yugabyte
-          SQLPAD_CONNECTIONS__yb-tserver-3__multiStatementTransactionEnabled: 'true'
-          SQLPAD_CONNECTIONS__yb-tserver-3__idleTimeoutSeconds: 86400
 
 # yb-master and yb-tservers
 

@@ -6,7 +6,11 @@ services:
 # demos with connect / read / write workloads
 
   yb-demo-connect:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.2.0-b87
+=======
+      image: yugabytedb/yugabyte:2.15.2.1-b1
+>>>>>>> b5bb9bd829cd6aa8f8955085611978f6b1165695
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","connect","9"]
@@ -16,7 +20,11 @@ services:
              condition: on-failure
 
   yb-demo-read:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.2.0-b87
+=======
+      image: yugabytedb/yugabyte:2.15.2.1-b1
+>>>>>>> b5bb9bd829cd6aa8f8955085611978f6b1165695
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","read","1"]
@@ -26,7 +34,11 @@ services:
              condition: on-failure
 
   yb-demo-write:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.2.0-b87
+=======
+      image: yugabytedb/yugabyte:2.15.2.1-b1
+>>>>>>> b5bb9bd829cd6aa8f8955085611978f6b1165695
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","insert","1"]
@@ -38,7 +50,11 @@ services:
 # table create and other initialization for demos
 
   yb-demo-init:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.2.0-b87
+=======
+      image: yugabytedb/yugabyte:2.15.2.1-b1
+>>>>>>> b5bb9bd829cd6aa8f8955085611978f6b1165695
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","init"]
@@ -48,7 +64,11 @@ services:
              condition: on-failure
 
   yb-demo-metrics:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.2.0-b87
+=======
+      image: yugabytedb/yugabyte:2.15.2.1-b1
+>>>>>>> b5bb9bd829cd6aa8f8955085611978f6b1165695
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","ybwr"]
@@ -56,11 +76,59 @@ services:
           restart_policy:
              condition: on-failure
 
+  sqlpad:
+      image: sqlpad/sqlpad:5
+      hostname: 'sqlpad'
+      ports:
+          - '3000:3000'
+      depends_on:
+          - yb-tserver-1
+      volumes:
+          - ./sqlpad:/var/lib/sqlpad
+      environment:
+          SQLPAD_AUTH_DISABLED: true
+          SQLPAD_ADMIN: 'admin'
+          SQLPAD_ADMIN_PASSWORD: 'admin'
+          SQLPAD_APP_LOG_LEVEL: debug
+          SQLPAD_WEB_LOG_LEVEL: warn
+          SQLPAD_SEED_DATA_PATH: /etc/sqlpad/seed-data
+          SQLPAD_CONNECTIONS__yb-tserver-1__name: yb-tserver-1
+          SQLPAD_CONNECTIONS__yb-tserver-1__driver: postgres
+          SQLPAD_CONNECTIONS__yb-tserver-1__host: yb-tserver-1
+          SQLPAD_CONNECTIONS__yb-tserver-1__port: 5433
+          SQLPAD_CONNECTIONS__yb-tserver-1__database: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-1__username: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-1__password: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-1__multiStatementTransactionEnabled: 'true'
+          SQLPAD_CONNECTIONS__yb-tserver-1__idleTimeoutSeconds: 86400
+          SQLPAD_CONNECTIONS__yb-tserver-2__name: yb-tserver-2
+          SQLPAD_CONNECTIONS__yb-tserver-2__driver: postgres
+          SQLPAD_CONNECTIONS__yb-tserver-2__host: yb-tserver-2
+          SQLPAD_CONNECTIONS__yb-tserver-2__port: 5433
+          SQLPAD_CONNECTIONS__yb-tserver-2__database: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-2__username: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-2__password: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-2__multiStatementTransactionEnabled: 'true'
+          SQLPAD_CONNECTIONS__yb-tserver-2__idleTimeoutSeconds: 86400
+          SQLPAD_CONNECTIONS__yb-tserver-3__name: yb-tserver-3
+          SQLPAD_CONNECTIONS__yb-tserver-3__driver: postgres
+          SQLPAD_CONNECTIONS__yb-tserver-3__host: yb-tserver-3
+          SQLPAD_CONNECTIONS__yb-tserver-3__port: 5433
+          SQLPAD_CONNECTIONS__yb-tserver-3__database: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-3__username: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-3__password: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-3__multiStatementTransactionEnabled: 'true'
+          SQLPAD_CONNECTIONS__yb-tserver-3__idleTimeoutSeconds: 86400
+
 # yb-master and yb-tservers
 
 
   yb-master-0:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.2.0-b87
+=======
+      image: yugabytedb/yugabyte:2.15.2.1-b1
+>>>>>>> b5bb9bd829cd6aa8f8955085611978f6b1165695
       container_name: yb-master-0
       hostname: yb-master-0.zone1.region.cloud
       command: bash -c "
@@ -80,7 +148,11 @@ services:
 
 
   yb-tserver-0:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.2.0-b87
+=======
+      image: yugabytedb/yugabyte:2.15.2.1-b1
+>>>>>>> b5bb9bd829cd6aa8f8955085611978f6b1165695
       container_name: yb-tserver-0
       hostname: yb-tserver-0.zone1.region.cloud
       command: bash -c "
@@ -105,7 +177,11 @@ services:
 
 
   yb-master-1:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.2.0-b87
+=======
+      image: yugabytedb/yugabyte:2.15.2.1-b1
+>>>>>>> b5bb9bd829cd6aa8f8955085611978f6b1165695
       container_name: yb-master-1
       hostname: yb-master-1.zone2.region.cloud
       command: bash -c "
@@ -127,7 +203,11 @@ services:
 
 
   yb-tserver-1:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.2.0-b87
+=======
+      image: yugabytedb/yugabyte:2.15.2.1-b1
+>>>>>>> b5bb9bd829cd6aa8f8955085611978f6b1165695
       container_name: yb-tserver-1
       hostname: yb-tserver-1.zone2.region.cloud
       command: bash -c "
@@ -152,7 +232,11 @@ services:
 
 
   yb-master-2:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.2.0-b87
+=======
+      image: yugabytedb/yugabyte:2.15.2.1-b1
+>>>>>>> b5bb9bd829cd6aa8f8955085611978f6b1165695
       container_name: yb-master-2
       hostname: yb-master-2.zone3.region.cloud
       command: bash -c "
@@ -174,7 +258,11 @@ services:
 
 
   yb-tserver-2:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.2.0-b87
+=======
+      image: yugabytedb/yugabyte:2.15.2.1-b1
+>>>>>>> b5bb9bd829cd6aa8f8955085611978f6b1165695
       container_name: yb-tserver-2
       hostname: yb-tserver-2.zone3.region.cloud
       command: bash -c "
@@ -200,7 +288,11 @@ services:
 # adding a template to add more replicas
 
   yb-tserver-n:
+<<<<<<< HEAD
       image: yugabytedb/yugabyte:2.15.2.0-b87
+=======
+      image: yugabytedb/yugabyte:2.15.2.1-b1
+>>>>>>> b5bb9bd829cd6aa8f8955085611978f6b1165695
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-tserver --ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true --default_memory_limit_to_ram_ratio=0.20

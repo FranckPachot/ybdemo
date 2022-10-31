@@ -20,6 +20,11 @@ I use docker-compose version 2. You may have to change some `-` to `_` in versio
 
 4. see all logs with `docker-compose logs -tf` and have fun
 
+
+You can also run this on Gitpod:
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/FranckPachot/ybdemo)
+
 # Exercising ideas
 
 ## Test resilience

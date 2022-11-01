@@ -28,7 +28,7 @@ rf3)
 replication_factor=3
 list_of_clouds="cloud"
 list_of_regions="region"
-list_of_zones="zone1 zone2 zone3"
+list_of_zones="zone"
 number_of_tservers=3
 read_replica_regexp=""
 demo=0
@@ -332,12 +332,11 @@ done
 done
 
 cat <<CAT
-# adding a template to add more replicas
+# adding a template to add more replicas (in the latest zone)
 
   yb-tserver-n:
       image: yugabytedb/yugabyte:${tag}
       command: bash -c "
-                rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-tserver $flags
                 --placement_cloud=$cloud 
                 --placement_region=$region 

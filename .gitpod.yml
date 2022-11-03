@@ -46,4 +46,63 @@ ports:
     description: PostgreSQL API
     port: 5435
     onOpen: ignore
-
+image: gitpod/workspace-postgres
+tasks:
+  - name: streaming
+    before: gp sync-await before
+    init: gp sync-await init
+    command: |
+      cd mastodon
+      BIND=0.0.0.0 PORT=8008 node ./streaming
+  - name: sidekiq
+    before: |
+      gp sync-await before
+      redis-server --daemonize yes
+    init: gp sync-await init
+    command: |
+      cd mastodon
+      RAILS_ENV=production DB_POOL=5 bundle exec sidekiq -c 5
+  - name: web
+    before: |
+      mkdir -p /workspace/.rvm
+      rvm install 3.0.4
+      rvm use 3.0.4
+      brew install libidn redis
+      if [ -z "$GITTAG" ]; then export GITTAG=main; fi
+      gp sync-done before
+    init: |
+      git clone -b "$GITTAG" https://github.com/mastodon/mastodon.git
+      echo "$RUBY_VERSION" | cut -d- -f2 > mastodon/.ruby-version
+      cd mastodon
+      git checkout "$GITTAG"
+      bundle config --local build.idn-ruby --with-idn-dir="$(brew --prefix libidn)"
+      bundle install
+      yarn install
+      echo "LOCAL_DOMAIN=$(gp url 8080 | cut -d/ -f3)" > .env.production
+      cat ../.env.production.example >> .env.production
+      echo "SMTP_FROM_ADDRESS=notifications@$(gp url 8080 | cut -d/ -f3)" >> .env.production
+      echo "SECRET_KEY_BASE=$(RAILS_ENV=production bundle exec rake secret)" >> .env.production
+      echo "OTP_SECRET=$(RAILS_ENV=production bundle exec rake secret)" >> .env.production
+      RAILS_ENV=production bundle exec rake mastodon:webpush:generate_vapid_key >> .env.production
+      RAILS_ENV=production rails db:setup
+      RAILS_ENV=production rails assets:precompile
+      RAILS_ENV=production bin/tootctl accounts create a --email "admin@$(gp url 8080 | cut -d/ -f3)" --confirmed --role admin
+      cd ..
+      gp sync-done init
+    command: |
+      cd mastodon
+      RAILS_ENV=production BIND=0.0.0.0 PORT=8080 RAILS_SERVE_STATIC_FILES=true bundle exec puma -C config/puma.rb
+ports:
+  - port: 8080
+    visibility: public
+    onOpen: open-preview
+  - port: 8008
+    onOpen: ignore
+  - port: 5432
+    onOpen: ignore
+  - port: 6379
+    onOpen: ignore
+vscode:
+  extensions:
+    - mtxr.sqltools
+    - mtxr.sqltools-driver-pg

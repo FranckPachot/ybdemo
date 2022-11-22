@@ -18,9 +18,9 @@
 \set ON_ERROR_STOP off
 
 -- the "ybwr_snapshots" table stores snapshots of tserver metrics, gathered by "ybwr_snap", reading all endpoints known by "yb_servers()"
-create table if not exists ybwr_snapshots(host text default '', ts timestamptz default clock_timestamp(),  metrics jsonb, primary key (ts asc, host));
+create table if not exists ybwr_snapshots(host text default '', ts timestamptz default now(),  metrics jsonb, primary key (ts asc, host));
 -- the "ybwr_tablets" table stores the list of tablets from tservers, gathered by "ybwr_snap", reading all endpoints known by "yb_servers()"
-create table if not exists ybwr_tablets( host text default '' , ts timestamptz default clock_timestamp(), database_name text , table_name text , tablet_id uuid , key_range text , state text , num_sst_files bigint , wal_files numeric , sst_files numeric , sst_uncompressed numeric , primary key (ts asc, host, tablet_id));
+create table if not exists ybwr_tablets( host text default '' , ts timestamptz default now(), database_name text , table_name text , tablet_id text , key_range text , state text , num_sst_files bigint , wal_files numeric , sst_files numeric , sst_uncompressed numeric , primary key (ts asc, host, tablet_id));
 
 create or replace function ybwr_snap(snaps_to_keep int default 6) returns timestamptz as $DO$
 declare i record; 
@@ -50,6 +50,10 @@ function bytes(h){
  if(sub(/K/,"",h)>0) h=h*1024
  if(sub(/B/,"",h)>0) h=h
  return h
+}
+{
+gsub("&lt;","<")
+gsub("&gt;",">")
 }
 $0 ~ tserver_tablets {
 print server,gensub(tserver_tablets,"\\1",1), gensub(tserver_tablets,"\\2",1), gensub(tserver_tablets,"\\3",1), gensub(tserver_tablets,"\\4",1), gensub(tserver_tablets,"\\5",1), gensub(tserver_tablets,"\\6",1), bytes(gensub(tserver_tablets,"\\7",1)), bytes(gensub(tserver_tablets,"\\8",1)), bytes(gensub(tserver_tablets,"\\9",1))
@@ -97,7 +101,7 @@ create or replace view ybwr_last as select * from ybwr_report where relative_sna
 
 -- a convenient "ybwr_snap_and_show_tablet_load" takes a snapshot and show the metrics
 create or replace view ybwr_snap_and_show_tablet_load as 
-select value,rate,namespace_name,table_name,metric_name,host,tablet_id,is_raft_leader
+select ts, value,rate,namespace_name,table_name,metric_name,host,tablet_id,is_raft_leader
 ,to_char(100*value/sum(value)over(partition by namespace_name,table_name,metric_name),'999%') as "%table"
 ,sum(value)over(partition by namespace_name,table_name,metric_name) as "table"
 from ybwr_last , ybwr_snap()
@@ -134,21 +138,26 @@ limit 20
 prepare snap_table as
 select "rocksdb_seek","rocksdb_next","rocksdb_insert",row_name as "dbname / relname / tserver / tabletid / leader"
 from crosstab($$
-select format('%s %s %s %s %s',namespace_name,table_name,host,substr(tablet_id,1,12)||'...',case is_raft_leader when 0 then ' ' else 'L' end) row_name, metric_name category, sum(value)
+select format('%s %s %s %s %s',namespace_name,table_name,host
+ ,coalesce(key_range,tablet_id)--,substr(tablet_id,1,12)||'...'
+ ,case is_raft_leader when 0 then ' ' else 'L' end) row_name, metric_name category, sum(value)
 from ybwr_snap_and_show_tablet_load
+natural left outer join (select host, tablet_id, max(key_range) key_range from ybwr_tablets group by host, tablet_id) as tablets
 where namespace_name not in ('system') and metric_name in ('rocksdb_number_db_seek','rocksdb_number_db_next','rows_inserted')
-group by namespace_name,table_name,host,substr(tablet_id,1,12),is_raft_leader, metric_name
+group by namespace_name,table_name,host
+ ,coalesce(key_range,tablet_id)--,substr(tablet_id,1,12)||'...'
+ ,is_raft_leader, metric_name
 order by 1,2 desc,3
-$$,$$values('rows_inserted'),('rocksdb_number_db_seek'),('rocksdb_number_db_next')$$) 
+$$,$$values('rows_inserted'),('rocksdb_number_db_seek'),('rocksdb_number_db_next')$$)
 as (row_name text, "rocksdb_insert" decimal, "rocksdb_seek" decimal, "rocksdb_next" decimal)
 ;
 
 prepare snap_tablet as 
---select * from ybwr_snap_and_show_tablet_load where namespace_name not in ('system') 
---and metric_name in ('rows_inserted') or metric_name like 'rocksdb_number_db%'
-select value,namespace_name,table_name,metric_name,tablet_id,regexp_replace(host,'[.].*','') host,case is_raft_leader when 0 then ' ' else 'L' end
+select value,namespace_name,table_name,metric_name,coalesce(key_range,tablet_id),regexp_replace(host,'[.].*','') host
+,case is_raft_leader when 0 then ' ' else 'L' end
 "Raft" ,"table"
-from ybwr_snap_and_show_tablet_load 
+from ybwr_snap_and_show_tablet_load
+natural left outer join (select host, tablet_id, max(key_range) key_range from ybwr_tablets group by host, tablet_id) as tablets
 order by metric_name,namespace_name,table_name,tablet_id,is_raft_leader,host
 ;
 execute snap_tablet;

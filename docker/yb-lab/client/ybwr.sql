@@ -19,18 +19,44 @@
 
 -- the "ybwr_snapshots" table stores snapshots of tserver metrics, gathered by "ybwr_snap", reading all endpoints known by "yb_servers()"
 create table if not exists ybwr_snapshots(host text default '', ts timestamptz default clock_timestamp(),  metrics jsonb, primary key (ts asc, host));
+-- the "ybwr_tablets" table stores the list of tablets from tservers, gathered by "ybwr_snap", reading all endpoints known by "yb_servers()"
+create table if not exists ybwr_tablets( host text default '' , ts timestamptz default clock_timestamp(), database_name text , table_name text , tablet_id uuid , key_range text , state text , num_sst_files bigint , wal_files numeric , sst_files numeric , sst_uncompressed numeric , primary key (ts asc, host, tablet_id));
 
 create or replace function ybwr_snap(snaps_to_keep int default 6) returns timestamptz as $DO$
 declare i record; 
 begin
 delete from ybwr_snapshots where ts not in (select distinct ts from ybwr_snapshots order by ts desc limit snaps_to_keep);
+delete from ybwr_snapshots where ts not in (select distinct ts from ybwr_tablets   order by ts desc limit snaps_to_keep);
 for i in (select host from yb_servers()) loop 
+ -- gather from /metrics to ybwr_snapshots
  execute format(
   $COPY$
   copy ybwr_snapshots(host,metrics) from program
    $BASH$
    exec 5<>/dev/tcp/%s/9000 ; awk 'BEGIN{printf "%s\t"}/[[]/{in_json=1}in_json==1{printf $0}' <&5 & printf "GET /metrics HTTP/1.0\r\n\r\n" >&5
    $BASH$
+  $COPY$
+ ,i.host,i.host); 
+ -- gather from /tablets to ybwr_tablets
+ execute format(
+  $COPY$
+  copy ybwr_tablets(host, database_name, table_name, tablet_id, key_range, state, num_sst_files, wal_files, sst_files, sst_uncompressed) from program
+   $BASH$
+   exec 5<>/dev/tcp/%s/9000 ; awk '
+function bytes(h){
+ if(sub(/T/,"",h)>0) h=h*1024*1024*1024*1024
+ if(sub(/G/,"",h)>0) h=h*1024*1024*1024
+ if(sub(/M/,"",h)>0) h=h*1024*1024
+ if(sub(/K/,"",h)>0) h=h*1024
+ if(sub(/B/,"",h)>0) h=h
+ return h
+}
+$0 ~ tserver_tablets {
+print server,gensub(tserver_tablets,"\\1",1), gensub(tserver_tablets,"\\2",1), gensub(tserver_tablets,"\\3",1), gensub(tserver_tablets,"\\4",1), gensub(tserver_tablets,"\\5",1), gensub(tserver_tablets,"\\6",1), bytes(gensub(tserver_tablets,"\\7",1)), bytes(gensub(tserver_tablets,"\\8",1)), bytes(gensub(tserver_tablets,"\\9",1))
+}
+' OFS='<' OFMT="%%f" server="%s" \
+tserver_tablets='^<tr><td>([^<]*)<[/]td><td>([^<]*)<[/]td><td>0000[0-9a-f]{4}00003000800000000000[0-9a-f]{4}<[/]td><td><a href="[/]tablet[?]id=([0-9a-f]{32})">[0-9a-f]{32}</a></td><td>([^<]*)<[/]td><td>([^<]*)<[/]td><td>false<[/]td><td>([0-9])<[/]td><td><ul><li>Total: [^<]*<li>Consensus Metadata: [^<]*<li>WAL Files: ([^<]*)<li>SST Files: ([^<]*)<li>SST Files Uncompressed: ([^<]*)<[/]ul><[/]td><td><ul>' <&5 & printf "GET /tablets HTTP/1.0\r\n\r\n" >&5
+   $BASH$ (format csv, delimiter $DELIMITER$<$DELIMITER$)
   $COPY$
  ,i.host,i.host); 
 end loop; 
@@ -88,6 +114,22 @@ select ybwr_snap();
 prepare snap_reset as select '' as "ybwr metrics" where ybwr_snap() is null;
 
 create extension if not exists tablefunc;
+
+prepare snap_size as
+select ts
+,database_name, table_name
+, count(distinct host) as tservers 
+, count(distinct tablet_id) as tablets
+, lpad(pg_size_pretty(sum(sst_files)/count(distinct tablet_id)),15) avg_tablet_size
+, sum(num_sst_files) as sst_files
+, lpad(pg_size_pretty(sum(sst_files)),15) as file_size
+, lpad(pg_size_pretty(sum(sst_uncompressed)),15) data_size
+from ybwr_tablets
+where state='RUNNING' and table_name='demo'
+group by ts, database_name, table_name
+order by ts desc, database_name, table_name, sum(sst_files)
+limit 20
+;
 
 prepare snap_table as
 select "rocksdb_seek","rocksdb_next","rocksdb_insert",row_name as "dbname / relname / tserver / tabletid / leader"

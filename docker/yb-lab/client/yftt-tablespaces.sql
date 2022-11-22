@@ -203,3 +203,45 @@ show yb_enable_geolocation_costing;
 
 ---# END
 
+sh gen-yb-docker-compose.sh geo
+psql -h localhost -p 5433 -d yugabyte -U yugabyte 
+\pset pager off
+
+create tablespace "rf3-pref-us" with ( replica_placement= $$
+{
+    "num_replicas": 3,
+    "placement_blocks": [
+{ "cloud": "cloud", "region": "eu-west", "zone": "az1"   , "min_num_replicas": 1 
+  , "leader_preference": 2 },
+{ "cloud": "cloud", "region": "us-east", "zone": "az1"   , "min_num_replicas": 1 
+  , "leader_preference": 1 },
+{ "cloud": "cloud", "region": "us-west", "zone": "az1"   , "min_num_replicas": 1 
+  , "leader_preference": 1 }
+    ]
+} $$) ;
+
+create table demo(id bigint primary key, val int) tablespace "rf3-pref-us" split into 4 tablets;
+insert into demo select generate_series(1,1000),0;
+
+update demo set val=val+1;
+select sum(val) from demo;
+
+\c - - - 5433
+show listen_addresses;
+select host,region,zone from yb_servers() where region='us-west' and zone='az1';
+select host,region,zone from yb_servers() where region='us-east' and zone='az1';
+select host,region,zone from yb_servers() where region='eu-west' and zone='az1';
+
+create tablespace "xxx" with ( replica_placement= $$
+{
+    "num_replicas": 3,
+    "placement_blocks": [
+{ "cloud": "cloud", "region": "eu-west", "zone": "az1"   , "min_num_replicas": 1 
+  , "leader_preference": 2 },
+{ "cloud": "cloud", "region": "us-east", "zone": "az1"   , "min_num_replicas": 1 
+  , "leader_preference": 1 },
+{ "cloud": "cloud", "region": "us-west", "zone": "az1"   , "min_num_replicas": 1 
+  , "leader_preference": 1 }
+    ]
+} $$) ;
+

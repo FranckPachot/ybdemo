@@ -72,6 +72,15 @@ services:
           SQLPAD_APP_LOG_LEVEL: debug
           SQLPAD_WEB_LOG_LEVEL: warn
           SQLPAD_SEED_DATA_PATH: /etc/sqlpad/seed-data
+          SQLPAD_CONNECTIONS__yb-tserver-0__name: yb-tserver-0
+          SQLPAD_CONNECTIONS__yb-tserver-0__driver: postgres
+          SQLPAD_CONNECTIONS__yb-tserver-0__host: yb-tserver-0
+          SQLPAD_CONNECTIONS__yb-tserver-0__port: 5433
+          SQLPAD_CONNECTIONS__yb-tserver-0__database: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-0__username: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-0__password: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-0__multiStatementTransactionEnabled: 'true'
+          SQLPAD_CONNECTIONS__yb-tserver-0__idleTimeoutSeconds: 86400
           SQLPAD_CONNECTIONS__yb-tserver-1__name: yb-tserver-1
           SQLPAD_CONNECTIONS__yb-tserver-1__driver: postgres
           SQLPAD_CONNECTIONS__yb-tserver-1__host: yb-tserver-1
@@ -90,15 +99,6 @@ services:
           SQLPAD_CONNECTIONS__yb-tserver-2__password: yugabyte
           SQLPAD_CONNECTIONS__yb-tserver-2__multiStatementTransactionEnabled: 'true'
           SQLPAD_CONNECTIONS__yb-tserver-2__idleTimeoutSeconds: 86400
-          SQLPAD_CONNECTIONS__yb-tserver-3__name: yb-tserver-3
-          SQLPAD_CONNECTIONS__yb-tserver-3__driver: postgres
-          SQLPAD_CONNECTIONS__yb-tserver-3__host: yb-tserver-3
-          SQLPAD_CONNECTIONS__yb-tserver-3__port: 5433
-          SQLPAD_CONNECTIONS__yb-tserver-3__database: yugabyte
-          SQLPAD_CONNECTIONS__yb-tserver-3__username: yugabyte
-          SQLPAD_CONNECTIONS__yb-tserver-3__password: yugabyte
-          SQLPAD_CONNECTIONS__yb-tserver-3__multiStatementTransactionEnabled: 'true'
-          SQLPAD_CONNECTIONS__yb-tserver-3__idleTimeoutSeconds: 86400
 
 # yb-master and yb-tservers
 
@@ -497,12 +497,11 @@ services:
       depends_on:
       - yb-master-0
 
-# adding a template to add more replicas
+# adding a template to add more replicas (in the latest zone)
 
   yb-tserver-n:
       image: yugabytedb/yugabyte:2.15.3.0-b231
       command: bash -c "
-                rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-tserver --ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true --default_memory_limit_to_ram_ratio=0.20
                 --placement_cloud=cloud 
                 --placement_region=us-west 

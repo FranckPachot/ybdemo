@@ -2,6 +2,7 @@ Here is my lab to test various [YugabyteDB](https://www.yugabyte.com/) configura
 
 A demo using this lab:
 [Demo at DSS Asia 2022](https://www.youtube.com/watch?v=3dziM3kmTqI&list=PLTcxfDUDn3Zvm0SRBUJxpETtfYy1i_bAj)
+
 I use docker-compose version 2. You may have to change some `-` to `_` in version one, like `%s/yb-lab-yb-tserver-n-${i}/yb-lab_yb-tserver-n_${i}/g`
 
 # Run the lab
@@ -19,6 +20,11 @@ I use docker-compose version 2. You may have to change some `-` to `_` in versio
 3. see demo app logs like `docker logs yb-lab-yb-demo-connect-1`. It calls `client/ybdemo.sh` using [YBDemo.jar](https://github.com/FranckPachot/ybdemo/releases) to run threads. `client/ybdemo.sh` takes 2 parameters: the workload to run and the number of threads. There are commands to **init** (create the table), run **read**, **writes**, or, the default, just **connect** and show where it is connected. The connection settings are in `hikari.properties`. Only one endpoint is needed as the YugabyteDB JDBC Smart Driver will find the others. The default (connect) displays info about the currently connected session, every 1 second, with a prepared statement defined in HikariCP `connectionInitSql` to verify the smart driver behaviour.
 
 4. see all logs with `docker-compose logs -tf` and have fun
+
+
+You can also run this on Gitpod:
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/FranckPachot/ybdemo)
 
 # Exercising ideas
 

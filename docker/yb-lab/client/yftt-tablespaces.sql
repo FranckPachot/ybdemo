@@ -1,4 +1,7 @@
-/*
+-- Here is what I've run in https://www.youtube.com/watch?v=a0b37XOh4ZM&list=PL8Z3vt4qJTkLTIqB9eTLuqOdpzghX8H40&index=33
+-- Postgres TABLESPACE in a Cloud Native World | YugabyteDB Friday Tech Talks | Episode 33
+
+/* 
 ssh -L 5433:localhost:5433 -L 7000:localhost:7000 root@docker
 [ -f ybdemo ] || git clone git@github.com:FranckPachot/ybdemo.git
 cd ybdemo/docker/yb-lab 
@@ -7,7 +10,6 @@ sh gen-yb-docker-compose.sh geo
 
 df -h /
 psql -h localhost -p 5433 -d yugabyte -U yugabyte 
---\i client/yftt-tablespaces.sql
 \pset pager off
 create extension pgcrypto;
 */
@@ -191,7 +193,7 @@ explain select * from demo where answer=42;
 show listen_addresses;
 \c - - - 5450
 show listen_addresses;
-explain select * from demo where answer=42;
+yftt-tablespaces.sqlexplain select * from demo where answer=42;
 drop index demo_answer_covering_us;
 explain select * from demo where answer=42;
 
@@ -200,4 +202,46 @@ show yb_enable_geolocation_costing;
 
 
 ---# END
+
+sh gen-yb-docker-compose.sh geo
+psql -h localhost -p 5433 -d yugabyte -U yugabyte 
+\pset pager off
+
+create tablespace "rf3-pref-us" with ( replica_placement= $$
+{
+    "num_replicas": 3,
+    "placement_blocks": [
+{ "cloud": "cloud", "region": "eu-west", "zone": "az1"   , "min_num_replicas": 1 
+  , "leader_preference": 2 },
+{ "cloud": "cloud", "region": "us-east", "zone": "az1"   , "min_num_replicas": 1 
+  , "leader_preference": 1 },
+{ "cloud": "cloud", "region": "us-west", "zone": "az1"   , "min_num_replicas": 1 
+  , "leader_preference": 1 }
+    ]
+} $$) ;
+
+create table demo(id bigint primary key, val int) tablespace "rf3-pref-us" split into 4 tablets;
+insert into demo select generate_series(1,1000),0;
+
+update demo set val=val+1;
+select sum(val) from demo;
+
+\c - - - 5433
+show listen_addresses;
+select host,region,zone from yb_servers() where region='us-west' and zone='az1';
+select host,region,zone from yb_servers() where region='us-east' and zone='az1';
+select host,region,zone from yb_servers() where region='eu-west' and zone='az1';
+
+create tablespace "xxx" with ( replica_placement= $$
+{
+    "num_replicas": 3,
+    "placement_blocks": [
+{ "cloud": "cloud", "region": "eu-west", "zone": "az1"   , "min_num_replicas": 1 
+  , "leader_preference": 2 },
+{ "cloud": "cloud", "region": "us-east", "zone": "az1"   , "min_num_replicas": 1 
+  , "leader_preference": 1 },
+{ "cloud": "cloud", "region": "us-west", "zone": "az1"   , "min_num_replicas": 1 
+  , "leader_preference": 1 }
+    ]
+} $$) ;
 

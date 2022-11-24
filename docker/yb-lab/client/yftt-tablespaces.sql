@@ -19,7 +19,7 @@ select format('drop tablespace if exists %I;',spcname) from pg_tablespace where 
 \gexec
 drop table ybwr_snapshots cascade;
 \! clear
-\c
+\c - - - 5433
 
 ---# list all servers: 
 select host, cloud, region, zone from yb_servers() order by 2,3,4;

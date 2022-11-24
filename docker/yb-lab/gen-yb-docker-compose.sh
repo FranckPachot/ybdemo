@@ -197,6 +197,8 @@ cat <<CAT
 
   yb-master-$master:
       image: yugabytedb/yugabyte:${tag}
+      volumes:
+          - ./client:/home/yugabyte/client
       container_name: yb-master-$master
       hostname: yb-master-$master.$zone.$region.$cloud
       command: bash -c "
@@ -252,6 +254,8 @@ cat <<CAT
 
   yb-tserver-$tserver:
       image: yugabytedb/yugabyte:${tag}
+      volumes:
+          - ./client:/home/yugabyte/client
       container_name: yb-tserver-$tserver
       hostname: yb-tserver-$tserver.$zone.$region.$cloud
       command: bash -c "
@@ -292,6 +296,8 @@ cat <<CAT
 
   yb-tserver-n:
       image: yugabytedb/yugabyte:${tag}
+      volumes:
+          - ./client:/home/yugabyte/client
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-tserver $flags
@@ -319,6 +325,8 @@ cat <<CAT
 
   cluster-config:
       image: yugabytedb/yugabyte:${tag}
+      volumes:
+          - ./client:/home/yugabyte/client
       command: bash -c "
                 /home/yugabyte/bin/yb-admin --master_addresses $master_addresses
                 modify_placement_info

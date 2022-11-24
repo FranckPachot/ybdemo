@@ -6,7 +6,7 @@ services:
 # demos with connect / read / write workloads
 
   yb-demo-connect:
-      image: yugabytedb/yugabyte:2.15.3.0-b231
+      image: yugabytedb/yugabyte:2.15.3.2-b1
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","connect","9"]
@@ -16,7 +16,7 @@ services:
              condition: on-failure
 
   yb-demo-read:
-      image: yugabytedb/yugabyte:2.15.3.0-b231
+      image: yugabytedb/yugabyte:2.15.3.2-b1
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","read","1"]
@@ -26,7 +26,7 @@ services:
              condition: on-failure
 
   yb-demo-write:
-      image: yugabytedb/yugabyte:2.15.3.0-b231
+      image: yugabytedb/yugabyte:2.15.3.2-b1
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","insert","1"]
@@ -38,7 +38,7 @@ services:
 # table create and other initialization for demos
 
   yb-demo-init:
-      image: yugabytedb/yugabyte:2.15.3.0-b231
+      image: yugabytedb/yugabyte:2.15.3.2-b1
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","init"]
@@ -48,7 +48,7 @@ services:
              condition: on-failure
 
   yb-demo-metrics:
-      image: yugabytedb/yugabyte:2.15.3.0-b231
+      image: yugabytedb/yugabyte:2.15.3.2-b1
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","ybwr"]
@@ -60,7 +60,9 @@ services:
 
 
   yb-master-0:
-      image: yugabytedb/yugabyte:2.15.3.0-b231
+      image: yugabytedb/yugabyte:2.15.3.2-b1
+      volumes:
+          - ./client:/home/yugabyte/client
       container_name: yb-master-0
       hostname: yb-master-0.zone1.region.cloud
       command: bash -c "
@@ -80,7 +82,9 @@ services:
 
 
   yb-tserver-0:
-      image: yugabytedb/yugabyte:2.15.3.0-b231
+      image: yugabytedb/yugabyte:2.15.3.2-b1
+      volumes:
+          - ./client:/home/yugabyte/client
       container_name: yb-tserver-0
       hostname: yb-tserver-0.zone1.region.cloud
       command: bash -c "
@@ -105,7 +109,9 @@ services:
 
 
   yb-master-1:
-      image: yugabytedb/yugabyte:2.15.3.0-b231
+      image: yugabytedb/yugabyte:2.15.3.2-b1
+      volumes:
+          - ./client:/home/yugabyte/client
       container_name: yb-master-1
       hostname: yb-master-1.zone2.region.cloud
       command: bash -c "
@@ -127,7 +133,9 @@ services:
 
 
   yb-tserver-1:
-      image: yugabytedb/yugabyte:2.15.3.0-b231
+      image: yugabytedb/yugabyte:2.15.3.2-b1
+      volumes:
+          - ./client:/home/yugabyte/client
       container_name: yb-tserver-1
       hostname: yb-tserver-1.zone2.region.cloud
       command: bash -c "
@@ -152,7 +160,9 @@ services:
 
 
   yb-master-2:
-      image: yugabytedb/yugabyte:2.15.3.0-b231
+      image: yugabytedb/yugabyte:2.15.3.2-b1
+      volumes:
+          - ./client:/home/yugabyte/client
       container_name: yb-master-2
       hostname: yb-master-2.zone3.region.cloud
       command: bash -c "
@@ -174,7 +184,9 @@ services:
 
 
   yb-tserver-2:
-      image: yugabytedb/yugabyte:2.15.3.0-b231
+      image: yugabytedb/yugabyte:2.15.3.2-b1
+      volumes:
+          - ./client:/home/yugabyte/client
       container_name: yb-tserver-2
       hostname: yb-tserver-2.zone3.region.cloud
       command: bash -c "
@@ -200,7 +212,9 @@ services:
 # adding a template to add more replicas
 
   yb-tserver-n:
-      image: yugabytedb/yugabyte:2.15.3.0-b231
+      image: yugabytedb/yugabyte:2.15.3.2-b1
+      volumes:
+          - ./client:/home/yugabyte/client
       command: bash -c "
                 rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-tserver --ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true --default_memory_limit_to_ram_ratio=0.20

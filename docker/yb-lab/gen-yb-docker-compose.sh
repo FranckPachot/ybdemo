@@ -28,7 +28,7 @@ rf3)
 replication_factor=3
 list_of_clouds="cloud"
 list_of_regions="region"
-list_of_zones="zone1 zone2 zone3"
+list_of_zones="zone"
 number_of_tservers=3
 read_replica_regexp=""
 demo=0
@@ -171,6 +171,50 @@ services:
           restart_policy:
              condition: on-failure
 
+  sqlpad:
+      image: sqlpad/sqlpad:5
+      hostname: 'sqlpad'
+      ports:
+          - '3000:3000'
+      depends_on:
+          - yb-tserver-1
+      volumes:
+          - /var/tmp/sqlpad:/var/lib/sqlpad
+      environment:
+          SQLPAD_AUTH_DISABLED: true
+          SQLPAD_ADMIN: 'admin'
+          SQLPAD_ADMIN_PASSWORD: 'admin'
+          SQLPAD_APP_LOG_LEVEL: debug
+          SQLPAD_WEB_LOG_LEVEL: warn
+          SQLPAD_SEED_DATA_PATH: /etc/sqlpad/seed-data
+          SQLPAD_CONNECTIONS__yb-tserver-0__name: yb-tserver-0
+          SQLPAD_CONNECTIONS__yb-tserver-0__driver: postgres
+          SQLPAD_CONNECTIONS__yb-tserver-0__host: yb-tserver-0
+          SQLPAD_CONNECTIONS__yb-tserver-0__port: 5433
+          SQLPAD_CONNECTIONS__yb-tserver-0__database: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-0__username: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-0__password: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-0__multiStatementTransactionEnabled: 'true'
+          SQLPAD_CONNECTIONS__yb-tserver-0__idleTimeoutSeconds: 86400
+          SQLPAD_CONNECTIONS__yb-tserver-1__name: yb-tserver-1
+          SQLPAD_CONNECTIONS__yb-tserver-1__driver: postgres
+          SQLPAD_CONNECTIONS__yb-tserver-1__host: yb-tserver-1
+          SQLPAD_CONNECTIONS__yb-tserver-1__port: 5433
+          SQLPAD_CONNECTIONS__yb-tserver-1__database: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-1__username: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-1__password: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-1__multiStatementTransactionEnabled: 'true'
+          SQLPAD_CONNECTIONS__yb-tserver-1__idleTimeoutSeconds: 86400
+          SQLPAD_CONNECTIONS__yb-tserver-2__name: yb-tserver-2
+          SQLPAD_CONNECTIONS__yb-tserver-2__driver: postgres
+          SQLPAD_CONNECTIONS__yb-tserver-2__host: yb-tserver-2
+          SQLPAD_CONNECTIONS__yb-tserver-2__port: 5433
+          SQLPAD_CONNECTIONS__yb-tserver-2__database: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-2__username: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-2__password: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-2__multiStatementTransactionEnabled: 'true'
+          SQLPAD_CONNECTIONS__yb-tserver-2__idleTimeoutSeconds: 86400
+
 # yb-master and yb-tservers
 
 CAT
@@ -292,14 +336,13 @@ done
 done
 
 cat <<CAT
-# adding a template to add more replicas
+# adding a template to add more replicas (in the latest zone)
 
   yb-tserver-n:
       image: yugabytedb/yugabyte:${tag}
       volumes:
           - ./client:/home/yugabyte/client
       command: bash -c "
-                rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-tserver $flags
                 --placement_cloud=$cloud 
                 --placement_region=$region 

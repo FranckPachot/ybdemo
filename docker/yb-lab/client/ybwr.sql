@@ -33,7 +33,7 @@ for i in (select host from yb_servers()) loop
   $COPY$
   copy ybwr_snapshots(host,metrics) from program
    $BASH$
-   exec 5<>/dev/tcp/%s/9000 ; awk 'BEGIN{printf "%s\t"}/[[]/{in_json=1}in_json==1{printf $0}' <&5 & printf "GET /metrics HTTP/1.0\r\n\r\n" >&5
+   exec 5<>/dev/tcp/%s/9000 ; awk 'BEGIN{printf "%s\t"}/[[]/{in_json=1}in_json==1{printf $0}' <&5 & printf "GET /metrics HTTP/1.0\r\n\r\n" >&5 ; exit 0
    $BASH$
   $COPY$
  ,i.host,i.host); 
@@ -59,7 +59,7 @@ $0 ~ tserver_tablets {
 print server,gensub(tserver_tablets,"\\1",1), gensub(tserver_tablets,"\\2",1), gensub(tserver_tablets,"\\3",1), gensub(tserver_tablets,"\\4",1), gensub(tserver_tablets,"\\5",1), gensub(tserver_tablets,"\\6",1), bytes(gensub(tserver_tablets,"\\7",1)), bytes(gensub(tserver_tablets,"\\8",1)), bytes(gensub(tserver_tablets,"\\9",1))
 }
 ' OFS='<' OFMT="%%f" server="%s" \
-tserver_tablets='^<tr><td>([^<]*)<[/]td><td>([^<]*)<[/]td><td>0000[0-9a-f]{4}00003000800000000000[0-9a-f]{4}<[/]td><td><a href="[/]tablet[?]id=([0-9a-f]{32})">[0-9a-f]{32}</a></td><td>([^<]*)<[/]td><td>([^<]*)<[/]td><td>false<[/]td><td>([0-9])<[/]td><td><ul><li>Total: [^<]*<li>Consensus Metadata: [^<]*<li>WAL Files: ([^<]*)<li>SST Files: ([^<]*)<li>SST Files Uncompressed: ([^<]*)<[/]ul><[/]td><td><ul>' <&5 & printf "GET /tablets HTTP/1.0\r\n\r\n" >&5
+tserver_tablets='^<tr><td>([^<]*)<[/]td><td>([^<]*)<[/]td><td>0000[0-9a-f]{4}00003000800000000000[0-9a-f]{4}<[/]td><td><a href="[/]tablet[?]id=([0-9a-f]{32})">[0-9a-f]{32}</a></td><td>([^<]*)<[/]td><td>([^<]*)<[/]td><td>false<[/]td><td>([0-9])<[/]td><td><ul><li>Total: [^<]*<li>Consensus Metadata: [^<]*<li>WAL Files: ([^<]*)<li>SST Files: ([^<]*)<li>SST Files Uncompressed: ([^<]*)<[/]ul><[/]td><td><ul>' <&5 & printf "GET /tablets HTTP/1.0\r\n\r\n" >&5 ; exit 0
    $BASH$ (format csv, delimiter $DELIMITER$<$DELIMITER$)
   $COPY$
  ,i.host,i.host); 
@@ -105,7 +105,7 @@ select ts, value,rate,namespace_name,table_name,metric_name,host,tablet_id,is_ra
 ,to_char(100*value/sum(value)over(partition by namespace_name,table_name,metric_name),'999%') as "%table"
 ,sum(value)over(partition by namespace_name,table_name,metric_name) as "table"
 from ybwr_last , ybwr_snap()
-where table_name not in ('metrics','ybwr_snapshots')
+where table_name not in ('metrics','ybwr_snapshots','ybwr_tablets')
 and metric_name not in ('follower_lag_ms')
 order by ts desc,namespace_name,table_name,host,tablet_id,"table" desc,value desc,metric_name;
 

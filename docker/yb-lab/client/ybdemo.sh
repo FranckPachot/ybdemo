@@ -48,7 +48,13 @@ count)
   ;;
 ybwr)
   # stop on error so that it is retried until sucessful
-   PGCONNECT_TIMEOUT=5 ysqlsh -h yb-tserver-0 -p 5433 -U yugabyte -v ON_ERROR_STOP=on -e -f ybwr.sql
+   for i in {0..2}
+   do
+   set -x
+   echo "Connecting to yb-tserver-$i..."
+   PGCONNECT_TIMEOUT=1 ysqlsh -h yb-tserver-$i -p 5433 -U yugabyte -v ON_ERROR_STOP=on -f ybwr.sql && break
+   done
+   exit 1
   ;;  
 *)
    for i in  $(seq 1 ${2:-1}) ; do echo "

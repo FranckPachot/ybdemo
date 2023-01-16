@@ -1,0 +1,31 @@
+
+version: '2'
+
+services:
+
+  yb:
+      image: yugabytedb/yugabyte:2.17.0.0-b24
+      volumes:
+          - ../yb-lab/client:/home/yugabyte/client
+      command: bash -xc "
+                join=$(
+                 host $(hostname -I) | 
+                 awk 'gensub(re,\"\\\\2\",1)>1{print \"--ui false --join \"gensub(re,\"\\\\1\",1)\"-1\"}
+                ' re='^.*domain name pointer ([^.]+)-([0-9]+)[.].*$'
+                ) ;
+                echo === $$join ;
+                /home/yugabyte/bin/yugabyted start $$join;
+                echo tail -F /root/var/logs/*/yb-*.INFO | grep -v ' DEBUG:' ;
+                while sleep 15 ; do
+                 ysqlsh -h $$(hostname) -c 'select * from yb_servers()';
+                done
+                "
+      healthcheck: 
+          test: ["CMD","postgres/bin/pg_isready","'$(hostname)'"]
+      ports:
+       - 7000-7009:7000
+       - 9000-9009:9000
+       - 5432-5441:5433
+       - 15432-15441:15433
+      deploy:
+          replicas: 1

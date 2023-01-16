@@ -7,19 +7,38 @@ services:
       image: yugabytedb/yugabyte:2.17.0.0-b24
       volumes:
           - ../yb-lab/client:/home/yugabyte/client
-      command: bash -xc "
-                join=$(
-                 host $(hostname -I) | 
-                 awk 'gensub(re,\"\\\\2\",1)>1{print \"--ui false --join \"gensub(re,\"\\\\1\",1)\"-1\"}
-                ' re='^.*domain name pointer ([^.]+)-([0-9]+)[.].*$'
-                ) ;
-                echo === $$join ;
-                /home/yugabyte/bin/yugabyted start $$join;
-                echo tail -F /root/var/logs/*/yb-*.INFO | grep -v ' DEBUG:' ;
-                while sleep 15 ; do
-                 ysqlsh -h $$(hostname) -c 'select * from yb_servers()';
-                done
-                "
+      command: |
+          bash -xc "
+           # split the host name as service and replica number
+           eval $(
+            host $(hostname -I) | 
+            awk '{print gensub(re,\"service=\\\\1 replica=\\\\2\",1)}
+            ' re='^.*domain name pointer ([^.]+)-([0-9]+)[.].*$' 
+            )
+           # the replicas after the first one join the first one
+           if [ $$replica -gt 1 ] 
+            then
+             # set the join flag for yugabyted start
+             join=\"--join $$service-1\"
+             # wait that the previous one is fully started
+             until postgres/bin/pg_isready -h $$service-$$(( $$replica - 1)) 
+              do sleep 1 ; done | uniq
+            fi
+           # start with yugabyted
+           /home/yugabyte/bin/yugabyted start $$join --tserver_flags=\"${tserver_flags}\"
+           # wait that YSQL is available
+           export PGHOST=$$(hostname)
+           until postgres/bin/pg_isready  ; do sleep 1 ; done | uniq
+           # show all servers
+           ysqlsh -h $$(hostname) -c 'select * from yb_servers()'
+           # initialize pgbench for the first node
+           if [ $$replica -eq 1 ]
+            then
+             postgres/bin/ysql_bench -i -I tgp --scale ${scale:-1}
+            fi
+           # run pgbench forever
+           postgres/bin/ysql_bench -l --aggregate-interval 10 -b ${builtin:-simple-update} -c ${clients:-1} -P 5 -T 2147483647 -n -M prepared --max-tries ${max_tries:-0} 
+          "
       healthcheck: 
           test: ["CMD","postgres/bin/pg_isready","'$(hostname)'"]
       ports:
@@ -29,3 +48,6 @@ services:
        - 15432-15441:15433
       deploy:
           replicas: 1
+          restart_policy:
+             condition: on-failure
+

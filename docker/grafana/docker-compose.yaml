@@ -2,20 +2,32 @@
 version: '3'
 
 services:
+
   yugabytedb:
     image: yugabytedb/yugabyte:latest
-    command: yugabyted start --listen 0.0.0.0 --daemon false
+    command: bash -c 'yugabyted start --listen 0.0.0.0 --master_flags=enable_automatic_tablet_splitting=false --tserver_flags=ysql_num_tablets=1,enable_automatic_tablet_splitting=false,timestamp_history_retention_interval_sec=30 ; while sleep 10 ; do echo ;du -h /root/var/data/yb-data/tserver/data/rocksdb/table-*/tablet-*/ | sort -h | grep -Ev ".intents|.snapshots" ; done'
+
+    healthcheck: yugabyted start --listen 0.0.0.0 --daemon false
+    volumes:
+      - ./sql:/hone/yugabyte/sql
     ports:
       - "7000:7000"
       - "9000:9000"
       - "5433:5433"
+    restart: unless-stopped
+    healthcheck:
+      test: ./postgres/bin/pg_isready -U yugabyte -d yugabyte
+      interval: 5s
+
   grafana:
     image: grafana/grafana:latest
     links:
      - "yugabytedb:yb"
     ports:
       - "3000:3000"
-    user: "0:0"
+    restart: unless-stopped
+    depends_on:
+        - yugabytedb
     volumes:
       - ./etc:/etc/grafana
       - ./lib:/var/lib/grafana

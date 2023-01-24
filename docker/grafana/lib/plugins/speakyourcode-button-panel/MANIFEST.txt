@@ -1,0 +1,37 @@
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+{
+  "manifestVersion": "2.0.0",
+  "signatureType": "community",
+  "signedByOrg": "speakyourcode",
+  "signedByOrgName": "speakyourcode",
+  "plugin": "speakyourcode-button-panel",
+  "version": "0.3.2",
+  "time": 1670397924042,
+  "keyId": "7e4d0c6a708866e7",
+  "files": {
+    "README.md": "3b9dc0bd3ddea483c8d09261eab2042f7949818c4eed0843ab15ee01be1c5c78",
+    "LICENSE": "c5accbbd8546e94c34aed24afe689a617627d18eed5a6c48277e48db57c23851",
+    "img/logo.svg": "5323e3d713a6c0ed2e379452150b460c4e4881b55e2ae77dfe18f447117ff4f2",
+    "img/horizontal_orientation.png": "6202e1bed3792c9ccfcab24795d2cc8ca6a0dcc582490987465a5fc54a77c7c9",
+    "img/vertical_orientation.png": "d8eda42499fdef4a53b2179b7b108baa6535df76fdc3af65c479c2dde3f8e4dd",
+    "img/panel_options.png": "4b0c96241f532cd539eee8799b8f1b5124a0b820e30d59b8ba4bbe10f1416575",
+    "module.js.map": "b54590a004ceca36933141aedefc8c83fe2999909163d99a23db02aa4e43e77e",
+    "plugin.json": "82b55c8ce39f7a78b17d2eefc220295f33650b86a231d930f0b6497e8bb41d44",
+    "module.js": "f5462fe83fea29f06e6fd03815d887f36ee17801c488c57c90d4e6f667bd13c2",
+    "CHANGELOG.md": "ed53b5dbe7d2efda8a20e847fd0b028e2b34b948f5a6dc859bca4e7e44407f8b"
+  }
+}
+-----BEGIN PGP SIGNATURE-----
+Version: OpenPGP.js v4.10.10
+Comment: https://openpgpjs.org
+
+wrcEARMKAAYFAmOQP+QAIQkQfk0ManCIZucWIQTzOyW2kQdOhGNlcPN+TQxq
+cIhm5/yqAgiN2D1nX8zEhOspoU0Ai97I2drvpFSA1Q5lB02n8QKVh74/Fib2
+UVGtNObElULstqqY0qein57fSWUeSBvTiAuHdwIGOzPMgwHyUcvTX2WjrYQL
+zSUqP2kj4OvcJJAL5aoUMdJgK5ozvjKD9KdByoObgKDU38xYZgYwdraMwBJN
+qZODCy0=
+=uJCA
+-----END PGP SIGNATURE-----

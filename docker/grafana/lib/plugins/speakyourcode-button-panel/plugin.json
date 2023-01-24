@@ -1,0 +1,52 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
+  "type": "panel",
+  "name": "Button Panel",
+  "id": "speakyourcode-button-panel",
+  "info": {
+    "keywords": [
+      "panel",
+      "button",
+      "control",
+      "input"
+    ],
+    "description": "Grafana button control panel",
+    "author": {
+      "name": "Speak Your Code"
+    },
+    "logos": {
+      "small": "img/logo.svg",
+      "large": "img/logo.svg"
+    },
+    "links": [
+      {
+        "name": "GitHub",
+        "url": "https://github.com/speakyourcode/grafana-button-panel"
+      },
+      {
+        "name": "License",
+        "url": "https://github.com/speakyourcode/grafana-button-panel/blob/master/LICENSE"
+      }
+    ],
+    "screenshots": [
+      {
+        "name": "Panel Options",
+        "path": "img/panel_options.png"
+      },
+      {
+        "name": "Horizontal Orientation",
+        "path": "img/horizontal_orientation.png"
+      },
+      {
+        "name": "Vertical Orientation",
+        "path": "img/vertical_orientation.png"
+      }
+    ],
+    "version": "0.3.2",
+    "updated": "2022-12-07"
+  },
+  "dependencies": {
+    "grafanaDependency": ">=9.1.2",
+    "plugins": []
+  }
+}

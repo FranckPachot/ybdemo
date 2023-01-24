@@ -1,0 +1,872 @@
+
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 20,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "qEe8N2_Gk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto",
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 5,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "footer": {
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "9.3.2-67a213dc85",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "qEe8N2_Gk"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "\r\nexplain (analyse, costs off) insert into demo \r\nselect \r\n ${insert_pattern:raw}\r\n ,dbms_random.string('P',${insert_row_size:raw}::int)\r\nfrom generate_series(1,${insert_row_num:raw});",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Insert  ${insert_pattern:raw}",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "qEe8N2_Gk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto",
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 5,
+        "x": 5,
+        "y": 0
+      },
+      "id": 11,
+      "options": {
+        "footer": {
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "9.3.2-67a213dc85",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "qEe8N2_Gk"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "\r\nexplain (analyse, costs off) \r\nwith rows as (select * from demo where ${delete_pattern} order by id limit ${insert_row_num:raw})\r\ndelete from demo where id in (select id from rows)",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Delete ${delete_pattern}",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "qEe8N2_Gk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "super-light-blue",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 134217728
+              },
+              {
+                "color": "orange",
+                "value": 536870912
+              },
+              {
+                "color": "#E24D42",
+                "value": 1073741824
+              },
+              {
+                "color": "purple",
+                "value": 10737418240
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rows"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "tablets"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 2,
+        "x": 10,
+        "y": 0
+      },
+      "id": 15,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.3.2-67a213dc85",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "qEe8N2_Gk"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "select pg_table_size('demo'::regclass) as files,\r\nsum(octet_length(demo.*::text)) as table,\r\ncount(*) as rows,\r\n(select num_tablets from yb_table_properties('demo'::regclass)) as tablets\r\nfrom demo;",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Rows size",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "qEe8N2_Gk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto",
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 9,
+        "x": 12,
+        "y": 0
+      },
+      "id": 10,
+      "options": {
+        "footer": {
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "9.3.2-67a213dc85",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "qEe8N2_Gk"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "\r\nexplain (analyse, costs off, dist)\r\nselect * from demo where id=(select 1e6*random())::int\r\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Select",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "qEe8N2_Gk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "left",
+            "axisWidth": 100,
+            "barAlignment": 1,
+            "drawStyle": "line",
+            "fillOpacity": 84,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "stepBefore",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 10240000
+              },
+              {
+                "color": "#EAB839",
+                "value": 314572800
+              },
+              {
+                "color": "#6ED0E0",
+                "value": 786432000
+              },
+              {
+                "color": "#EF843C",
+                "value": 786432010
+              },
+              {
+                "color": "#E24D42",
+                "value": 1572864000
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 7
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": [
+            "last",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "width": 598
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "repeat": "data_dir",
+      "repeatDirection": "v",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "qEe8N2_Gk"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "create table if not exists sstfiles (\n  bytes bigint, time float, name text, ts timestamptz default now()\n);\ncopy sstfiles(bytes,time,name) from program 'find ${data_dir:raw} -printf \"%s\\\\t%T@\\\\t%p\\\\n\"';\nselect $__time(ts),bytes, max(to_char(to_timestamp(time),'hh24:mi:ss'))over(partition by name)||' '||regexp_replace(name,'${data_dir:raw}','') \nfrom sstfiles \nwhere $__timeFilter(ts) and name like '${data_dir:raw}/%'\n--and  sstfiles.name not like '%.intents/%' and sstfiles.name like '%.sst.sblock.0%'\nand (name like '%/rocksdb/%sst.sblock.0' or name like '%/wals/%') and name not like '%.intents/%' and name not like 'xxx'\norder by time,name desc\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "rate"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+[O                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "ybwr_report",
+          "timeColumn": "ts",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "SST file size ${data_dir:raw}",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "qEe8N2_Gk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto",
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 23,
+        "x": 0,
+        "y": 29
+      },
+      "id": 18,
+      "options": {
+        "footer": {
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "9.3.2-67a213dc85",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "qEe8N2_Gk"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "select \r\nformat('/home/opc/yugabyte-2.17.0.0/bin/yb-admin  -init_master_addrs 10.0.0.142:7100  compact_table_by_id 0000%s00003000800000000000%s 3600'\r\n ,lpad(to_hex(oid::int),4,'0')\r\n ,lpad(to_hex('demo'::regclass::oid::int),4,'0')\r\n ) \r\n from pg_database where datname=current_database()",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Compaction",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "qEe8N2_Gk"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 1,
+        "y": 36
+      },
+      "id": 20,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "Master:\r\n\r\n<iframe src=\"http://yb0.pachot.net:7000\"></iframe>\r\n\r\nallow_embedding = true in the config file. – \r\nBrett\r\n Nov 1, 2021 at 18:13\r\n1\r\nThe allow_embedding configuration setting controls whether grafana can be embedded on other pages (via the X-Frame-Options header). To get the iframes to show in a text panel, you need to set disable_sanitize_html\r\ngrafana-cli plugins install speakyourcode-button-panel\r\n",
+        "mode": "html"
+      },
+      "pluginVersion": "9.3.2-67a213dc85",
+      "title": "Panel Title",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "qEe8N2_Gk"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 1,
+        "y": 44
+      },
+      "id": 21,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "Master:\r\n\r\n<iframe src=\"http://yb0.pachot.net:7000\"></iframe>\r\n\r\nallow_embedding = true in the config file. – \r\nBrett\r\n Nov 1, 2021 at 18:13\r\n1\r\nThe allow_embedding configuration setting controls whether grafana can be embedded on other pages (via the X-Frame-Options header). To get the iframes to show in a text panel, you need to set disable_sanitize_html\r\ngrafana-cli plugins install speakyourcode-button-panel\r\n",
+        "mode": "html"
+      },
+      "pluginVersion": "9.3.2-67a213dc85",
+      "title": "Panel Title",
+      "type": "text"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 37,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "nextval('demo_seq')",
+          "value": "nextval('demo_seq')"
+        },
+        "datasource": {
+          "type": "postgres",
+          "uid": "qEe8N2_Gk"
+        },
+        "definition": "\ndrop sequence if exists demo_seq;\ncreate sequence if not exists demo_seq;\nselect 'nextval(''demo_seq'')' \nunion all \nselect '1e6*random()'",
+        "description": "Creates the sequence and list insert patterns",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Primary key",
+        "multi": false,
+        "name": "insert_pattern",
+        "options": [],
+        "query": "\ndrop sequence if exists demo_seq;\ncreate sequence if not exists demo_seq;\nselect 'nextval(''demo_seq'')' \nunion all \nselect '1e6*random()'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "1000",
+          "value": "1000"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "rows inserted",
+        "multi": false,
+        "name": "insert_row_num",
+        "options": [
+          {
+            "selected": true,
+            "text": "1000",
+            "value": "1000"
+          },
+          {
+            "selected": false,
+            "text": "100",
+            "value": "100"
+          },
+          {
+            "selected": false,
+            "text": "10",
+            "value": "10"
+          },
+          {
+            "selected": false,
+            "text": "1",
+            "value": "1"
+          },
+          {
+            "selected": false,
+            "text": "0",
+            "value": "0"
+          }
+        ],
+        "query": "1000,100,10,1,0",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "1e5",
+          "value": "1e5"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "row bytes",
+        "multi": false,
+        "name": "insert_row_size",
+        "options": [
+          {
+            "selected": false,
+            "text": "1e6",
+            "value": "1e6"
+          },
+          {
+            "selected": true,
+            "text": "1e5",
+            "value": "1e5"
+          },
+          {
+            "selected": false,
+            "text": "1e4",
+            "value": "1e4"
+          },
+          {
+            "selected": false,
+            "text": "1e3",
+            "value": "1e3"
+          },
+          {
+            "selected": false,
+            "text": "1e2",
+            "value": "1e2"
+          },
+          {
+            "selected": false,
+            "text": "1e1",
+            "value": "1e1"
+          }
+        ],
+        "query": "1e6,1e5,1e4,1e3,1e2,1e1",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "id>0",
+          "value": "id>0"
+        },
+        "datasource": {
+          "type": "postgres",
+          "uid": "qEe8N2_Gk"
+        },
+        "definition": "select 'false' \nunion all \nselect 'id>0'\nunion all \nselect 'id>1e6*random()'",
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "name": "delete_pattern",
+        "options": [],
+        "query": "select 'false' \nunion all \nselect 'id>0'\nunion all \nselect 'id>1e6*random()'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "/home/opc/10.0.0.142/var/data/yb-data/tserver/data/rocksdb/table-000033e80000300080000000000043b1",
+            "/home/opc/10.0.0.142/var/data/yb-data/tserver/wals/table-000033e80000300080000000000043b1"
+          ],
+          "value": [
+            "/home/opc/10.0.0.142/var/data/yb-data/tserver/data/rocksdb/table-000033e80000300080000000000043b1",
+            "/home/opc/10.0.0.142/var/data/yb-data/tserver/wals/table-000033e80000300080000000000043b1"
+          ]
+        },
+        "datasource": {
+          "type": "postgres",
+          "uid": "qEe8N2_Gk"
+        },
+        "definition": "drop table sstfiles;\ndrop table if exists demo; \ncreate extension if not exists orafce;\ncreate table if not exists demo (id bigint primary key, value text) split into 1 tablets;\nselect \nformat('%s/tserver/data/rocksdb/table-0000%s00003000800000000000%s'\n ,replace(current_setting('data_directory'),'/pg_data','/yb-data')\n ,lpad(to_hex(oid::int),4,'0')\n ,lpad(to_hex('demo'::regclass::oid::int),4,'0')\n ) \n from pg_database where datname=current_database()\nunion all\nselect \nformat('%s/tserver/wals/table-0000%s00003000800000000000%s'\n ,replace(current_setting('data_directory'),'/pg_data','/yb-data')\n ,lpad(to_hex(oid::int),4,'0')\n ,lpad(to_hex('demo'::regclass::oid::int),4,'0')\n ) \n from pg_database where datname=current_database()\n;",
+        "description": "Creates the demo table and get the RocksDB dir",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Directories to monitor",
+        "multi": true,
+        "name": "data_dir",
+        "options": [],
+        "query": "drop table sstfiles;\ndrop table if exists demo; \ncreate extension if not exists orafce;\ncreate table if not exists demo (id bigint primary key, value text) split into 1 tablets;\nselect \nformat('%s/tserver/data/rocksdb/table-0000%s00003000800000000000%s'\n ,replace(current_setting('data_directory'),'/pg_data','/yb-data')\n ,lpad(to_hex(oid::int),4,'0')\n ,lpad(to_hex('demo'::regclass::oid::int),4,'0')\n ) \n from pg_database where datname=current_database()\nunion all\nselect \nformat('%s/tserver/wals/table-0000%s00003000800000000000%s'\n ,replace(current_setting('data_directory'),'/pg_data','/yb-data')\n ,lpad(to_hex(oid::int),4,'0')\n ,lpad(to_hex('demo'::regclass::oid::int),4,'0')\n ) \n from pg_database where datname=current_database()\n;",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "YB Compaction",
+  "uid": "XHtU5xT4k",
+  "version": 45,
+  "weekStart": ""
+}

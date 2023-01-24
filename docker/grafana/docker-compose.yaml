@@ -1,0 +1,23 @@
+
+version: '3'
+
+services:
+  yugabytedb:
+    image: yugabytedb/yugabyte:latest
+    command: yugabyted start --listen 0.0.0.0 --daemon false
+    ports:
+      - "7000:7000"
+      - "9000:9000"
+      - "5433:5433"
+  grafana:
+    image: grafana/grafana:latest
+    links:
+     - "yugabytedb:yb"
+    ports:
+      - "3000:3000"
+    user: "0:0"
+    volumes:
+      - ./etc:/etc/grafana
+      - ./lib:/var/lib/grafana
+
+

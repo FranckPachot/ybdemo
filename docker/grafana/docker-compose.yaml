@@ -5,11 +5,10 @@ services:
 
   yugabytedb:
     image: yugabytedb/yugabyte:latest
-    command: bash -c 'yugabyted start --listen 0.0.0.0 --master_flags=enable_automatic_tablet_splitting=false --tserver_flags=ysql_num_tablets=1,enable_automatic_tablet_splitting=false,timestamp_history_retention_interval_sec=30 ; while sleep 10 ; do echo ;du -h /root/var/data/yb-data/tserver/data/rocksdb/table-*/tablet-*/ | sort -h | grep -Ev ".intents|.snapshots" ; done'
-
+    command: yugabyted start --listen 0.0.0.0 --master_flags=${YB_FLAGS} --tserver_flags=${YB_FLAGS} --initial_scripts_dir /home/yugabyte/scripts/init  --daemon false
     healthcheck: yugabyted start --listen 0.0.0.0 --daemon false
     volumes:
-      - ./sql:/hone/yugabyte/sql
+      - ./scripts:/home/yugabyte/scripts
     ports:
       - "7000:7000"
       - "9000:9000"
@@ -18,6 +17,18 @@ services:
     healthcheck:
       test: ./postgres/bin/pg_isready -U yugabyte -d yugabyte
       interval: 5s
+
+  snap:
+    image: yugabytedb/yugabyte:latest
+    command: ysqlsh -h yb -f scripts/init/snap_files.sql
+    links:
+     - "yugabytedb:yb"
+    volumes:
+      - ./scripts:/home/yugabyte/scripts
+    restart: unless-stopped
+    depends_on:
+     yugabytedb:
+      condition: service_healthy
 
   grafana:
     image: grafana/grafana:latest
@@ -32,4 +43,83 @@ services:
       - ./etc:/etc/grafana
       - ./lib:/var/lib/grafana
 
+  compaction:
+    image: yugabytedb/yugabyte:latest
+    command: 
+     - "/bin/bash"
+     - "-c"
+     - | 
+       ysqlsh -h yb -e <<'SQL'
+       create extension if not exists orafce;
+       create sequence if not exists demo_sequence_insert;
+       create table if not exists demo
+        (id bigint primary key, value text) split into 1 tablets;
+       prepare "inserts_${delete_rows}_rows" as
+        insert into demo
+        select nextval('demo_sequence_insert') ,dbms_random.string('P',${row_size}::int)
+        from generate_series(1,${insert_rows});
+       explain (analyse, costs off) execute "inserts_${delete_rows}_rows";
+       \watch 0.01
+       SQL
+    links:
+     - "yugabytedb:yb"
+    depends_on:
+     yugabytedb:
+      condition: service_healthy
+    deploy:
+      replicas: 0
+      restart_policy:
+       condition: unless-stopped
+
+  inserts:
+    image: yugabytedb/yugabyte:latest
+    command: 
+     - "/bin/bash"
+     - "-c"
+     - | 
+       ysqlsh -h yb -e <<'SQL'
+       create extension if not exists orafce;
+       create sequence if not exists demo_sequence_insert;
+       create table if not exists demo
+        (id bigint primary key, value text) split into 1 tablets;
+       prepare "inserts_${delete_rows}_rows" as
+        insert into demo
+        select nextval('demo_sequence_insert') ,dbms_random.string('P',${row_size}::int)
+        from generate_series(1,${insert_rows});
+       explain (analyse, costs off) execute "inserts_${delete_rows}_rows";
+       \watch 0.01
+       SQL
+    links:
+     - "yugabytedb:yb"
+    depends_on:
+     yugabytedb:
+      condition: service_healthy
+    deploy:
+      replicas: 1
+      restart_policy:
+       condition: unless-stopped
+
+  deletes:
+    image: yugabytedb/yugabyte:latest
+    command: 
+     - "/bin/bash"
+     - "-c"
+     - | 
+       ysqlsh -h yb -e <<'SQL'
+       create sequence if not exists demo_sequence_deletes;
+       prepare "deletes_${delete_rows}_rows" as
+        with rows as (select * from demo limit ${delete_rows})
+        delete from demo where id in (select id from rows);
+       explain (analyse, costs off) execute "deletes_${delete_rows}_rows";
+       \watch 0.01
+       SQL
+    links:
+     - "yugabytedb:yb"
+    depends_on:
+     yugabytedb:
+      condition: service_healthy
+    deploy:
+      replicas: 1
+      restart_policy:
+       condition: unless-stopped
 

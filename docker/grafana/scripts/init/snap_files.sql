@@ -57,21 +57,7 @@ select nspname,relname,relkind,last_snap_count,regexp_replace(path,'^.*/tserver/
 order by last_snap_count
 ;
 
-\watch 5
-
-
-\q
-
-select relname,filename from ybwr_files f join ybwr_tables_with_data_dir t on f.filename like t.path||'%';
+\watch 0.5
 
 \q
-
---select sstfiles_snap('/root/var/data/yb-data','.*/(xwal-[0-9]+|[0-9]+[.]sst[.]sblock[.]0)');
-
-\d
-
-/root/var/data/yb-data/tserver/data/rocksdb/table-000033e800003000800000000000427c
-/root/var/data/yb-data/tserver/data/rocksdb/table-000033e600003000800000000000429b
-
-select name from sstfiles;
 

@@ -16,11 +16,12 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ./postgres/bin/pg_isready -U yugabyte -d yugabyte
-      interval: 5s
+      interval: 10s
+      retries: 10
 
   snap:
     image: yugabytedb/yugabyte:latest
-    command: ysqlsh -h yb -f scripts/init/snap_files.sql
+    command: ysqlsh -h yb -v ON_ERROR_STOP=1 -f scripts/init/snap_files.sql
     links:
      - "yugabytedb:yb"
     volumes:
@@ -29,6 +30,10 @@ services:
     depends_on:
      yugabytedb:
       condition: service_healthy
+    healthcheck:
+      test: ysqlsh -h yb -v ON_ERROR_STOP=1 -c "select 1/count(*) from ybwr_files_history where ts>now()-interval'10 seconds';"
+      interval: 15s
+      retries: 10
 
   grafana:
     image: grafana/grafana:latest
@@ -38,38 +43,10 @@ services:
       - "3000:3000"
     restart: unless-stopped
     depends_on:
-        - yugabytedb
+        - inserts
     volumes:
       - ./etc:/etc/grafana
       - ./lib:/var/lib/grafana
-
-  compaction:
-    image: yugabytedb/yugabyte:latest
-    command: 
-     - "/bin/bash"
-     - "-c"
-     - | 
-       ysqlsh -h yb -e <<'SQL'
-       create extension if not exists orafce;
-       create sequence if not exists demo_sequence_insert;
-       create table if not exists demo
-        (id bigint primary key, value text) split into 1 tablets;
-       prepare "inserts_${delete_rows}_rows" as
-        insert into demo
-        select nextval('demo_sequence_insert') ,dbms_random.string('P',${row_size}::int)
-        from generate_series(1,${insert_rows});
-       explain (analyse, costs off) execute "inserts_${delete_rows}_rows";
-       \watch 0.01
-       SQL
-    links:
-     - "yugabytedb:yb"
-    depends_on:
-     yugabytedb:
-      condition: service_healthy
-    deploy:
-      replicas: 0
-      restart_policy:
-       condition: unless-stopped
 
   inserts:
     image: yugabytedb/yugabyte:latest
@@ -77,25 +54,49 @@ services:
      - "/bin/bash"
      - "-c"
      - | 
-       ysqlsh -h yb -e <<'SQL'
+       ysqlsh -h yb -v ON_ERROR_STOP=1 -e <<'SQL'
        create extension if not exists orafce;
        create sequence if not exists demo_sequence_insert;
        create table if not exists demo
-        (id bigint primary key, value text) split into 1 tablets;
+        (id bigint, primary key(id asc), num bigint, value text);
+       create index if not exists demo_value on demo(num asc);
        prepare "inserts_${delete_rows}_rows" as
         insert into demo
-        select nextval('demo_sequence_insert') ,dbms_random.string('P',${row_size}::int)
+        select nextval('demo_sequence_insert') , 0, dbms_random.string('P',${row_size}::int)
         from generate_series(1,${insert_rows});
        explain (analyse, costs off) execute "inserts_${delete_rows}_rows";
-       \watch 0.01
+       \watch 0.1
        SQL
     links:
      - "yugabytedb:yb"
     depends_on:
-     yugabytedb:
+     snap:
       condition: service_healthy
     deploy:
       replicas: 1
+      restart_policy:
+       condition: unless-stopped
+
+  updates:
+    image: yugabytedb/yugabyte:latest
+    command: 
+     - "/bin/bash"
+     - "-c"
+     - | 
+       ysqlsh -h yb -v ON_ERROR_STOP=1 -e <<'SQL'
+       prepare "updates_${delete_rows}_rows" as
+        with rows as (select id from demo order by num limit ${delete_rows})
+        update demo set num=num+1 where id in (select id from rows);
+       explain (analyse, costs off) execute "updates_${delete_rows}_rows";
+       \watch 0.1
+       SQL
+    links:
+     - "yugabytedb:yb"
+    depends_on:
+     snap:
+      condition: service_healthy
+    deploy:
+      replicas: 0
       restart_policy:
        condition: unless-stopped
 
@@ -105,21 +106,21 @@ services:
      - "/bin/bash"
      - "-c"
      - | 
-       ysqlsh -h yb -e <<'SQL'
+       ysqlsh -h yb -v ON_ERROR_STOP=1 -e <<'SQL'
        create sequence if not exists demo_sequence_deletes;
        prepare "deletes_${delete_rows}_rows" as
-        with rows as (select * from demo limit ${delete_rows})
+        with rows as (select id from demo order by num limit ${delete_rows})
         delete from demo where id in (select id from rows);
        explain (analyse, costs off) execute "deletes_${delete_rows}_rows";
-       \watch 0.01
+       \watch 0.1
        SQL
     links:
      - "yugabytedb:yb"
     depends_on:
-     yugabytedb:
+     snap:
       condition: service_healthy
     deploy:
-      replicas: 1
+      replicas: 0
       restart_policy:
        condition: unless-stopped
 

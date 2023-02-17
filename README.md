@@ -13,6 +13,8 @@ The goal is to run it on PostgreSQL compatible databases, especially distributed
 
 Error management is aimed at demos on distributed SQL databases, where optimistic locking requires the application to implement a retry logic. In case of errors, depending on the [SQLSTATE](https://www.postgresql.org/docs/current/errcodes-appendix.html), we continue the loop to retry, stop the thread, or stop the program.
 
+## Error handling (raise or retry)
+
 On SQLException the SQLSTATE determines the behavior:
 - SQLSTATE 02000 is "no data". The thread is stopped, but others continue. I use this to run a statement once, like creating a table (there's a 1 second delay between thread starts so the others should see the table)
 - SQLSTATE 42xxx are syntax error. The program stops because you probably want to fix your demo statements

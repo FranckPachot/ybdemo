@@ -89,6 +89,17 @@ read_replica_regexp=""
 demo=0
 ;;
 
+2dc)
+# !!!TEST!!! two failure zones in two data centers
+replication_factor=3
+list_of_clouds="onprem"
+list_of_regions="dc1 dc2"
+list_of_zones="z1 z2"
+number_of_tservers=4
+read_replica_regexp=""
+demo=1
+;;
+
 *)
 # example cloud/region/zone
 replication_factor=3

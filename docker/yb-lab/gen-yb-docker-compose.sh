@@ -332,6 +332,11 @@ cat <<CAT
       - "$(( 5433 + $tserver)):5433"
       depends_on:
       - yb-master-$(( $number_of_masters - 1))
+      healthcheck:
+       test: ["CMD", "/home/yugabyte/postgres/bin/pg_isready", "-h", "yb-tserver-$tserver"]
+       interval: 10s
+       timeout: 5s
+       retries: 10
 
 CAT
 

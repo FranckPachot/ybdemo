@@ -1,12 +1,10 @@
 
-version: '2'
-
-services:
-
 # demos with connect / read / write workloads
 
   yb-demo-connect:
-      image: yugabytedb/yugabyte:2.15.2.0-b87
+      image: yugabytedb/yugabyte:2.17.2.0-b216
+      cap_add:
+        - NET_ADMIN
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","connect","9"]
@@ -16,7 +14,9 @@ services:
              condition: on-failure
 
   yb-demo-read:
-      image: yugabytedb/yugabyte:2.15.2.0-b87
+      image: yugabytedb/yugabyte:2.17.2.0-b216
+      cap_add:
+        - NET_ADMIN
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","read","1"]
@@ -26,7 +26,9 @@ services:
              condition: on-failure
 
   yb-demo-write:
-      image: yugabytedb/yugabyte:2.15.2.0-b87
+      image: yugabytedb/yugabyte:2.17.2.0-b216
+      cap_add:
+        - NET_ADMIN
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","insert","1"]
@@ -38,7 +40,9 @@ services:
 # table create and other initialization for demos
 
   yb-demo-init:
-      image: yugabytedb/yugabyte:2.15.2.0-b87
+      image: yugabytedb/yugabyte:2.17.2.0-b216
+      cap_add:
+        - NET_ADMIN
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","init"]
@@ -48,7 +52,9 @@ services:
              condition: on-failure
 
   yb-demo-metrics:
-      image: yugabytedb/yugabyte:2.15.2.0-b87
+      image: yugabytedb/yugabyte:2.17.2.0-b216
+      cap_add:
+        - NET_ADMIN
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","ybwr"]
@@ -56,11 +62,61 @@ services:
           restart_policy:
              condition: on-failure
 
+  sqlpad:
+      image: sqlpad/sqlpad:5
+      cap_add:
+        - NET_ADMIN
+      hostname: 'sqlpad'
+      ports:
+          - '3000:3000'
+      depends_on:
+          - yb-tserver-1
+      volumes:
+          - /var/tmp/sqlpad:/var/lib/sqlpad
+      environment:
+          SQLPAD_AUTH_DISABLED: true
+          SQLPAD_ADMIN: 'admin'
+          SQLPAD_ADMIN_PASSWORD: 'admin'
+          SQLPAD_APP_LOG_LEVEL: debug
+          SQLPAD_WEB_LOG_LEVEL: warn
+          SQLPAD_SEED_DATA_PATH: /etc/sqlpad/seed-data
+          SQLPAD_CONNECTIONS__yb-tserver-0__name: yb-tserver-0
+          SQLPAD_CONNECTIONS__yb-tserver-0__driver: postgres
+          SQLPAD_CONNECTIONS__yb-tserver-0__host: yb-tserver-0
+          SQLPAD_CONNECTIONS__yb-tserver-0__port: 5433
+          SQLPAD_CONNECTIONS__yb-tserver-0__database: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-0__username: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-0__password: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-0__multiStatementTransactionEnabled: 'true'
+          SQLPAD_CONNECTIONS__yb-tserver-0__idleTimeoutSeconds: 86400
+          SQLPAD_CONNECTIONS__yb-tserver-1__name: yb-tserver-1
+          SQLPAD_CONNECTIONS__yb-tserver-1__driver: postgres
+          SQLPAD_CONNECTIONS__yb-tserver-1__host: yb-tserver-1
+          SQLPAD_CONNECTIONS__yb-tserver-1__port: 5433
+          SQLPAD_CONNECTIONS__yb-tserver-1__database: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-1__username: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-1__password: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-1__multiStatementTransactionEnabled: 'true'
+          SQLPAD_CONNECTIONS__yb-tserver-1__idleTimeoutSeconds: 86400
+          SQLPAD_CONNECTIONS__yb-tserver-2__name: yb-tserver-2
+          SQLPAD_CONNECTIONS__yb-tserver-2__driver: postgres
+          SQLPAD_CONNECTIONS__yb-tserver-2__host: yb-tserver-2
+          SQLPAD_CONNECTIONS__yb-tserver-2__port: 5433
+          SQLPAD_CONNECTIONS__yb-tserver-2__database: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-2__username: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-2__password: yugabyte
+          SQLPAD_CONNECTIONS__yb-tserver-2__multiStatementTransactionEnabled: 'true'
+          SQLPAD_CONNECTIONS__yb-tserver-2__idleTimeoutSeconds: 86400
+
 # yb-master and yb-tservers
 
 
   yb-master-0:
-      image: yugabytedb/yugabyte:2.15.2.0-b87
+      image: yugabytedb/yugabyte:2.17.2.0-b216
+      cap_add:
+        - NET_ADMIN
+      volumes:
+          - ./client:/home/yugabyte/client
       container_name: yb-master-0
       hostname: yb-master-0.zone1.region1.cloud1
       command: bash -c "
@@ -80,7 +136,11 @@ services:
 
 
   yb-tserver-0:
-      image: yugabytedb/yugabyte:2.15.2.0-b87
+      image: yugabytedb/yugabyte:2.17.2.0-b216
+      cap_add:
+        - NET_ADMIN
+      volumes:
+          - ./client:/home/yugabyte/client
       container_name: yb-tserver-0
       hostname: yb-tserver-0.zone1.region1.cloud1
       command: bash -c "
@@ -102,10 +162,19 @@ services:
       - "5433:5433"
       depends_on:
       - yb-master-2
+      healthcheck:
+       test: ["CMD", "/home/yugabyte/postgres/bin/pg_isready", "-h", "yb-tserver-0"]
+       interval: 10s
+       timeout: 5s
+       retries: 10
 
 
   yb-master-1:
-      image: yugabytedb/yugabyte:2.15.2.0-b87
+      image: yugabytedb/yugabyte:2.17.2.0-b216
+      cap_add:
+        - NET_ADMIN
+      volumes:
+          - ./client:/home/yugabyte/client
       container_name: yb-master-1
       hostname: yb-master-1.zone1.region1.cloud2
       command: bash -c "
@@ -127,7 +196,11 @@ services:
 
 
   yb-tserver-1:
-      image: yugabytedb/yugabyte:2.15.2.0-b87
+      image: yugabytedb/yugabyte:2.17.2.0-b216
+      cap_add:
+        - NET_ADMIN
+      volumes:
+          - ./client:/home/yugabyte/client
       container_name: yb-tserver-1
       hostname: yb-tserver-1.zone1.region1.cloud2
       command: bash -c "
@@ -149,10 +222,19 @@ services:
       - "5434:5433"
       depends_on:
       - yb-master-2
+      healthcheck:
+       test: ["CMD", "/home/yugabyte/postgres/bin/pg_isready", "-h", "yb-tserver-1"]
+       interval: 10s
+       timeout: 5s
+       retries: 10
 
 
   yb-master-2:
-      image: yugabytedb/yugabyte:2.15.2.0-b87
+      image: yugabytedb/yugabyte:2.17.2.0-b216
+      cap_add:
+        - NET_ADMIN
+      volumes:
+          - ./client:/home/yugabyte/client
       container_name: yb-master-2
       hostname: yb-master-2.zone1.region2.cloud1
       command: bash -c "
@@ -174,7 +256,11 @@ services:
 
 
   yb-tserver-2:
-      image: yugabytedb/yugabyte:2.15.2.0-b87
+      image: yugabytedb/yugabyte:2.17.2.0-b216
+      cap_add:
+        - NET_ADMIN
+      volumes:
+          - ./client:/home/yugabyte/client
       container_name: yb-tserver-2
       hostname: yb-tserver-2.zone1.region2.cloud1
       command: bash -c "
@@ -196,10 +282,19 @@ services:
       - "5435:5433"
       depends_on:
       - yb-master-2
+      healthcheck:
+       test: ["CMD", "/home/yugabyte/postgres/bin/pg_isready", "-h", "yb-tserver-2"]
+       interval: 10s
+       timeout: 5s
+       retries: 10
 
 
   yb-tserver-3:
-      image: yugabytedb/yugabyte:2.15.2.0-b87
+      image: yugabytedb/yugabyte:2.17.2.0-b216
+      cap_add:
+        - NET_ADMIN
+      volumes:
+          - ./client:/home/yugabyte/client
       container_name: yb-tserver-3
       hostname: yb-tserver-3.zone1.region2.cloud2
       command: bash -c "
@@ -221,10 +316,19 @@ services:
       - "5436:5433"
       depends_on:
       - yb-master-2
+      healthcheck:
+       test: ["CMD", "/home/yugabyte/postgres/bin/pg_isready", "-h", "yb-tserver-3"]
+       interval: 10s
+       timeout: 5s
+       retries: 10
 
 
   yb-tserver-4:
-      image: yugabytedb/yugabyte:2.15.2.0-b87
+      image: yugabytedb/yugabyte:2.17.2.0-b216
+      cap_add:
+        - NET_ADMIN
+      volumes:
+          - ./client:/home/yugabyte/client
       container_name: yb-tserver-4
       hostname: yb-tserver-4.zone2.region1.cloud1
       command: bash -c "
@@ -246,10 +350,19 @@ services:
       - "5437:5433"
       depends_on:
       - yb-master-2
+      healthcheck:
+       test: ["CMD", "/home/yugabyte/postgres/bin/pg_isready", "-h", "yb-tserver-4"]
+       interval: 10s
+       timeout: 5s
+       retries: 10
 
 
   yb-tserver-5:
-      image: yugabytedb/yugabyte:2.15.2.0-b87
+      image: yugabytedb/yugabyte:2.17.2.0-b216
+      cap_add:
+        - NET_ADMIN
+      volumes:
+          - ./client:/home/yugabyte/client
       container_name: yb-tserver-5
       hostname: yb-tserver-5.zone2.region1.cloud2
       command: bash -c "
@@ -271,10 +384,19 @@ services:
       - "5438:5433"
       depends_on:
       - yb-master-2
+      healthcheck:
+       test: ["CMD", "/home/yugabyte/postgres/bin/pg_isready", "-h", "yb-tserver-5"]
+       interval: 10s
+       timeout: 5s
+       retries: 10
 
 
   yb-tserver-6:
-      image: yugabytedb/yugabyte:2.15.2.0-b87
+      image: yugabytedb/yugabyte:2.17.2.0-b216
+      cap_add:
+        - NET_ADMIN
+      volumes:
+          - ./client:/home/yugabyte/client
       container_name: yb-tserver-6
       hostname: yb-tserver-6.zone2.region2.cloud1
       command: bash -c "
@@ -296,10 +418,19 @@ services:
       - "5439:5433"
       depends_on:
       - yb-master-2
+      healthcheck:
+       test: ["CMD", "/home/yugabyte/postgres/bin/pg_isready", "-h", "yb-tserver-6"]
+       interval: 10s
+       timeout: 5s
+       retries: 10
 
 
   yb-tserver-7:
-      image: yugabytedb/yugabyte:2.15.2.0-b87
+      image: yugabytedb/yugabyte:2.17.2.0-b216
+      cap_add:
+        - NET_ADMIN
+      volumes:
+          - ./client:/home/yugabyte/client
       container_name: yb-tserver-7
       hostname: yb-tserver-7.zone2.region2.cloud2
       command: bash -c "
@@ -321,13 +452,21 @@ services:
       - "5440:5433"
       depends_on:
       - yb-master-2
+      healthcheck:
+       test: ["CMD", "/home/yugabyte/postgres/bin/pg_isready", "-h", "yb-tserver-7"]
+       interval: 10s
+       timeout: 5s
+       retries: 10
 
-# adding a template to add more replicas
+# adding a template to add more replicas (in the latest zone)
 
   yb-tserver-n:
-      image: yugabytedb/yugabyte:2.15.2.0-b87
+      image: yugabytedb/yugabyte:2.17.2.0-b216
+      cap_add:
+        - NET_ADMIN
+      volumes:
+          - ./client:/home/yugabyte/client
       command: bash -c "
-                rm -rf /tmp/.yb* ; 
                 /home/yugabyte/bin/yb-tserver --ysql_beta_feature_tablespace_alteration=true --ysql_enable_packed_row=true --ysql_beta_features=true --yb_enable_read_committed_isolation=true --default_memory_limit_to_ram_ratio=0.20
                 --placement_cloud=cloud2 
                 --placement_region=region2 
@@ -348,7 +487,9 @@ services:
 # ephemeral container to tag read replicas if defined
 
   cluster-config:
-      image: yugabytedb/yugabyte:2.15.2.0-b87
+      image: yugabytedb/yugabyte:2.17.2.0-b216
+      volumes:
+          - ./client:/home/yugabyte/client
       command: bash -c "
                 /home/yugabyte/bin/yb-admin --master_addresses yb-master-0:7100,yb-master-1:7100,yb-master-2:7100
                 modify_placement_info

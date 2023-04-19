@@ -125,6 +125,8 @@ tag="${tag:-latest}"
 
 cat <<CAT
 
+services:
+
 # demos with connect / read / write workloads
 
   yb-demo-connect:

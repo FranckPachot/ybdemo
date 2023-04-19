@@ -6,49 +6,49 @@ services:
 # demos with connect / read / write workloads
 
   yb-demo-connect:
-      image: yugabytedb/yugabyte:2.17.0.0-b24
+      image: yugabytedb/yugabyte:2.17.2.0-b216
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","connect","9"]
       deploy:
-          replicas: 0
+          replicas: 1
           restart_policy:
              condition: on-failure
 
   yb-demo-read:
-      image: yugabytedb/yugabyte:2.17.0.0-b24
+      image: yugabytedb/yugabyte:2.17.2.0-b216
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","read","1"]
       deploy:
-          replicas: 0
+          replicas: 1
           restart_policy:
              condition: on-failure
 
   yb-demo-write:
-      image: yugabytedb/yugabyte:2.17.0.0-b24
+      image: yugabytedb/yugabyte:2.17.2.0-b216
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","insert","1"]
       deploy:
-          replicas: 0
+          replicas: 1
           restart_policy:
              condition: on-failure
 
 # table create and other initialization for demos
 
   yb-demo-init:
-      image: yugabytedb/yugabyte:2.17.0.0-b24
+      image: yugabytedb/yugabyte:2.17.2.0-b216
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","init"]
       deploy:
-          replicas: 0
+          replicas: 1
           restart_policy:
              condition: on-failure
 
   yb-demo-metrics:
-      image: yugabytedb/yugabyte:2.17.0.0-b24
+      image: yugabytedb/yugabyte:2.17.2.0-b216
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","ybwr"]
@@ -104,7 +104,7 @@ services:
 
 
   yb-master-0:
-      image: yugabytedb/yugabyte:2.17.0.0-b24
+      image: yugabytedb/yugabyte:2.17.2.0-b216
       volumes:
           - ./client:/home/yugabyte/client
       container_name: yb-master-0
@@ -126,7 +126,7 @@ services:
 
 
   yb-tserver-0:
-      image: yugabytedb/yugabyte:2.17.0.0-b24
+      image: yugabytedb/yugabyte:2.17.2.0-b216
       volumes:
           - ./client:/home/yugabyte/client
       container_name: yb-tserver-0
@@ -150,10 +150,15 @@ services:
       - "5433:5433"
       depends_on:
       - yb-master-2
+      healthcheck:
+       test: ["CMD", "/home/yugabyte/postgres/bin/pg_isready", "-h", "yb-tserver-0"]
+       interval: 10s
+       timeout: 5s
+       retries: 10
 
 
   yb-master-1:
-      image: yugabytedb/yugabyte:2.17.0.0-b24
+      image: yugabytedb/yugabyte:2.17.2.0-b216
       volumes:
           - ./client:/home/yugabyte/client
       container_name: yb-master-1
@@ -177,7 +182,7 @@ services:
 
 
   yb-tserver-1:
-      image: yugabytedb/yugabyte:2.17.0.0-b24
+      image: yugabytedb/yugabyte:2.17.2.0-b216
       volumes:
           - ./client:/home/yugabyte/client
       container_name: yb-tserver-1
@@ -201,10 +206,15 @@ services:
       - "5434:5433"
       depends_on:
       - yb-master-2
+      healthcheck:
+       test: ["CMD", "/home/yugabyte/postgres/bin/pg_isready", "-h", "yb-tserver-1"]
+       interval: 10s
+       timeout: 5s
+       retries: 10
 
 
   yb-master-2:
-      image: yugabytedb/yugabyte:2.17.0.0-b24
+      image: yugabytedb/yugabyte:2.17.2.0-b216
       volumes:
           - ./client:/home/yugabyte/client
       container_name: yb-master-2
@@ -228,7 +238,7 @@ services:
 
 
   yb-tserver-2:
-      image: yugabytedb/yugabyte:2.17.0.0-b24
+      image: yugabytedb/yugabyte:2.17.2.0-b216
       volumes:
           - ./client:/home/yugabyte/client
       container_name: yb-tserver-2
@@ -252,11 +262,16 @@ services:
       - "5435:5433"
       depends_on:
       - yb-master-2
+      healthcheck:
+       test: ["CMD", "/home/yugabyte/postgres/bin/pg_isready", "-h", "yb-tserver-2"]
+       interval: 10s
+       timeout: 5s
+       retries: 10
 
 # adding a template to add more replicas (in the latest zone)
 
   yb-tserver-n:
-      image: yugabytedb/yugabyte:2.17.0.0-b24
+      image: yugabytedb/yugabyte:2.17.2.0-b216
       volumes:
           - ./client:/home/yugabyte/client
       command: bash -c "

@@ -1,9 +1,6 @@
 
-<<<<<<< HEAD
 services:
 
-=======
->>>>>>> e37d8a75bc11daa72d764be2ab0520aefd67b51a
 # demos with connect / read / write workloads
 
   yb-demo-connect:

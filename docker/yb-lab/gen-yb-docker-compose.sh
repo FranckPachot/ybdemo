@@ -31,7 +31,7 @@ list_of_regions="region"
 list_of_zones="zone"
 number_of_tservers=3
 read_replica_regexp=""
-demo=0
+demo=1
 ;;
 
 minimal)
@@ -42,7 +42,7 @@ list_of_regions="region"
 list_of_zones="zone1 zone2 zone3"
 number_of_tservers=1
 read_replica_regexp=""
-demo=0
+demo=1
 ;;
 
 aws)

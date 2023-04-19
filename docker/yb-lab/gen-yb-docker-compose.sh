@@ -125,6 +125,8 @@ tag="${tag:-latest}"
 
 cat <<CAT
 
+services:
+
 # demos with connect / read / write workloads
 
   yb-demo-connect:
@@ -430,8 +432,8 @@ docker compose up -d
 sleep 3 
 until docker exec -it yb-tserver-0 ysqlsh -h yb-tserver-0 -c 'select  cloud,region,zone,host,port,node_type,public_ip from yb_servers() order by 1,2,3,6' | grep -B $(( $number_of_tservers + 5)) "$number_of_tservers rows" ; do sleep 1 ; done 
 echo "
-Run to following to see it running:     docker-compose logs -f
-change docker-compose.yaml and reload:  docker-compose up -d
+Run to following to see it running:     docker compose logs -f
+change docker-compose.yaml and reload:  docker compose up -d
 
 "
 
@@ -443,7 +445,7 @@ echo
 # set aliases (when sourced)
 {
 
-for i in $( docker-compose ps | awk 'NR>1{print $1}' )
+for i in $( docker compose ps | awk 'NR>1{print $1}' )
 do
 alias $i="\
 docker exec -it $i bash \
@@ -468,7 +470,7 @@ select version();
 ' -c '
 select * from yb_servers() order by 1,2,3,6
 '
-cd '$PWD' && docker-compose -f ./docker-compose.yaml ps
+cd '$PWD' && docker compose -f ./docker-compose.yaml ps
 "
 
 }

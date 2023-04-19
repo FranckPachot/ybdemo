@@ -125,14 +125,12 @@ tag="${tag:-latest}"
 
 cat <<CAT
 
-version: '2'
-
-services:
-
 # demos with connect / read / write workloads
 
   yb-demo-connect:
       image: yugabytedb/yugabyte:${tag}
+      cap_add:
+        - NET_ADMIN
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","connect","9"]
@@ -143,6 +141,8 @@ services:
 
   yb-demo-read:
       image: yugabytedb/yugabyte:${tag}
+      cap_add:
+        - NET_ADMIN
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","read","1"]
@@ -153,6 +153,8 @@ services:
 
   yb-demo-write:
       image: yugabytedb/yugabyte:${tag}
+      cap_add:
+        - NET_ADMIN
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","insert","1"]
@@ -165,6 +167,8 @@ services:
 
   yb-demo-init:
       image: yugabytedb/yugabyte:${tag}
+      cap_add:
+        - NET_ADMIN
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","init"]
@@ -175,6 +179,8 @@ services:
 
   yb-demo-metrics:
       image: yugabytedb/yugabyte:${tag}
+      cap_add:
+        - NET_ADMIN
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","ybwr"]
@@ -184,6 +190,8 @@ services:
 
   sqlpad:
       image: sqlpad/sqlpad:5
+      cap_add:
+        - NET_ADMIN
       hostname: 'sqlpad'
       ports:
           - '3000:3000'
@@ -252,6 +260,8 @@ cat <<CAT
 
   yb-master-$master:
       image: yugabytedb/yugabyte:${tag}
+      cap_add:
+        - NET_ADMIN
       volumes:
           - ./client:/home/yugabyte/client
       container_name: yb-master-$master
@@ -309,6 +319,8 @@ cat <<CAT
 
   yb-tserver-$tserver:
       image: yugabytedb/yugabyte:${tag}
+      cap_add:
+        - NET_ADMIN
       volumes:
           - ./client:/home/yugabyte/client
       container_name: yb-tserver-$tserver
@@ -356,6 +368,8 @@ cat <<CAT
 
   yb-tserver-n:
       image: yugabytedb/yugabyte:${tag}
+      cap_add:
+        - NET_ADMIN
       volumes:
           - ./client:/home/yugabyte/client
       command: bash -c "

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 services:
 
@@ -7,6 +8,15 @@ services:
       image: yugabytedb/yugabyte:2.17.2.0-b216
       cap_add:
         - NET_ADMIN
+=======
+
+# demos with connect / read / write workloads
+
+services:
+
+  yb-demo-connect:
+      image: yugabytedb/yugabyte:2.17.2.0-b216
+>>>>>>> e37d8a75bc11daa72d764be2ab0520aefd67b51a
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","connect","9"]
@@ -17,8 +27,11 @@ services:
 
   yb-demo-read:
       image: yugabytedb/yugabyte:2.17.2.0-b216
+<<<<<<< HEAD
       cap_add:
         - NET_ADMIN
+=======
+>>>>>>> e37d8a75bc11daa72d764be2ab0520aefd67b51a
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","read","1"]
@@ -29,8 +42,11 @@ services:
 
   yb-demo-write:
       image: yugabytedb/yugabyte:2.17.2.0-b216
+<<<<<<< HEAD
       cap_add:
         - NET_ADMIN
+=======
+>>>>>>> e37d8a75bc11daa72d764be2ab0520aefd67b51a
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","insert","1"]
@@ -43,8 +59,11 @@ services:
 
   yb-demo-init:
       image: yugabytedb/yugabyte:2.17.2.0-b216
+<<<<<<< HEAD
       cap_add:
         - NET_ADMIN
+=======
+>>>>>>> e37d8a75bc11daa72d764be2ab0520aefd67b51a
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","init"]
@@ -55,8 +74,11 @@ services:
 
   yb-demo-metrics:
       image: yugabytedb/yugabyte:2.17.2.0-b216
+<<<<<<< HEAD
       cap_add:
         - NET_ADMIN
+=======
+>>>>>>> e37d8a75bc11daa72d764be2ab0520aefd67b51a
       volumes:
           - ./client:/home/yugabyte/client
       command: ["bash","client/ybdemo.sh","ybwr"]
@@ -66,8 +88,11 @@ services:
 
   sqlpad:
       image: sqlpad/sqlpad:5
+<<<<<<< HEAD
       cap_add:
         - NET_ADMIN
+=======
+>>>>>>> e37d8a75bc11daa72d764be2ab0520aefd67b51a
       hostname: 'sqlpad'
       ports:
           - '3000:3000'
@@ -115,8 +140,11 @@ services:
 
   yb-master-0:
       image: yugabytedb/yugabyte:2.17.2.0-b216
+<<<<<<< HEAD
       cap_add:
         - NET_ADMIN
+=======
+>>>>>>> e37d8a75bc11daa72d764be2ab0520aefd67b51a
       volumes:
           - ./client:/home/yugabyte/client
       container_name: yb-master-0
@@ -139,8 +167,11 @@ services:
 
   yb-tserver-0:
       image: yugabytedb/yugabyte:2.17.2.0-b216
+<<<<<<< HEAD
       cap_add:
         - NET_ADMIN
+=======
+>>>>>>> e37d8a75bc11daa72d764be2ab0520aefd67b51a
       volumes:
           - ./client:/home/yugabyte/client
       container_name: yb-tserver-0
@@ -173,8 +204,11 @@ services:
 
   yb-master-1:
       image: yugabytedb/yugabyte:2.17.2.0-b216
+<<<<<<< HEAD
       cap_add:
         - NET_ADMIN
+=======
+>>>>>>> e37d8a75bc11daa72d764be2ab0520aefd67b51a
       volumes:
           - ./client:/home/yugabyte/client
       container_name: yb-master-1
@@ -199,8 +233,11 @@ services:
 
   yb-tserver-1:
       image: yugabytedb/yugabyte:2.17.2.0-b216
+<<<<<<< HEAD
       cap_add:
         - NET_ADMIN
+=======
+>>>>>>> e37d8a75bc11daa72d764be2ab0520aefd67b51a
       volumes:
           - ./client:/home/yugabyte/client
       container_name: yb-tserver-1
@@ -233,8 +270,11 @@ services:
 
   yb-master-2:
       image: yugabytedb/yugabyte:2.17.2.0-b216
+<<<<<<< HEAD
       cap_add:
         - NET_ADMIN
+=======
+>>>>>>> e37d8a75bc11daa72d764be2ab0520aefd67b51a
       volumes:
           - ./client:/home/yugabyte/client
       container_name: yb-master-2
@@ -259,8 +299,11 @@ services:
 
   yb-tserver-2:
       image: yugabytedb/yugabyte:2.17.2.0-b216
+<<<<<<< HEAD
       cap_add:
         - NET_ADMIN
+=======
+>>>>>>> e37d8a75bc11daa72d764be2ab0520aefd67b51a
       volumes:
           - ./client:/home/yugabyte/client
       container_name: yb-tserver-2
@@ -293,8 +336,11 @@ services:
 
   yb-tserver-3:
       image: yugabytedb/yugabyte:2.17.2.0-b216
+<<<<<<< HEAD
       cap_add:
         - NET_ADMIN
+=======
+>>>>>>> e37d8a75bc11daa72d764be2ab0520aefd67b51a
       volumes:
           - ./client:/home/yugabyte/client
       container_name: yb-tserver-3
@@ -327,8 +373,11 @@ services:
 
   yb-tserver-4:
       image: yugabytedb/yugabyte:2.17.2.0-b216
+<<<<<<< HEAD
       cap_add:
         - NET_ADMIN
+=======
+>>>>>>> e37d8a75bc11daa72d764be2ab0520aefd67b51a
       volumes:
           - ./client:/home/yugabyte/client
       container_name: yb-tserver-4
@@ -361,8 +410,11 @@ services:
 
   yb-tserver-5:
       image: yugabytedb/yugabyte:2.17.2.0-b216
+<<<<<<< HEAD
       cap_add:
         - NET_ADMIN
+=======
+>>>>>>> e37d8a75bc11daa72d764be2ab0520aefd67b51a
       volumes:
           - ./client:/home/yugabyte/client
       container_name: yb-tserver-5
@@ -395,8 +447,11 @@ services:
 
   yb-tserver-6:
       image: yugabytedb/yugabyte:2.17.2.0-b216
+<<<<<<< HEAD
       cap_add:
         - NET_ADMIN
+=======
+>>>>>>> e37d8a75bc11daa72d764be2ab0520aefd67b51a
       volumes:
           - ./client:/home/yugabyte/client
       container_name: yb-tserver-6
@@ -429,8 +484,11 @@ services:
 
   yb-tserver-7:
       image: yugabytedb/yugabyte:2.17.2.0-b216
+<<<<<<< HEAD
       cap_add:
         - NET_ADMIN
+=======
+>>>>>>> e37d8a75bc11daa72d764be2ab0520aefd67b51a
       volumes:
           - ./client:/home/yugabyte/client
       container_name: yb-tserver-7
@@ -464,8 +522,11 @@ services:
 
   yb-tserver-n:
       image: yugabytedb/yugabyte:2.17.2.0-b216
+<<<<<<< HEAD
       cap_add:
         - NET_ADMIN
+=======
+>>>>>>> e37d8a75bc11daa72d764be2ab0520aefd67b51a
       volumes:
           - ./client:/home/yugabyte/client
       command: bash -c "

@@ -198,7 +198,7 @@ services:
       ports:
           - '3000:3000'
       depends_on:
-          - yb-tserver-1
+          - yb-tserver-0
       volumes:
           - /var/tmp/sqlpad:/var/lib/sqlpad
       environment:

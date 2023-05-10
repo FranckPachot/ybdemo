@@ -30,7 +30,7 @@ begin
 if snaps_to_keep is not null
 then
  delete from ybwr_snapshots where ts not in (select distinct ts from ybwr_snapshots order by ts desc limit snaps_to_keep);
- delete from ybwr_snapshots where ts not in (select distinct ts from ybwr_tablets   order by ts desc limit snaps_to_keep);
+ delete from ybwr_tablets where ts not in (select distinct ts from ybwr_tablets   order by ts desc limit snaps_to_keep);
 end if;
 for i in (select host from yb_servers()) loop 
  -- gather from /metrics to ybwr_snapshots
@@ -39,7 +39,7 @@ for i in (select host from yb_servers()) loop
   copy ybwr_snapshots(host,metrics) from program
    $BASH$
    exec 5<>/dev/tcp/%s/9000 ; awk 'BEGIN{printf "%s\t"}/[[]/{in_json=1}in_json==1{printf $0}' <&5 & printf "GET /metrics HTTP/1.0\r\n\r\n" >&5 ; exit 0
-   $BASH$ 
+   $BASH$ with ( rows_per_transaction 0 )
   $COPY$
  ,i.host,i.host); 
  raise debug '%',copy;
@@ -67,7 +67,7 @@ print server,gensub(tserver_tablets,"\\1",1), gensub(tserver_tablets,"\\2",1), g
 }
 ' OFS='<' OFMT="%%f" server="%s" \
 tserver_tablets='^<tr><td>([^<]*)<[/]td><td>([^<]*)<[/]td><td>0000[0-9a-f]{4}00003000800000000000[0-9a-f]{4}<[/]td><td><a href="[/]tablet[?]id=([0-9a-f]{32})">[0-9a-f]{32}</a></td><td>([^<]*)<[/]td><td>([^<]*)<[/]td><td>false<[/]td><td>([0-9])<[/]td><td><ul><li>Total: [^<]*<li>Consensus Metadata: [^<]*<li>WAL Files: ([^<]*)<li>SST Files: ([^<]*)<li>SST Files Uncompressed: ([^<]*)<[/]ul><[/]td><td><ul>' <&5 & printf "GET /tablets HTTP/1.0\r\n\r\n" >&5 ; exit 0
-   $BASH$ (format csv, delimiter $DELIMITER$<$DELIMITER$)
+   $BASH$ (format csv, delimiter $DELIMITER$<$DELIMITER$, rows_per_transaction 0)
   $COPY$
  ,i.host,i.host); 
  raise debug '%',copy;

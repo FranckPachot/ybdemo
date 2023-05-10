@@ -66,7 +66,7 @@ $0 ~ tserver_tablets {
 print server,gensub(tserver_tablets,"\\1",1), gensub(tserver_tablets,"\\2",1), gensub(tserver_tablets,"\\3",1), gensub(tserver_tablets,"\\4",1), gensub(tserver_tablets,"\\5",1), gensub(tserver_tablets,"\\6",1), bytes(gensub(tserver_tablets,"\\7",1)), bytes(gensub(tserver_tablets,"\\8",1)), bytes(gensub(tserver_tablets,"\\9",1))
 }
 ' OFS='<' OFMT="%%f" server="%s" \
-tserver_tablets='^<tr><td>([^<]*)<[/]td><td>([^<]*)<[/]td><td>0000[0-9a-f]{4}00003000800000000000[0-9a-f]{4}<[/]td><td><a href="[/]tablet[?]id=([0-9a-f]{32})">[0-9a-f]{32}</a></td><td>([^<]*)<[/]td><td>([^<]*)<[/]td><td>false<[/]td><td>([0-9])<[/]td><td><ul><li>Total: [^<]*<li>Consensus Metadata: [^<]*<li>WAL Files: ([^<]*)<li>SST Files: ([^<]*)<li>SST Files Uncompressed: ([^<]*)<[/]ul><[/]td><td><ul>' <&5 & printf "GET /tablets HTTP/1.0\r\n\r\n" >&5 ; exit 0
+tserver_tablets='^<tr><td>([^<]*)<[/]td><td>([^<]*)<[/]td><td>0000[0-9a-f]{4}00003000800000000000[0-9a-f]{4}<[/]td><td><a href="[/]tablet[?]id=([0-9a-f]{32})">[0-9a-f]{32}</a></td><td>([^<]*)<[/]td><td>([^<]*)<[/]td><td>([^<]*)<<[/]td><td>([0-9])<[/]td><td><ul><li>Total: [^<]*<li>Consensus Metadata: [^<]*<li>WAL Files: ([^<]*)<li>SST Files: ([^<]*)<li>SST Files Uncompressed: ([^<]*)<[/]ul><[/]td><td><ul>' <&5 & printf "GET /tablets HTTP/1.0\r\n\r\n" >&5 ; exit 0
    $BASH$ (format csv, delimiter $DELIMITER$<$DELIMITER$, rows_per_transaction 0)
   $COPY$
  ,i.host,i.host); 

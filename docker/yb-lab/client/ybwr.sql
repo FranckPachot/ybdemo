@@ -154,7 +154,7 @@ select format('%s %s %s %s %s',namespace_name,table_name
  ) row_name, metric_name category, sum(value)
 from ybwr_snap_and_show_tablet_load
 natural left outer join (select host, tablet_id, max(key_range) key_range from ybwr_tablets group by host, tablet_id) as tablets
-where namespace_name not in ('system') and metric_name in ('rocksdb_number_db_seek','rocksdb_number_db_next','rows_inserted')
+where namespace_name not in ('') and metric_name in ('rocksdb_number_db_seek','rocksdb_number_db_next','rows_inserted')
 group by namespace_name,table_name,host
  ,coalesce(key_range,tablet_id)--,substr(tablet_id,1,12)||'...'
  ,is_raft_leader, metric_name

@@ -23,22 +23,29 @@ create table if not exists ybwr_snapshots(host text default '', ts timestamptz d
 create table if not exists ybwr_tablets( host text default '' , ts timestamptz default now(), database_name text , table_name text , tablet_id text , key_range text , state text , num_sst_files bigint , wal_files numeric , sst_files numeric , sst_uncompressed numeric , primary key (ts asc, host, tablet_id));
 
 create or replace function ybwr_snap(snaps_to_keep int default 6) returns timestamptz as $DO$
-declare i record; 
+declare 
+ i record; 
+ copy text;
 begin
-delete from ybwr_snapshots where ts not in (select distinct ts from ybwr_snapshots order by ts desc limit snaps_to_keep);
-delete from ybwr_snapshots where ts not in (select distinct ts from ybwr_tablets   order by ts desc limit snaps_to_keep);
+if snaps_to_keep is not null
+then
+ delete from ybwr_snapshots where ts not in (select distinct ts from ybwr_snapshots order by ts desc limit snaps_to_keep);
+ delete from ybwr_snapshots where ts not in (select distinct ts from ybwr_tablets   order by ts desc limit snaps_to_keep);
+end if;
 for i in (select host from yb_servers()) loop 
  -- gather from /metrics to ybwr_snapshots
- execute format(
+ copy:=format(
   $COPY$
   copy ybwr_snapshots(host,metrics) from program
    $BASH$
    exec 5<>/dev/tcp/%s/9000 ; awk 'BEGIN{printf "%s\t"}/[[]/{in_json=1}in_json==1{printf $0}' <&5 & printf "GET /metrics HTTP/1.0\r\n\r\n" >&5 ; exit 0
-   $BASH$
+   $BASH$ 
   $COPY$
  ,i.host,i.host); 
+ raise debug '%',copy;
+ execute copy;
  -- gather from /tablets to ybwr_tablets
- execute format(
+ copy:=format(
   $COPY$
   copy ybwr_tablets(host, database_name, table_name, tablet_id, key_range, state, num_sst_files, wal_files, sst_files, sst_uncompressed) from program
    $BASH$
@@ -63,6 +70,8 @@ tserver_tablets='^<tr><td>([^<]*)<[/]td><td>([^<]*)<[/]td><td>0000[0-9a-f]{4}000
    $BASH$ (format csv, delimiter $DELIMITER$<$DELIMITER$)
   $COPY$
  ,i.host,i.host); 
+ raise debug '%',copy;
+ execute copy;
 end loop; 
 return clock_timestamp(); 
 end; 

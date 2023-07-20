@@ -128,6 +128,13 @@ prepare snap_reset as select '' as "ybwr metrics" where ybwr_snap() is null;
 
 create extension if not exists tablefunc;
 
+prepare snap_metrics as
+select namespace_name,metric_name,sum(value), min(value), max(value)
+ from ybwr_snap_and_show_tablet_load
+ where namespace_name != 'system'
+ group by namespace_name,metric_name
+ order by sum(value);
+
 prepare snap_size as
 select ts
 ,database_name, table_name

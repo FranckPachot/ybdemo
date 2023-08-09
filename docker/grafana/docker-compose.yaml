@@ -83,10 +83,10 @@ services:
      - "-c"
      - | 
        ysqlsh -h yb -v ON_ERROR_STOP=1 -e <<'SQL'
-       prepare "updates_${delete_rows}_rows" as
-        with rows as (select id from demo order by num limit ${delete_rows})
+       prepare "updates_${update_rows}_rows" as
+        with rows as (select id from demo order by num limit ${update_rows})
         update demo set num=num+1 where id in (select id from rows);
-       explain (analyse, costs off) execute "updates_${delete_rows}_rows";
+       explain (analyse, costs off) execute "updates_${update_rows}_rows";
        \watch 0.1
        SQL
     links:
@@ -95,7 +95,7 @@ services:
      snap:
       condition: service_healthy
     deploy:
-      replicas: 0
+      replicas: 1
       restart_policy:
        condition: unless-stopped
 

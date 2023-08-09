@@ -6,7 +6,6 @@ services:
   yugabytedb:
     image: yugabytedb/yugabyte:latest
     command: yugabyted start --listen 0.0.0.0 --master_flags=${YB_FLAGS} --tserver_flags=${YB_FLAGS} --initial_scripts_dir /home/yugabyte/scripts/init  --daemon false
-    healthcheck: yugabyted start --listen 0.0.0.0 --daemon false
     volumes:
       - ./scripts:/home/yugabyte/scripts
     ports:

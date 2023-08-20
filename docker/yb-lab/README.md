@@ -40,7 +40,7 @@ docker logs -f yb-lab-yb-demo-write_1
 
 You should see reads and writes distributed in http://localhost:7000/tablet-servers
 
-When you stop another node that the one the thread is connected, you should see at most a few seconds wait. Leaders will be lected on other nodes and only followers remain. From the web console, the yb-tserver-1 taking no read/writes (they were rebalanced to the others) and becoming DEAD after 60 seconds.
+When you stop another node that the one the thread is connected, you should see at most a few seconds wait. Leaders will be lected on other nodes and only followers remain. From the web console, the yb-tserver-1 taking no read/writes (they were rebalanced to the others) and becoming DEAD after 60 seconds (as set by `--follower_unavailable_considered_failed_sec`).
 
 ```
 docker stop yb-tserver-1
@@ -89,6 +89,7 @@ When you want "dead" nodes to disappear from the UI http://localhost:7000/tablet
 ```
 for i in yb-master-{0..2} ; do docker restart $i -t 5 ; done
 ```
+In production, they will disapper after 24 hours (as set by `--hide_dead_node_threshold_mins`)
 
 ## Connect with psql
 

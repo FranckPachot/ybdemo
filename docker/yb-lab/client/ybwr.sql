@@ -181,3 +181,5 @@ order by metric_name,namespace_name,table_name,tablet_id,is_raft_leader,host
 execute snap_tablet;
 
 execute snap_table;
+
+\watch 5

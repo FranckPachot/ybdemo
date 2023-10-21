@@ -25,3 +25,8 @@ We set the same as before, but with `rocksdb_universal_compaction_min_merge_widt
 docker compose --env-file demo-read-amplification-algo.env up -d 
 ```
 
+## Demo on fixed number of counters incremented
+
+```
+docker compose --env-file demo-counter.env up -d --scale updates=1 --scale inserts=0
+```

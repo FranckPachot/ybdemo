@@ -34,6 +34,22 @@ services:
       interval: 15s
       retries: 10
 
+  snap_statements:
+    image: yugabytedb/yugabyte:latest
+    command: ysqlsh -h yb -v ON_ERROR_STOP=1 -f scripts/init/snap_statements.sql
+    links:
+     - "yugabytedb:yb"
+    volumes:
+      - ./scripts:/home/yugabyte/scripts
+    restart: unless-stopped
+    depends_on:
+     yugabytedb:
+      condition: service_healthy
+    healthcheck:
+      test: ysqlsh -h yb -v ON_ERROR_STOP=1 -c "select 1/count(*) from ybwr_pg_stat_statements where ts>now()-interval'10 seconds';"
+      interval: 15s
+      retries: 10
+
   grafana:
     image: grafana/grafana:latest
     links:

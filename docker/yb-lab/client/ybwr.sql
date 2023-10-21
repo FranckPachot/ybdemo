@@ -5,12 +5,12 @@
    github:
 
      https://github.com/FranckPachot/ybdemo/blob/main/docker/yb-lab/client/ybwr.sql
-     
+
    run (must be superuser or have yb_extension, pg_execute_server_program privileges):
-     
+
      curl -sL ybwr.pachot.net > ybwr.sql && psql -f ybwr.sql
-     
-*/  
+
+*/
 \pset pager off
 -- if cannot create extension (crosstab) and execute program from COPY (read json enpoint) we can stop here
 \set ON_ERROR_STOP on
@@ -23,8 +23,8 @@ create table if not exists ybwr_snapshots(host text default '', ts timestamptz d
 create table if not exists ybwr_tablets( host text default '' , ts timestamptz default now(), database_name text , table_name text , tablet_id text , key_range text , state text , num_sst_files bigint , wal_files numeric , sst_files numeric , sst_uncompressed numeric , primary key (ts asc, host, tablet_id));
 
 create or replace function ybwr_snap(snaps_to_keep int default 6) returns timestamptz as $DO$
-declare 
- i record; 
+declare
+ i record;
  copy text;
 begin
 if snaps_to_keep is not null
@@ -32,16 +32,16 @@ then
  delete from ybwr_snapshots where ts not in (select distinct ts from ybwr_snapshots order by ts desc limit snaps_to_keep);
  delete from ybwr_tablets where ts not in (select distinct ts from ybwr_tablets   order by ts desc limit snaps_to_keep);
 end if;
-for i in (select host from yb_servers()) loop 
+for i in (select host from yb_servers()) loop
  -- gather from /metrics to ybwr_snapshots
  copy:=format(
   $COPY$
   copy ybwr_snapshots(host,metrics) from program
    $BASH$
-   exec 5<>/dev/tcp/%s/9000 ; awk 'BEGIN{printf "%s\t"}/[[]/{in_json=1}in_json==1{printf $0}' <&5 & printf "GET /metrics HTTP/1.0\r\n\r\n" >&5 ; exit 0
+   exec 5<>/dev/tcp/%s/9000 ; awk 'BEGIN{printf "%s\t"}/[[]/{in_json=1}in_json==1{printf $0}' <&5 & printf "GET /metrics%s HTTP/1.0\r\n\r\n" >&5 ; exit 0
    $BASH$ with ( rows_per_transaction 0 )
   $COPY$
- ,i.host,i.host); 
+ ,i.host,i.host,'?metrics=rows_inserted,rocksdb_number_db');
  raise debug '%',copy;
  execute copy;
  -- gather from /tablets to ybwr_tablets
@@ -69,12 +69,12 @@ print server,gensub(tserver_tablets,"\\1",1), gensub(tserver_tablets,"\\2",1), g
 tserver_tablets='^<tr><td>([^<]*)<[/]td><td>([^<]*)<[/]td><td>0000[0-9a-f]{4}00003000800000000000[0-9a-f]{4}<[/]td><td><a href="[/]tablet[?]id=([0-9a-f]{32})">[0-9a-f]{32}</a></td><td>([^<]*)<[/]td><td>([^<]*)<[/]td><td>([^<]*)<[/]td><td>([0-9])<[/]td><td><ul><li>Total: [^<]*<li>Consensus Metadata: [^<]*<li>WAL Files: ([^<]*)<li>SST Files: ([^<]*)<li>SST Files Uncompressed: ([^<]*)<[/]ul><[/]td><td><ul>' <&5 & printf "GET /tablets HTTP/1.0\r\n\r\n" >&5 ; exit 0
    $BASH$ (format csv, delimiter $DELIMITER$<$DELIMITER$, rows_per_transaction 0)
   $COPY$
- ,i.host,i.host); 
+ ,i.host,i.host);
  raise debug '%',copy;
  execute copy;
-end loop; 
-return clock_timestamp(); 
-end; 
+end loop;
+return clock_timestamp();
+end;
 $DO$ language plpgsql;
 
 -- most metrics are cumulative and the "ybwr_report" view show the delta between two snapshots
@@ -109,7 +109,7 @@ from ybwr_snapshots
 create or replace view ybwr_last as select * from ybwr_report where relative_snap_id=1;
 
 -- a convenient "ybwr_snap_and_show_tablet_load" takes a snapshot and show the metrics
-create or replace view ybwr_snap_and_show_tablet_load as 
+create or replace view ybwr_snap_and_show_tablet_load as
 select ts, value,rate,namespace_name,table_name,metric_name,host,tablet_id,is_raft_leader
 ,to_char(100*value/sum(value)over(partition by namespace_name,table_name,metric_name),'999%') as "%table"
 ,sum(value)over(partition by namespace_name,table_name,metric_name) as "table"
@@ -138,7 +138,7 @@ select namespace_name,metric_name,sum(value), min(value), max(value)
 prepare snap_size as
 select ts
 ,database_name, table_name
-, count(distinct host) as tservers 
+, count(distinct host) as tservers
 , count(distinct tablet_id) as tablets
 , lpad(pg_size_pretty(sum(sst_files)/count(distinct tablet_id)),15) avg_tablet_size
 , sum(num_sst_files) as sst_files
@@ -152,7 +152,7 @@ limit 20
 ;
 
 prepare snap_table as
-select "rocksdb_seek","rocksdb_next","rocksdb_insert",row_name as "dbname / relname / tserver / tabletid / leader"
+select "I-seek","I-next","I-prev","R-seek","R-next","R-prev","insert",row_name as "dbname relname tablet (L)eader node | (I)ntents (R)regular"
 from crosstab($$
 select format('%s %s %s %s %s',namespace_name,table_name
  ,coalesce(key_range,tablet_id)--,substr(tablet_id,1,12)||'...'
@@ -161,16 +161,16 @@ select format('%s %s %s %s %s',namespace_name,table_name
  ) row_name, metric_name category, sum(value)
 from ybwr_snap_and_show_tablet_load
 natural left outer join (select host, tablet_id, max(key_range) key_range from ybwr_tablets group by host, tablet_id) as tablets
-where namespace_name not in ('') and metric_name in ('rocksdb_number_db_seek','rocksdb_number_db_next','rows_inserted')
+where namespace_name not in ('') and metric_name in ('intentsdb_rocksdb_number_db_seek','intentsdb_rocksdb_number_db_next','intentsdb_rocksdb_number_db_prev','intentsdb_rows_inserted','rocksdb_number_db_seek','rocksdb_number_db_next','rocksdb_number_db_prev','rows_inserted')
 group by namespace_name,table_name,host
  ,coalesce(key_range,tablet_id)--,substr(tablet_id,1,12)||'...'
  ,is_raft_leader, metric_name
 order by 1,2 desc,3
-$$,$$values('rows_inserted'),('rocksdb_number_db_seek'),('rocksdb_number_db_next')$$)
-as (row_name text, "rocksdb_insert" decimal, "rocksdb_seek" decimal, "rocksdb_next" decimal)
+$$,$$values('intentsdb_rocksdb_number_db_seek'),('intentsdb_rocksdb_number_db_next'),('intentsdb_rocksdb_number_db_prev'),('rows_inserted'),('rocksdb_number_db_seek'),('rocksdb_number_db_next'),('rocksdb_number_db_prev')$$)
+as (row_name text, "I-seek" decimal, "I-next" decimal, "I-prev" decimal,"insert" decimal, "R-seek" decimal, "R-next" decimal, "R-prev" decimal)
 ;
 
-prepare snap_tablet as 
+prepare snap_tablet as
 select value,namespace_name,table_name,metric_name,coalesce(key_range,tablet_id),regexp_replace(host,'[.].*','') host
 ,case is_raft_leader when 0 then ' ' else 'L' end
 "Raft" ,"table"
@@ -181,4 +181,5 @@ order by metric_name,namespace_name,table_name,tablet_id,is_raft_leader,host
 execute snap_tablet;
 
 execute snap_table;
-\watch 10
+
+\watch 5

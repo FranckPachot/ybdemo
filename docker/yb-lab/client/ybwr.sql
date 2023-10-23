@@ -41,7 +41,7 @@ for i in (select host from yb_servers()) loop
    exec 5<>/dev/tcp/%s/9000 ; awk 'BEGIN{printf "%s\t"}/[[]/{in_json=1}in_json==1{printf $0}' <&5 & printf "GET /metrics%s HTTP/1.0\r\n\r\n" >&5 ; exit 0
    $BASH$ with ( rows_per_transaction 0 )
   $COPY$
- ,i.host,i.host,'?metrics=rows_inserted,rocksdb_number_db');
+ ,i.host,i.host,'?metrics=rows_inserted,rocksdb_number_db,is_raft_leader');
  raise debug '%',copy;
  execute copy;
  -- gather from /tablets to ybwr_tablets

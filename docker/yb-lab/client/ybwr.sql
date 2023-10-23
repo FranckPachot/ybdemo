@@ -156,7 +156,7 @@ select "I-seek","I-next","I-prev","R-seek","R-next","R-prev","insert",row_name a
 from crosstab($$
 select format('%s %s %s %s %s',namespace_name,table_name
  ,coalesce(key_range,tablet_id)--,substr(tablet_id,1,12)||'...'
- ,case is_raft_leader when 0 then ' ' else 'L' end
+ ,case is_raft_leader when 0 then ' ' when 1 then 'L' else '?' end
  ,host
  ) row_name, metric_name category, sum(value)
 from ybwr_snap_and_show_tablet_load
@@ -172,7 +172,7 @@ as (row_name text, "I-seek" decimal, "I-next" decimal, "I-prev" decimal,"insert"
 
 prepare snap_tablet as
 select value,namespace_name,table_name,metric_name,coalesce(key_range,tablet_id),regexp_replace(host,'[.].*','') host
-,case is_raft_leader when 0 then ' ' else 'L' end
+,case is_raft_leader when 0 then ' ' when 1 then 'L' else '?' end
 "Raft" ,"table"
 from ybwr_snap_and_show_tablet_load
 natural left outer join (select host, tablet_id, max(key_range) key_range from ybwr_tablets group by host, tablet_id) as tablets

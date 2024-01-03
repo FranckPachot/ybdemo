@@ -37,9 +37,11 @@ for i in (select host from yb_servers()) loop
  copy:=format(
   $COPY$
   copy ybwr_snapshots(host,metrics) from program
-   $BASH$
+   $PROGRAM$
+bash <<'BASH'
    exec 5<>/dev/tcp/%s/9000 ; awk 'BEGIN{printf "%s\t"}/[[]/{in_json=1}in_json==1{printf $0}' <&5 & printf "GET /metrics%s HTTP/1.0\r\n\r\n" >&5 ; exit 0
-   $BASH$ with ( rows_per_transaction 0 )
+BASH
+   $PROGRAM$ with ( rows_per_transaction 0 )
   $COPY$
  ,i.host,i.host,'?metrics=rows_inserted,rocksdb_number_db,is_raft_leader');
  raise debug '%',copy;
@@ -48,7 +50,8 @@ for i in (select host from yb_servers()) loop
  copy:=format(
   $COPY$
   copy ybwr_tablets(host, database_name, table_name, tablet_id, key_range, state, num_sst_files, wal_files, sst_files, sst_uncompressed) from program
-   $BASH$
+   $PROGRAM$
+bash <<'BASH'
    exec 5<>/dev/tcp/%s/9000 ; awk '
 function bytes(h){
  if(sub(/T/,"",h)>0) h=h*1024*1024*1024*1024
@@ -67,7 +70,8 @@ print server,gensub(tserver_tablets,"\\1",1), gensub(tserver_tablets,"\\2",1), g
 }
 ' OFS='<' OFMT="%%f" server="%s" \
 tserver_tablets='^<tr><td>([^<]*)<[/]td><td>([^<]*)<[/]td><td>0000[0-9a-f]{4}00003000800000000000[0-9a-f]{4}<[/]td><td><a href="[/]tablet[?]id=([0-9a-f]{32})">[0-9a-f]{32}</a></td><td>([^<]*)<[/]td><td>([^<]*)<[/]td><td>([^<]*)<[/]td><td>([0-9])<[/]td><td><ul><li>Total: [^<]*<li>Consensus Metadata: [^<]*<li>WAL Files: ([^<]*)<li>SST Files: ([^<]*)<li>SST Files Uncompressed: ([^<]*)<[/]ul><[/]td><td><ul>' <&5 & printf "GET /tablets HTTP/1.0\r\n\r\n" >&5 ; exit 0
-   $BASH$ (format csv, delimiter $DELIMITER$<$DELIMITER$, rows_per_transaction 0)
+BASH
+   $PROGRAM$ (format csv, delimiter $DELIMITER$<$DELIMITER$, rows_per_transaction 0)
   $COPY$
  ,i.host,i.host);
  raise debug '%',copy;

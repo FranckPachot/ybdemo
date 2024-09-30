@@ -52,7 +52,7 @@ curl -s --request GET \
 echo ; set | grep ^YBM_ | cut -c1-80
 
 YBM_CLUSTER="my-free-yugabytedb"
-YBM_ADMIN_PASSWORD="Password-5up3r53cr3t"
+YBM_ADMIN_PASSWORD="**********"
 
 curl -s --request POST \
   --url https://cloud.yugabyte.com/api/public/v1/accounts/$YBM_ACCOUNT_ID/projects/$YBM_PROJECT_ID/clusters \
